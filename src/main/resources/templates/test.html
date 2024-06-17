@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        // if (window.opener && window.opener.location.href !== 'http://localhost:8080/test/home') {
+        //     alert('잘못된 접근입니다.');
+        //     window.close(); // 자식 창 닫기
+        // } else {
+        //     alert('잘못된 접근입니다.');
+        //     history.go(-1); // 부모 창으로 이동
+        // }
+
+
+        if (!window.opener || window.opener.location.href !== 'http://localhost:8080/test/home') {
+            alert('잘못된 접근입니다.');
+            if(!window.opener){
+                history.go(-1);
+            }else{
+                window.close(); // 자식 창 닫기 예시
+            }
+        }
+
+        function sendSelectedBookTitle(title, Author, publisher, cover, pubdate, isbn, isbn13, priceStandard) {
+            // 부모 창으로 메시지 전송
+            // window.opener.postMessage(title, '*');
+            //
+            // window.opener.postMessage(Author, '*');
+            const data = {
+                title: title,
+                author: Author,
+                publisher: publisher,
+                cover: cover,
+                pubdate: pubdate,
+                isbn: isbn,
+                isbn13: isbn13,
+                priceStandard: priceStandard
+            };
+
+            for (const [key, value] of Object.entries(data)) {
+                window.opener.postMessage({ type: key, data: value }, '*');
+            }
+
+
+
+            //버튼 클릭시 창 종료.
+            window.close();
+        }
+        /*]]>*/
+    </script>
+</head>
+<body>
+<div th:each="book : ${bookList}">
+    <div th:text="'제목: ' + ${book.title}"></div>
+    <div th:text="'정가' + ${book.priceStandard}"></div>
+
+    <div th:text="'판매가(할인가) : ' +${book.priceSales}"></div>
+    <!--    <button type="button" th:bookTitle="${book.title}" th:author="${book.author}" th:publisher="${book.publisher}" th:cover="${book.cover}" th:pubdate="${book.pubdate}" th:isbn="${book.isbn}" th:isbn13="${book.isbn13}" th:priceStandard="${book.priceStandard}" onclick="sendSelectedBookTitle(this.getAttribute('bookTitle'), this.getAttribute('author'));">-->
+    <button
+            type="button"
+            th:bookTitle="${book.title}"
+            th:author="${book.author}"
+            th:publisher="${book.publisher}"
+            th:cover="${book.cover}"
+            th:pubdate="${book.pubdate}"
+            th:isbn="${book.isbn}"
+            th:isbn13="${book.isbn13}"
+            th:priceStandard="${book.priceStandard}"
+            onclick="sendSelectedBookTitle(
+        this.getAttribute('bookTitle'),
+        this.getAttribute('author'),
+        this.getAttribute('publisher'),
+        this.getAttribute('cover'),
+        this.getAttribute('pubdate'),
+        this.getAttribute('isbn'),
+        this.getAttribute('isbn13'),
+        this.getAttribute('priceStandard')
+    );"
+    >
+        <img th:src="${book.cover}" alt="" width="200px" height="300px">
+    </button>
+</div>
+<div th:each="page : ${pageNumbers}">
+    <form action="/test" method="get" target="_self">
+        <input type="hidden" name="title" th:value="${title}">
+        <input type="hidden" name="page" th:value="${page}">
+        <input type="submit" th:value="${page}">
+    </form>
+</div>
+</body>
+</html>
