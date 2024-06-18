@@ -15,7 +15,8 @@
         // }
 
 
-        if (!window.opener || window.opener.location.href !== 'http://localhost:8080/test/home') {
+
+        if (!window.opener || window.opener.location.href !== 'http://localhost:8080/api/book/register') {
             alert('잘못된 접근입니다.');
             if(!window.opener){
                 history.go(-1);
@@ -65,7 +66,7 @@
             th:author="${book.author}"
             th:publisher="${book.publisher}"
             th:cover="${book.cover}"
-            th:pubdate="${book.pubdate}"
+            th:pubDate="${book.pubDate}"
             th:isbn="${book.isbn}"
             th:isbn13="${book.isbn13}"
             th:priceStandard="${book.priceStandard}"
@@ -74,7 +75,7 @@
         this.getAttribute('author'),
         this.getAttribute('publisher'),
         this.getAttribute('cover'),
-        this.getAttribute('pubdate'),
+        this.getAttribute('pubDate'),
         this.getAttribute('isbn'),
         this.getAttribute('isbn13'),
         this.getAttribute('priceStandard')

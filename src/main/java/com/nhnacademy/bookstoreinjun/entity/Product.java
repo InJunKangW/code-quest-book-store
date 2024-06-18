@@ -22,11 +22,11 @@ import org.hibernate.annotations.ColumnDefault;
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long productId;
 
     @Column(nullable = false)
     @Builder.Default
-    @ColumnDefault("신규 상품")
+    @ColumnDefault("'신규 상품'")
     private String productName = "신규 상품";
 //근데 디폴트 값이 있을 일이 있나..? 에러 날 때말곤 없을 것 같은데.
 
@@ -52,13 +52,13 @@ public class Product {
 
     @Builder.Default
     @Column(nullable = false)
-    @ColumnDefault("https://i.postimg.cc/fbT2n5jH/Pngtree-man-face-6836758.png")
+    @ColumnDefault("'https://i.postimg.cc/fbT2n5jH/Pngtree-man-face-6836758.png'")
     private String productThumbnailUrl = "https://i.postimg.cc/fbT2n5jH/Pngtree-man-face-6836758.png";
     //이미지 없음 이라는 이미지로 바꾸기. 지금 아주 간단한 파일 써놨음.
 
     @Builder.Default
     @Column(nullable = false)
-    @ColumnDefault("상품입니다.")
+    @ColumnDefault("'상품입니다.'")
     private String productDescription = "상품입니다.";
 
     public void addViewCount(){

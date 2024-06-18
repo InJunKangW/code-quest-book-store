@@ -25,7 +25,8 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+
+    private Long bookId;
 
     @OneToOne
     @JoinColumn(name = "product_id", unique = true, nullable = false)
@@ -33,7 +34,7 @@ public class Book {
 
     @Builder.Default
     @Column(nullable = false)
-    @ColumnDefault("제목 없음")
+    @ColumnDefault("'제목 없음'")
     private String title ="제목 없음";
 
     private String publisher;
