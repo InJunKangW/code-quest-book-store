@@ -1,4 +1,4 @@
-package com.nhnacademy.bookstoreinjun.dto;
+package com.nhnacademy.bookstoreinjun.dto.book;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;

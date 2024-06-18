@@ -1,7 +1,6 @@
-package com.nhnacademy.bookstoreinjun.dto;
+package com.nhnacademy.bookstoreinjun.dto.book;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;

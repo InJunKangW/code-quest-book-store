@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     public Product findByProductId(Long productId);
 
+    public boolean existsByProductId(Long productId);
+
     public List<Product> findByProductNameLike(String productName);
 
     public List<Product> findByProductPriceSalesBetween(long minPrice, long maxPrice);
