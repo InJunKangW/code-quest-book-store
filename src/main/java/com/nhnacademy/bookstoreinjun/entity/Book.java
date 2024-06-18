@@ -25,7 +25,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long bookId;
 
     @OneToOne
     @JoinColumn(name = "product_id", unique = true, nullable = false)

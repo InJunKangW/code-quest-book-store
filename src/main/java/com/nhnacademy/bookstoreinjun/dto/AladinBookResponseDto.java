@@ -20,7 +20,7 @@ public class AladinBookResponseDto {
     private String author;
     private String publisher;
     private String priceStandard;
-    private String pubdate;
+    private String pubDate;
     private String priceSales;
     private String discount;
     private String isbn;
