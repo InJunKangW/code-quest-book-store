@@ -10,8 +10,8 @@ name: Java CI with Maven
 
 on:
   push:
-    branches:
-      - '**'
+    branches: [ "develop"]
+      
   pull_request:
     branches: [ "main" ]
 
