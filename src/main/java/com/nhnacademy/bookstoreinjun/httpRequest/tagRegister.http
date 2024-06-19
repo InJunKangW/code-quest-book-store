@@ -1,0 +1,9 @@
+POST localhost:8003/api/admin/tag
+Content-Type: application/json
+
+{
+  "tagName": "test tag2"
+}
+
+###
+GET localhost:8003/api/admin/tag/list/containing?tagName=2

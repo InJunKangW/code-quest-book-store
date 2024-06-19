@@ -28,7 +28,7 @@ public class Book {
     private Long bookId;
 
     @OneToOne
-    @JoinColumn(name = "product_id", unique = true, nullable = false)
+    @JoinColumn(name = "productId", unique = true, nullable = false)
     private Product product;
 
     @Builder.Default

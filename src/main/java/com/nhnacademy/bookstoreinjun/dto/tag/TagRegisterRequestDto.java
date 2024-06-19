@@ -1,7 +1,8 @@
 package com.nhnacademy.bookstoreinjun.dto.tag;
 
-import lombok.Data;
+import lombok.Builder;
 
-@Data
-public class TagRegisterRequestDto {
-}
+@Builder
+public record TagRegisterRequestDto(
+        String tagName
+){}

@@ -1,5 +1,6 @@
 package com.nhnacademy.bookstoreinjun.service;
 
+import com.nhnacademy.bookstoreinjun.dto.tag.TagRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.entity.Tag;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
@@ -17,11 +18,13 @@ public class TagService {
     private final String DUPLICATE_TYPE = "tag";
 
 
-    public Tag createTag(Tag tag) {
-        if (tagRepository.existsByTagName(tag.getTagName())) {
+    public Tag createTag(TagRegisterRequestDto tagRegisterRequestDto) {
+        if (tagRepository.existsByTagName(tagRegisterRequestDto.tagName())) {
             throw new DuplicateException(DUPLICATE_TYPE);
         }else{
-            return tagRepository.save(tag);
+            return tagRepository.save(Tag.builder()
+                    .tagName(tagRegisterRequestDto.tagName())
+                    .build());
         }
     }
 
