@@ -16,16 +16,16 @@ public class ProductService {
     private final String DUPLICATE_TYPE = "category";
 
 
-    public Product createProduct(ProductRegisterRequestDto productRegisterRequestDto) {
-        Product product = Product.builder()
-                .productName(productRegisterRequestDto.getProductName())
-                .productPriceStandard(productRegisterRequestDto.getProductPriceStandard())
-                .productPriceSales(productRegisterRequestDto.getProductPriceSales())
-                .productInventory(productRegisterRequestDto.getProductInventory())
-                .productThumbnailUrl(productRegisterRequestDto.getProductThumbnailUrl())
-                .productDescription(productRegisterRequestDto.getProductDescription())
-                .build();
-        return productRepository.save(product);
+    public Product saveProduct(ProductRegisterRequestDto productRegisterRequestDto) {
+        return productRepository.save(
+                Product.builder()
+                    .productName(productRegisterRequestDto.getProductName())
+                    .productPriceStandard(productRegisterRequestDto.getProductPriceStandard())
+                    .productPriceSales(productRegisterRequestDto.getProductPriceSales())
+                    .productInventory(productRegisterRequestDto.getProductInventory())
+                    .productThumbnailUrl(productRegisterRequestDto.getProductThumbnailUrl())
+                    .productDescription(productRegisterRequestDto.getProductDescription())
+                    .build());
     }
 
     public Product updateProduct(Product product) {

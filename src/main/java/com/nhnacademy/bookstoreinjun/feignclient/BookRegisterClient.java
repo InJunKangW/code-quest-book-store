@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 //웹에 있을 거
-@FeignClient(name = "product-service", url = "http://localhost:8080/api/book")
+@FeignClient(name = "product-service", url = "http://localhost:8003/api/admin/book")
 public interface BookRegisterClient {
     @GetMapping
     public ResponseEntity<AladinBookListResponseDto> getBookList(@RequestParam("title") String title);

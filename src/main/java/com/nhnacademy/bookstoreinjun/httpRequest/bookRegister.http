@@ -17,4 +17,4 @@ Content-Type: application/json
 }
 
 ###
-GET localhost:8003/api/admin/book?title=이해
+GET localhost:8003/api/admin/book/test/test?title=사랑
