@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ProductService {
     private final ProductRepository productRepository;
-    private final String DUPLICATE_TYPE = "category";
+    private final String DUPLICATE_TYPE = "product";
 
 
     public Product saveProduct(ProductRegisterRequestDto productRegisterRequestDto) {

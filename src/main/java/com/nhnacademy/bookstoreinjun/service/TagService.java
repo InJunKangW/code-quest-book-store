@@ -1,9 +1,10 @@
 package com.nhnacademy.bookstoreinjun.service;
 
 import com.nhnacademy.bookstoreinjun.entity.Tag;
-import com.nhnacademy.bookstoreinjun.exception.DuplicateIdException;
+import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.repository.TagRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,8 +18,8 @@ public class TagService {
 
 
     public Tag createTag(Tag tag) {
-        if (tagRepository.existsById(tag.getTagId())) {
-            throw new DuplicateIdException(DUPLICATE_TYPE);
+        if (tagRepository.existsByTagName(tag.getTagName())) {
+            throw new DuplicateException(DUPLICATE_TYPE);
         }else{
             return tagRepository.save(tag);
         }
@@ -30,5 +31,17 @@ public class TagService {
         }else{
             return tagRepository.save(tag);
         }
+    }
+
+    public List<Tag> getAllTags() {
+        return tagRepository.findAll();
+    }
+
+    public List<Tag> getTagsContaining(String tagName) {
+        return tagRepository.findAllByTagNameContaining(tagName);
+    }
+
+    public Tag getTagByTagName(String tagName) {
+        return tagRepository.findByTagName(tagName);
     }
 }

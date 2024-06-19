@@ -1,9 +1,12 @@
 package com.nhnacademy.bookstoreinjun.service;
 
+import com.nhnacademy.bookstoreinjun.dto.book.BookRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.entity.Book;
-import com.nhnacademy.bookstoreinjun.exception.DuplicateIdException;
+import com.nhnacademy.bookstoreinjun.entity.Product;
+import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.repository.BookRepository;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,11 +33,20 @@ public class BookService {
         return bookRepository.findByBookId(id);
     }
 
-    public Book saveBook(Book book) {
-        if (bookRepository.existsByIsbn13(book.getIsbn13())){
-            throw new DuplicateIdException(DUPLICATE_TYPE);
+    public Book saveBook(BookRegisterRequestDto bookRegisterRequestDto) {
+        if (bookRepository.existsByIsbn13(bookRegisterRequestDto.isbn13())){
+            throw new DuplicateException(DUPLICATE_TYPE);
         }else{
-            return bookRepository.save(book);
+            return bookRepository.save(Book.builder()
+                    .title(bookRegisterRequestDto.title())
+                    .publisher(bookRegisterRequestDto.publisher())
+                    .author(bookRegisterRequestDto.author())
+                    .pubDate(bookRegisterRequestDto.pubDate())
+                    .isbn(bookRegisterRequestDto.isbn())
+                    .isbn13(bookRegisterRequestDto.isbn13())
+                    .packable(bookRegisterRequestDto.packable())
+                    .product(bookRegisterRequestDto.product())
+                    .build());
         }
     }
 

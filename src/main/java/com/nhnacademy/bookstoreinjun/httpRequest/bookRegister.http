@@ -9,11 +9,11 @@ Content-Type: application/json
   "isbn": "isbn",
   "isbn13": "isbn13",
   "cover": "cover",
-  "packable": true,
+  "packable": false,
   "productDescription": "설명",
-  "productInventory": 10,
-  "productPriceStandard": 50000,
-  "productPriceSales": 10000
+  "productInventory": 1012,
+  "productPriceStandard": 5000012,
+  "productPriceSales": 1000012
 }
 
 ###
