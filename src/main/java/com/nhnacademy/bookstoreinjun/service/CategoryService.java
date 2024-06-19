@@ -6,7 +6,6 @@ import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.repository.CategoryRepository;
-import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,18 +16,20 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class CategoryService {
     private final CategoryRepository categoryRepository;
-    private final String DUPLICATE_TYPE = "category";
+    private final String TYPE = "category";
 
     public Category createCategory(CategoryRegisterRequestDto categoryRegisterRequestDto) {
         String parentCategoryName = categoryRegisterRequestDto.parentCategoryName();
+        String categoryName = categoryRegisterRequestDto.categoryName();
+
         if (parentCategoryName != null && !categoryRepository.existsByCategoryName(parentCategoryName)){
-            throw new NotFoundNameException(DUPLICATE_TYPE, categoryRegisterRequestDto.parentCategoryName());
-        }else if (categoryRepository.existsByCategoryName(categoryRegisterRequestDto.categoryName())){
-            throw new DuplicateException(DUPLICATE_TYPE);
+            throw new NotFoundNameException(TYPE, parentCategoryName);
+        }else if (categoryRepository.existsByCategoryName(categoryName)){
+            throw new DuplicateException(TYPE);
         }else {
-            Category parentCategory = categoryRepository.findByCategoryName(categoryRegisterRequestDto.parentCategoryName());
+            Category parentCategory = categoryRepository.findByCategoryName(parentCategoryName);
             return categoryRepository.save(Category.builder()
-                    .categoryName(categoryRegisterRequestDto.categoryName())
+                    .categoryName(categoryName)
                     .parentCategory(parentCategory)
                     .build());
         }
@@ -36,7 +37,7 @@ public class CategoryService {
 
     public Category updateCategory(Category category) {
         if (!categoryRepository.existsById(category.getCategoryId())){
-            throw new NotFoundIdException(DUPLICATE_TYPE, category.getCategoryId());
+            throw new NotFoundIdException(TYPE, category.getCategoryId());
         }else{
             return categoryRepository.save(category);
         }
@@ -55,4 +56,12 @@ public class CategoryService {
         return categoryRepository.findSubCategoriesByParent(parent);
     }
 
+    public Category getCategoryByName(String categoryName) {
+        Category category = categoryRepository.findByCategoryName(categoryName);
+        if (category == null){
+            throw new NotFoundNameException(TYPE, categoryName);
+        }else{
+            return category;
+        }
+    }
 }

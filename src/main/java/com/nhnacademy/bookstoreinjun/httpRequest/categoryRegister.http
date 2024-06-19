@@ -1,10 +1,9 @@
-POST localhost:8003/api/admin/category
+POST localhost:8003/api/admin/category/register
 Content-Type: application/json
 
 {
-  "parentCategoryName": "카테고리 4",
-  "categoryName": "카테고리 6"
+  "categoryName": "카테고리3"
 }
 
 ###
-GET localhost:8003/api/admin/category/list/sub?categoryName=카테고리 2
+GET localhost:8003/api/admin/category/list

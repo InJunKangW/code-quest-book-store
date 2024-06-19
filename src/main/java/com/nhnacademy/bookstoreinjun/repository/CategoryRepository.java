@@ -15,9 +15,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     List<Category> findAllByCategoryNameContaining(String categoryName);
 
-//    @Query("select Category c from Category c1 join Category c2 on c1 where parentCategory")
-//    List<Category> findAllSubCategoriesByCategoryName(String categoryName);
-
     @Query("SELECT c FROM Category c WHERE c.parentCategory = :parent")
     List<Category> findSubCategoriesByParent(Category parent);
 }

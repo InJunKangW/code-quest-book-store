@@ -8,12 +8,20 @@ import com.nhnacademy.bookstoreinjun.dto.book.BookRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.error.ErrorResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.entity.Book;
+import com.nhnacademy.bookstoreinjun.entity.Category;
 import com.nhnacademy.bookstoreinjun.entity.Product;
+import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
+import com.nhnacademy.bookstoreinjun.entity.ProductTag;
+import com.nhnacademy.bookstoreinjun.entity.Tag;
 import com.nhnacademy.bookstoreinjun.exception.AladinJsonProcessingException;
 import com.nhnacademy.bookstoreinjun.feignclient.BookRegisterClient;
 import com.nhnacademy.bookstoreinjun.service.AladinService;
 import com.nhnacademy.bookstoreinjun.service.BookService;
+import com.nhnacademy.bookstoreinjun.service.CategoryService;
+import com.nhnacademy.bookstoreinjun.service.ProductCategoryService;
 import com.nhnacademy.bookstoreinjun.service.ProductService;
+import com.nhnacademy.bookstoreinjun.service.ProductTagService;
+import com.nhnacademy.bookstoreinjun.service.TagService;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +58,14 @@ public class BookController {
 
     private final ProductService productService;
 
+    private final CategoryService categoryService;
+
+    private final ProductCategoryService productCategoryService;
+
+    private final TagService tagService;
+
+    private final ProductTagService productTagService;
+
     @ExceptionHandler(AladinJsonProcessingException.class)
     public ResponseEntity<ErrorResponseDto> exceptionHandler(AladinJsonProcessingException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponseDto(ex.getMessage()));
@@ -66,8 +82,10 @@ public class BookController {
     // feign 이 호출하는 메서드.
     @GetMapping
     public ResponseEntity<AladinBookListResponseDto> getBooks(@RequestParam("title")String title){
+        log.info("get called aladin");
         AladinBookListResponseDto aladinBookListResponseDto = aladinService.getAladdinBookList(title);
         HttpHeaders headers = new HttpHeaders();
+        log.info(aladinBookListResponseDto.toString());
         headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
         return new ResponseEntity<>(aladinBookListResponseDto, headers, HttpStatus.OK);
     }
@@ -101,41 +119,21 @@ public class BookController {
         return "test";
     }
 
-    @Transactional
-    @PostMapping("/register")
-    public ResponseEntity<BookProductRegisterResponseDto> saveBookProduct(@RequestBody
-                                                                   BookProductRegisterRequestDto bookProductRegisterRequestDto){
-//        Product product = productService.saveProduct(ProductRegisterRequestDto.builder()
-//                                                        .productName(bookProductRegisterRequestDto.getTitle())
-//                                                        .productDescription(bookProductRegisterRequestDto.getProductDescription())
-//                                                        .productInventory(bookProductRegisterRequestDto.getProductInventory())
-//                                                        .productThumbnailUrl(bookProductRegisterRequestDto.getCover())
-//                                                        .productPriceStandard(bookProductRegisterRequestDto.getProductPriceStandard())
-//                                                        .productPriceSales(bookProductRegisterRequestDto.getProductPriceSales())
-//                                                        .build());
-//
-//        Book savedBook = bookService.saveBook(Book.builder()
-//                                                        .title(bookProductRegisterRequestDto.getTitle())
-//                                                        .author(bookProductRegisterRequestDto.getAuthor())
-//                                                        .publisher(bookProductRegisterRequestDto.getPublisher())
-//                                                        .isbn(bookProductRegisterRequestDto.getIsbn())
-//                                                        .isbn13(bookProductRegisterRequestDto.getIsbn13())
-//                                                        .pubDate(bookProductRegisterRequestDto.getPubDate())
-//                                                        .packable(bookProductRegisterRequestDto.isPackable())
-//                                                        .product(product)
-//                                                        .build());
 
-        Product product = productService.saveProduct(ProductRegisterRequestDto.builder()
+    private ProductRegisterRequestDto getProductRegisterRequestDto(BookProductRegisterRequestDto bookProductRegisterRequestDto){
+        return ProductRegisterRequestDto.builder()
                 .productName(bookProductRegisterRequestDto.title())
                 .productDescription(bookProductRegisterRequestDto.productDescription())
                 .productInventory(bookProductRegisterRequestDto.productInventory())
                 .productThumbnailUrl(bookProductRegisterRequestDto.cover())
                 .productPriceStandard(bookProductRegisterRequestDto.productPriceStandard())
                 .productPriceSales(bookProductRegisterRequestDto.productPriceSales())
-                .build());
+                .build();
+    }
 
 
-        Book savedBook = bookService.saveBook(BookRegisterRequestDto.builder()
+    private BookRegisterRequestDto getBookRegisterRequestDto(BookProductRegisterRequestDto bookProductRegisterRequestDto, Product product){
+        return BookRegisterRequestDto.builder()
                 .title(bookProductRegisterRequestDto.title())
                 .author(bookProductRegisterRequestDto.author())
                 .publisher(bookProductRegisterRequestDto.publisher())
@@ -144,20 +142,38 @@ public class BookController {
                 .pubDate(bookProductRegisterRequestDto.pubDate())
                 .packable(bookProductRegisterRequestDto.packable())
                 .product(product)
-                .build());
+                .build();
+    }
 
-//        Book savedBook = bookService.saveBook(
-//
-//                Book.builder()
-//                .title(bookProductRegisterRequestDto.title())
-//                .author(bookProductRegisterRequestDto.author())
-//                .publisher(bookProductRegisterRequestDto.publisher())
-//                .isbn(bookProductRegisterRequestDto.isbn())
-//                .isbn13(bookProductRegisterRequestDto.isbn13())
-//                .pubDate(bookProductRegisterRequestDto.pubDate())
-//                .packable(bookProductRegisterRequestDto.packable())
-//                .product(product)
-//                .build());
+    @Transactional
+    @PostMapping("/register")
+    public ResponseEntity<BookProductRegisterResponseDto> saveBookProduct(@RequestBody BookProductRegisterRequestDto bookProductRegisterRequestDto){
+
+        Product product = productService.saveProduct(getProductRegisterRequestDto(bookProductRegisterRequestDto));
+
+        Book savedBook = bookService.saveBook(getBookRegisterRequestDto(bookProductRegisterRequestDto, product));
+
+
+        List<String> categories = bookProductRegisterRequestDto.categories();
+        for (String categoryName : categories) {
+            Category category = categoryService.getCategoryByName(categoryName);
+            ProductCategory productCategory = ProductCategory.builder()
+                    .category(category)
+                    .product(product)
+                    .build();
+
+            productCategoryService.saveProductCategory(productCategory);
+        }
+
+        List<String> tags = bookProductRegisterRequestDto.tags();
+        for (String tagName : tags) {
+            Tag tag = tagService.getTagByTagName(tagName);
+            ProductTag productTag = ProductTag.builder()
+                    .product(product)
+                    .tag(tag)
+                    .build();
+            productTagService.saveProductTag(productTag);
+        }
 
         BookProductRegisterResponseDto
                 dto = new BookProductRegisterResponseDto(savedBook.getBookId(), savedBook.getProduct().getProductRegisterDate());
@@ -165,4 +181,3 @@ public class BookController {
         return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 }
-//BookRegisterDto에 태그랑 카테고리 필드도 추가해야.. 이름이 unique하다고 하면 그냥 Set<String> 두 개로 하면 될 것 같기도 하고..

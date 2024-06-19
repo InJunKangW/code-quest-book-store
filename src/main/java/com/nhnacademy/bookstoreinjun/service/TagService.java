@@ -4,6 +4,7 @@ import com.nhnacademy.bookstoreinjun.dto.tag.TagRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.entity.Tag;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
+import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.repository.TagRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,11 @@ public class TagService {
     }
 
     public Tag getTagByTagName(String tagName) {
-        return tagRepository.findByTagName(tagName);
+        Tag tag = tagRepository.findByTagName(tagName);
+        if (tag == null) {
+            throw new NotFoundNameException(DUPLICATE_TYPE, tagName);
+        }else{
+            return tag;
+        }
     }
 }

@@ -13,7 +13,13 @@ Content-Type: application/json
   "productDescription": "설명",
   "productInventory": 1012,
   "productPriceStandard": 5000012,
-  "productPriceSales": 1000012
+  "productPriceSales": 1000012,
+  "categories": [
+    "카테고리1","카테고리2"
+  ],
+  "tags": [
+    "tag1", "tag2"
+  ]
 }
 
 ###

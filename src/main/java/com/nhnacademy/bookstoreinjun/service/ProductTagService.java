@@ -17,7 +17,6 @@ public class ProductTagService {
 
     public ProductTag saveProductTag(ProductTag productTag) {
         Product product = productTag.getProduct();
-        //옵셔널을 쓰라...?
         if (product == null || product.getProductId() == null) {
             throw new RuntimeException();
         } else if (!productRepository.existsByProductId(product.getProductId())) {

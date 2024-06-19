@@ -1,6 +1,7 @@
 package com.nhnacademy.bookstoreinjun.controller;
 
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterResponseDto;
 import com.nhnacademy.bookstoreinjun.entity.Category;
 import com.nhnacademy.bookstoreinjun.service.CategoryService;
 import java.util.List;
@@ -36,8 +37,22 @@ public class CategoryController {
 //        return null;
     }
 
-    @PostMapping
-    public ResponseEntity<Category> createCategory(@RequestBody CategoryRegisterRequestDto categoryRegisterRequestDto) {
-        return new ResponseEntity<>(categoryService.createCategory(categoryRegisterRequestDto), HttpStatus.CREATED);
+    @PostMapping("/register")
+    public ResponseEntity<CategoryRegisterResponseDto> createCategory(@RequestBody CategoryRegisterRequestDto categoryRegisterRequestDto) {
+
+        Category category = categoryService.createCategory(categoryRegisterRequestDto);
+        Category parentCategory = category.getParentCategory();
+        String parentCategoryName = null;
+
+        if (parentCategory != null) {
+            parentCategoryName = parentCategory.getCategoryName();
+        }
+
+        CategoryRegisterResponseDto dto = CategoryRegisterResponseDto.builder()
+                .categoryName(category.getCategoryName())
+                .parentCategoryName(parentCategoryName)
+                .build();
+
+        return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 }
