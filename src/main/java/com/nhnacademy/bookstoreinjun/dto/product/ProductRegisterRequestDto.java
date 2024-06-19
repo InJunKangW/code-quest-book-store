@@ -2,7 +2,6 @@ package com.nhnacademy.bookstoreinjun.dto.product;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -12,7 +11,7 @@ import lombok.Setter;
 @Builder
 @Getter
 @Setter
-public class ProductRequestDto {
+public class ProductRegisterRequestDto {
     //조회수랑 상품 등록 시간은 알아서 디폴트로 들어가게..
 
     @NotBlank

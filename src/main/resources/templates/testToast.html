@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Title</title>
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor-viewer.min.css">
+</head>
+<body>
+<div id="editor"></div>
+<div id="viewer">
+</div>
+<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+<div>hi its test for toast page</div>
+<script>
+    const Editor = toastui.Editor;
+
+    const Viewer = toastui.Editor;
+
+    // const Viewer = new toastui.Editor({
+    //     el: document.querySelector('#viewer'),
+    //     initialValue: content
+    // });
+
+    const editor = new Editor({
+        el: document.querySelector('#editor'),
+        height: '500px',
+        initialEditType: 'markdown',
+        previewStyle: 'vertical',
+        initialValue: 'Hello, TOAST UI Editor!'
+    });
+
+    function updateViewer() {
+        const markdownContent = editor.getMarkdown();
+        const viewerElement = document.querySelector('#viewer');
+
+        // Clear the previous viewer instance if it exists
+        if (viewerElement._viewerInstance) {
+            viewerElement._viewerInstance.destroy();
+        }
+
+        // Create a new viewer instance with the updated content
+        viewerElement._viewerInstance = new Viewer({
+            el: viewerElement,
+            height: '500px',
+            initialValue: markdownContent
+        });
+    }
+
+    // Update the viewer initially
+    updateViewer();
+
+    // Optionally, update the viewer whenever the editor's content changes
+    editor.on('change', updateViewer);
+</script>
+<!--<div id="description"></div>-->
+</body>
+</html>

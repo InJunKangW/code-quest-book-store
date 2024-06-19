@@ -2,9 +2,59 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Title</title>
-    <script th:inline="javascript">
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js" th:inline="javascript">
         /*<![CDATA[*/
+        document.addEventListener('DOMContentLoaded', function() {
+            const Editor = toastui.Editor;
+
+            const editor = new Editor({
+                el: document.querySelector('#editor'),
+                height: '500px',
+                initialEditType: 'markdown',
+                previewStyle: 'vertical',
+                initialValue: 'Hello, TOAST UI Editor!'
+            });
+
+            function extractImagesAndText(editorContent) {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(editorContent, 'text/html');
+                const images = [];
+                const textElements = [];
+
+                doc.body.childNodes.forEach(node => {
+                    if (node.nodeName === 'IMG') {
+                        images.push(node.src);
+                    } else {
+                        textElements.push(node.outerHTML);
+                    }
+                });
+
+                return {
+                    images: images.join(','),
+                    text: textElements.join('')
+                };
+            }
+
+            editor.on('change', function() {
+                const htmlContent = editor.getHtml();
+                const { images, text } = extractImagesAndText(htmlContent);
+
+                document.getElementById('descriptionInput').value = text;
+                document.getElementById('imagesInput').value = images;
+            });
+
+            document.getElementById('bookProductRegister').addEventListener('submit', function(event) {
+                const htmlContent = editor.getHtml();
+                const { images, text } = extractImagesAndText(htmlContent);
+
+                document.getElementById('descriptionInput').value = text;
+                document.getElementById('imagesInput').value = images;
+            });
+        });
+
         function formValidation(event){
             event.preventDefault(); // 폼 제출을 막음
 
@@ -106,8 +156,7 @@
 <input type="text" id="inputValue" name="inputValue" required>
 <button onclick="openNewWindowWithParam()">Open New Window</button>
 <div id="errorMessage" style="color: red;"></div>
-<!--    <div id="title" th:text="'hello world'"></div>-->
-<form action="/api/book" method="post" onsubmit="formValidation(event)">
+<form action="/api/admin/book/register" id="bookProductRegister" method="post" onsubmit="formValidation(event)">
     <label for="title">제목 </label><input type="text" name="title" id="title" readonly/><br>
     <label for="author">작가 </label><input type="text" id="author" name="author" th:text="'hello world author'" readonly/><br>
     <label for="publisher">출판사 </label><input type="text" name="publisher" id="publisher" readonly/><br>

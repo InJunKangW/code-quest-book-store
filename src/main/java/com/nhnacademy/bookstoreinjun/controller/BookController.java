@@ -5,15 +5,18 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.nhnacademy.bookstoreinjun.dto.book.AladinBookListResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.book.AladinBookResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.book.BookRegisterRequestDto;
-import com.nhnacademy.bookstoreinjun.dto.product.ProductRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.book.BookRegisterResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.product.ProductRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.entity.Book;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateIdException;
 import com.nhnacademy.bookstoreinjun.feignclient.BookRegisterClient;
+import com.nhnacademy.bookstoreinjun.service.AladinService;
 import com.nhnacademy.bookstoreinjun.service.BookService;
 import com.nhnacademy.bookstoreinjun.service.ProductService;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +48,11 @@ public class BookController {
 
     private final BookRegisterClient bookRegisterClient;
 
+
+    private final AladinService aladinService;
+
     private final BookService bookService;
+
     private final ProductService productService;
 
 
@@ -63,33 +70,33 @@ public class BookController {
     // feign 이 호출하는 메서드.
     @GetMapping
     public ResponseEntity<AladinBookListResponseDto> getBooks(@RequestParam("title")String title) throws JsonProcessingException {
-        log.info("getBooks");
-//       검색할 제목
-        byte[] bytes = title.getBytes(StandardCharsets.UTF_8);
-        String utf8EncodedString = new String(bytes, StandardCharsets.UTF_8);
+//        log.info("getBooks");
+////       검색할 제목
+//        byte[] bytes = title.getBytes(StandardCharsets.UTF_8);
+//        String utf8EncodedString = new String(bytes, StandardCharsets.UTF_8);
+//
+//
+//        URI uri = UriComponentsBuilder
+//                .fromUriString("https://www.aladin.co.kr")
+//                .path("/ttb/api/ItemSearch.aspx")
+//                .queryParam("TTBKey","ttbjasmine066220924001")
+//                .queryParam("Query",utf8EncodedString)
+//                .queryParam("QueryType","Title")
+//                .queryParam("MaxResults", 100)
+//                .encode()
+//                .build()
+//                .toUri();
+//        //제목 검색 - 리스트 보기.
+//
+//
+//        ResponseEntity<String> responseEntity = restTemplate.exchange(RequestEntity.get(uri).build(), String.class);
+//        String responseBody = responseEntity.getBody();
+//        log.info("{}",responseBody);
+//
+//        XmlMapper xmlMapper = new XmlMapper();
+//        AladinBookListResponseDto aladinBookListResponseDto = xmlMapper.readValue(responseBody, AladinBookListResponseDto.class);
 
-
-        URI uri = UriComponentsBuilder
-                .fromUriString("https://www.aladin.co.kr")
-                .path("/ttb/api/ItemSearch.aspx")
-                .queryParam("TTBKey","ttbjasmine066220924001")
-                .queryParam("Query",utf8EncodedString)
-                .queryParam("QueryType","Title")
-                .queryParam("MaxResults", 100)
-                .encode()
-                .build()
-                .toUri();
-        //제목 검색 - 리스트 보기.
-
-
-        ResponseEntity<String> responseEntity = restTemplate.exchange(RequestEntity.get(uri).build(), String.class);
-        String responseBody = responseEntity.getBody();
-        log.info("{}",responseBody);
-
-        XmlMapper xmlMapper = new XmlMapper();
-        AladinBookListResponseDto aladinBookListResponseDto = xmlMapper.readValue(responseBody, AladinBookListResponseDto.class);
-
-
+        AladinBookListResponseDto aladinBookListResponseDto = aladinService.getAladdinBookList(title);
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
         return new ResponseEntity<>(aladinBookListResponseDto, headers, HttpStatus.OK);
@@ -115,19 +122,12 @@ public class BookController {
         return "test";
     }
 
-//    @PostMapping("/register")
-//    public String post(@ModelAttribute AladinBookResponseDto AladinBookResponseDto,@RequestParam("pubDate")String pubDate, Model model) throws JsonProcessingException {
-//        log.info("title : {}, author : {}, isbn : {} cover : {}, priceStandard : {}, isbn13: {}, pubdate :{}, publisher : {}"
-//                ,AladinBookResponseDto.getTitle(), AladinBookResponseDto.getAuthor(), AladinBookResponseDto.getIsbn(), AladinBookResponseDto.getCover(), AladinBookResponseDto.getPriceStandard(), AladinBookResponseDto.getIsbn13(), AladinBookResponseDto.getPubDate(), AladinBookResponseDto.getPublisher());
-//        model.addAttribute("book", AladinBookResponseDto);
-//        return "eachBook";
-//    }
-
     @Transactional
     @PostMapping("/register")
-    public ResponseEntity<Void> saveBookProduct(@RequestBody BookRegisterRequestDto bookRegisterRequestDto){
+    public ResponseEntity<BookRegisterResponseDto> saveBookProduct(
+            @RequestBody BookRegisterRequestDto bookRegisterRequestDto){
         log.info("register called");
-        ProductRequestDto productRequestDto = ProductRequestDto
+        ProductRegisterRequestDto productRegisterRequestDto = ProductRegisterRequestDto
                 .builder()
                 .productName(bookRegisterRequestDto.getTitle())
                 .productDescription(bookRegisterRequestDto.getProductDescription())
@@ -137,22 +137,34 @@ public class BookController {
                 .productPriceSales(bookRegisterRequestDto.getProductPriceSales())
                 .build();
 
-        log.info("productRequestDto : {}", productRequestDto);
+        Product product = productService.createProduct(productRegisterRequestDto);
 
-        Product product = productService.createProduct(productRequestDto);
-        Book book = Book.builder()
-                .title(bookRegisterRequestDto.getTitle())
-                .author(bookRegisterRequestDto.getAuthor())
-                .publisher(bookRegisterRequestDto.getPublisher())
-                .isbn(bookRegisterRequestDto.getIsbn())
-                .isbn13(bookRegisterRequestDto.getIsbn13())
-                .pubDate(bookRegisterRequestDto.getPubDate())
-                .packable(bookRegisterRequestDto.isPackable())
-                .product(product)
-                .build();
-        bookService.saveBook(book);
+//        Book book = Book.builder()
+//                .title(bookRegisterRequestDto.getTitle())
+//                .author(bookRegisterRequestDto.getAuthor())
+//                .publisher(bookRegisterRequestDto.getPublisher())
+//                .isbn(bookRegisterRequestDto.getIsbn())
+//                .isbn13(bookRegisterRequestDto.getIsbn13())
+//                .pubDate(bookRegisterRequestDto.getPubDate())
+//                .packable(bookRegisterRequestDto.isPackable())
+//                .product(product)
+//                .build();
 
-//        return ResponseEntity.status(204).build();
-        return new ResponseEntity<>(null, HttpStatus.CREATED);
+        Book savedBook = bookService.saveBook
+                (Book.builder()
+                    .title(bookRegisterRequestDto.getTitle())
+                    .author(bookRegisterRequestDto.getAuthor())
+                    .publisher(bookRegisterRequestDto.getPublisher())
+                    .isbn(bookRegisterRequestDto.getIsbn())
+                    .isbn13(bookRegisterRequestDto.getIsbn13())
+                    .pubDate(bookRegisterRequestDto.getPubDate())
+                    .packable(bookRegisterRequestDto.isPackable())
+                    .product(product)
+                    .build());
+
+        BookRegisterResponseDto dto = new BookRegisterResponseDto(savedBook.getBookId(),
+                savedBook.getProduct().getProductRegisterDate());
+
+        return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 }
