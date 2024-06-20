@@ -15,7 +15,7 @@ public class ProductTagService {
 
     private final ProductRepository productRepository;
 
-    public ProductTag saveProductTag(ProductTag productTag) {
+    public void saveProductTag(ProductTag productTag) {
         Product product = productTag.getProduct();
         if (product == null || product.getProductId() == null) {
             throw new RuntimeException();
@@ -24,7 +24,6 @@ public class ProductTagService {
         } else if (!product.equals(productRepository.findByProductId(product.getProductId()))) {
             throw new NotFoundIdException("product", product.getProductId());
         }
-
-        return productTagRepository.save(productTag);
+        productTagRepository.save(productTag);
     }
 }

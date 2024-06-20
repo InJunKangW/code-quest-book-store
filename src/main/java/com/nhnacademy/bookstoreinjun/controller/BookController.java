@@ -1,28 +1,24 @@
 package com.nhnacademy.bookstoreinjun.controller;
 
 import com.nhnacademy.bookstoreinjun.dto.book.AladinBookListResponseDto;
-import com.nhnacademy.bookstoreinjun.dto.book.AladinBookResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductRegisterRequestDto;
-import com.nhnacademy.bookstoreinjun.dto.book.BookProductRegisterResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.product.ProductRegisterResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.book.BookRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.error.ErrorResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductRegisterRequestDto;
-import com.nhnacademy.bookstoreinjun.entity.Book;
 import com.nhnacademy.bookstoreinjun.entity.Category;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.entity.ProductTag;
 import com.nhnacademy.bookstoreinjun.entity.Tag;
 import com.nhnacademy.bookstoreinjun.exception.AladinJsonProcessingException;
-import com.nhnacademy.bookstoreinjun.feignclient.BookRegisterClient;
-import com.nhnacademy.bookstoreinjun.service.AladinService;
-import com.nhnacademy.bookstoreinjun.service.BookService;
-import com.nhnacademy.bookstoreinjun.service.CategoryService;
+import com.nhnacademy.bookstoreinjun.service.aladin.AladinService;
+import com.nhnacademy.bookstoreinjun.service.book.BookService;
+import com.nhnacademy.bookstoreinjun.service.category.CategoryService;
 import com.nhnacademy.bookstoreinjun.service.ProductCategoryService;
 import com.nhnacademy.bookstoreinjun.service.ProductService;
 import com.nhnacademy.bookstoreinjun.service.ProductTagService;
-import com.nhnacademy.bookstoreinjun.service.TagService;
-import java.util.ArrayList;
+import com.nhnacademy.bookstoreinjun.service.tag.TagService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +27,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,7 +45,7 @@ public class BookController {
     private final int PAGE_SIZE = 5;
 
     //웹에 있을 거
-    private final BookRegisterClient bookRegisterClient;
+//    private final BookRegisterClient bookRegisterClient;
 
     private final AladinService aladinService;
 
@@ -72,11 +67,11 @@ public class BookController {
     }
 
     //웹에 있을 거
-    @GetMapping
-    @RequestMapping("/register")
-    public String home() {
-        return "registerForm";
-    }
+//    @GetMapping
+//    @RequestMapping("/register")
+//    public String home() {
+//        return "registerForm";
+//    }
 
 
     // feign 이 호출하는 메서드.
@@ -85,39 +80,38 @@ public class BookController {
         log.info("get called aladin");
         AladinBookListResponseDto aladinBookListResponseDto = aladinService.getAladdinBookList(title);
         HttpHeaders headers = new HttpHeaders();
-        log.info(aladinBookListResponseDto.toString());
         headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
         return new ResponseEntity<>(aladinBookListResponseDto, headers, HttpStatus.OK);
     }
 
 
-    /**
-     *
-     * @param title 검색할 제목
-     * @param model 모델
-     * @return string
-     */
+//    /**
+//     *
+//     * @param title 검색할 제목
+//     * @param model 모델
+//     * @return string
+//     */
     //웹에 있을 거
-    @GetMapping
-    @RequestMapping("/test/test")
-    public String test(@RequestParam("title")String title, Model model) {
-        log.error("test called + title : {}", title);
-        ResponseEntity<AladinBookListResponseDto> aladinBookListResponseDtoResponseEntity = bookRegisterClient.getBookList(title);
-
-        AladinBookListResponseDto aladinBookListResponseDto = aladinBookListResponseDtoResponseEntity.getBody();
-
-        if (aladinBookListResponseDto == null) {
-            log.info("dto is null");
-            model.addAttribute("bookList", new ArrayList<>());
-        }else{
-            log.info("dto isn't null");
-
-            List<AladinBookResponseDto> bookList = aladinBookListResponseDto.getBooks();
-            model.addAttribute("bookList", bookList);
-        }
-
-        return "test";
-    }
+//    @GetMapping
+//    @RequestMapping("/test/test")
+//    public String test(@RequestParam("title")String title, Model model) {
+//        log.error("test called + title : {}", title);
+//        ResponseEntity<AladinBookListResponseDto> aladinBookListResponseDtoResponseEntity = bookRegisterClient.getBookList(title);
+//
+//        AladinBookListResponseDto aladinBookListResponseDto = aladinBookListResponseDtoResponseEntity.getBody();
+//
+//        if (aladinBookListResponseDto == null) {
+//            log.info("dto is null");
+//            model.addAttribute("bookList", new ArrayList<>());
+//        }else{
+//            log.info("dto isn't null");
+//
+//            List<AladinBookResponseDto> bookList = aladinBookListResponseDto.getBooks();
+//            model.addAttribute("bookList", bookList);
+//        }
+//
+//        return "test";
+//    }
 
 
     private ProductRegisterRequestDto getProductRegisterRequestDto(BookProductRegisterRequestDto bookProductRegisterRequestDto){
@@ -147,11 +141,11 @@ public class BookController {
 
     @Transactional
     @PostMapping("/register")
-    public ResponseEntity<BookProductRegisterResponseDto> saveBookProduct(@RequestBody BookProductRegisterRequestDto bookProductRegisterRequestDto){
+    public ResponseEntity<ProductRegisterResponseDto> saveBookProduct(@RequestBody BookProductRegisterRequestDto bookProductRegisterRequestDto){
 
         Product product = productService.saveProduct(getProductRegisterRequestDto(bookProductRegisterRequestDto));
 
-        Book savedBook = bookService.saveBook(getBookRegisterRequestDto(bookProductRegisterRequestDto, product));
+        bookService.saveBook(getBookRegisterRequestDto(bookProductRegisterRequestDto, product));
 
 
         List<String> categories = bookProductRegisterRequestDto.categories();
@@ -175,8 +169,7 @@ public class BookController {
             productTagService.saveProductTag(productTag);
         }
 
-        BookProductRegisterResponseDto
-                dto = new BookProductRegisterResponseDto(savedBook.getBookId(), savedBook.getProduct().getProductRegisterDate());
+        ProductRegisterResponseDto dto = new ProductRegisterResponseDto(product.getProductId(), product.getProductRegisterDate());
 
         return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }

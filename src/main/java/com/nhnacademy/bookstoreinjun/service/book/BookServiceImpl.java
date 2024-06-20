@@ -1,4 +1,4 @@
-package com.nhnacademy.bookstoreinjun.service;
+package com.nhnacademy.bookstoreinjun.service.book;
 
 import com.nhnacademy.bookstoreinjun.dto.book.BookRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.entity.Book;
@@ -14,28 +14,29 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class BookService {
+public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final String TYPE = "book";
 
 
-    public Page<Book> getBookPage(Pageable pageable) {
-        return bookRepository.findAll(pageable);
-    }
+//    public Page<Book> getBookPage(Pageable pageable) {
+//        return bookRepository.findAll(pageable);
+//    }
+//
+//    public Page<Book> getBookPageByTitle(String title, Pageable pageable) {
+//        return bookRepository.findByTitleContaining(title, pageable);
+//    }
+//
+//    public Book getBookById(Long id) {
+//        return bookRepository.findByBookId(id);
+//    }
 
-    public Page<Book> getBookPageByTitle(String title, Pageable pageable) {
-        return bookRepository.findByTitleContaining(title, pageable);
-    }
-
-    public Book getBookById(Long id) {
-        return bookRepository.findByBookId(id);
-    }
-
-    public Book saveBook(BookRegisterRequestDto bookRegisterRequestDto) {
+    public void saveBook(BookRegisterRequestDto bookRegisterRequestDto) {
         if (bookRepository.existsByIsbn13(bookRegisterRequestDto.isbn13())){
             throw new DuplicateException(TYPE);
         }else{
-            return bookRepository.save(Book.builder()
+//            return
+                    bookRepository.save(Book.builder()
                     .title(bookRegisterRequestDto.title())
                     .publisher(bookRegisterRequestDto.publisher())
                     .author(bookRegisterRequestDto.author())
@@ -48,11 +49,11 @@ public class BookService {
         }
     }
 
-    public Book updateBook(Book book) {
-        if (!bookRepository.existsByBookId(book.getBookId())){
-            throw new NotFoundIdException(TYPE, book.getBookId());
-        }else {
-            return bookRepository.save(book);
-        }
-    }
+//    public Book updateBook(Book book) {
+//        if (!bookRepository.existsByBookId(book.getBookId())){
+//            throw new NotFoundIdException(TYPE, book.getBookId());
+//        }else {
+//            return bookRepository.save(book);
+//        }
+//    }
 }

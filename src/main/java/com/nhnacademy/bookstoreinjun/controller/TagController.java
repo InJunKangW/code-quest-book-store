@@ -1,11 +1,10 @@
 package com.nhnacademy.bookstoreinjun.controller;
 
 
+import com.nhnacademy.bookstoreinjun.dto.tag.TagGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.tag.TagRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.tag.TagRegisterResponseDto;
-import com.nhnacademy.bookstoreinjun.entity.Tag;
-import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
-import com.nhnacademy.bookstoreinjun.service.TagService;
+import com.nhnacademy.bookstoreinjun.service.tag.TagService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,28 +22,23 @@ import org.springframework.web.bind.annotation.RestController;
 public class TagController {
     private final TagService tagService;
 
+    @GetMapping
+    public ResponseEntity<TagGetResponseDto> getTag(@RequestParam("tagName") String tagName) {
+        return ResponseEntity.ok(tagService.getTagDtoByTagName(tagName));
+    }
 
     @GetMapping("/list")
-    public ResponseEntity<List<Tag>> getAllTags() {
+    public ResponseEntity<List<TagGetResponseDto>> getAllTags() {
         return ResponseEntity.ok(tagService.getAllTags());
     }
 
-
-
     @GetMapping("/list/containing")
-    public ResponseEntity<List<Tag>> getTagByTagName(@RequestParam("tagName") String tagName) {
-        List<Tag> tagList = tagService.getTagsContaining(tagName);
-        if (tagList == null || tagList.isEmpty()) {
-            throw new NotFoundNameException("tag", tagName);
-        }else{
-            return ResponseEntity.ok(tagList);
-        }
+    public ResponseEntity<List<TagGetResponseDto>> getTagByTagName(@RequestParam("tagName") String tagName) {
+            return ResponseEntity.ok(tagService.getTagsContaining(tagName));
     }
 
     @PostMapping
     public ResponseEntity<TagRegisterResponseDto> createTag(@RequestBody TagRegisterRequestDto tagRegisterRequestDto) {
-        Tag tag = tagService.createTag(tagRegisterRequestDto);
-        TagRegisterResponseDto dto = new TagRegisterResponseDto(tag.getTagId(), tag.getTagName());
-        return new ResponseEntity<>(dto, HttpStatus.CREATED);
+        return new ResponseEntity<>(tagService.saveTag(tagRegisterRequestDto), HttpStatus.CREATED);
     }
 }

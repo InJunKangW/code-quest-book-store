@@ -24,11 +24,11 @@ public class ProductTag {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
+    @JoinColumn(name = "productId", nullable = false)
     private Product product;
 
     @ManyToOne
-    @JoinColumn(name = "tag_id", nullable = false)
+    @JoinColumn(name = "tagId", nullable = false)
     private Tag tag;
 
 

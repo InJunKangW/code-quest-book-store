@@ -18,7 +18,7 @@ public class ProductCategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    public ProductCategory saveProductCategory(ProductCategory productCategory) {
+    public void saveProductCategory(ProductCategory productCategory) {
         Long productId = productCategory.getProduct().getProductId();
         if (!productRepository.existsByProductId(productId)){
             throw new NotFoundIdException("product", productId);
@@ -28,7 +28,6 @@ public class ProductCategoryService {
         if(!categoryRepository.existsById(categoryId)){
             throw new NotFoundIdException("category", categoryId);
         };
-
-        return productCategoryRepository.save(productCategory);
+        productCategoryRepository.save(productCategory);
     }
 }

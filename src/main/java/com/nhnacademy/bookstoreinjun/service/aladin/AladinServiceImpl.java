@@ -1,4 +1,4 @@
-package com.nhnacademy.bookstoreinjun.service;
+package com.nhnacademy.bookstoreinjun.service.aladin;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AladinService {
+public class AladinServiceImpl implements AladinService {
     private final AladinClient aladinClient;
 
     public AladinBookListResponseDto getAladdinBookList(String title){
