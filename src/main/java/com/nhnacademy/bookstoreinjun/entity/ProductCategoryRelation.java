@@ -1,6 +1,5 @@
 package com.nhnacademy.bookstoreinjun.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,25 +11,24 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 
 @Entity
-@Getter
 @Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Category {
-
+//@Table(name = "productCategoryRelation")
+public class ProductCategoryRelation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long categoryId;
+    private Long productCategoryRelationId;
 
-    @Column(nullable = false, unique = true)
-    private String categoryName;
-
+    @JoinColumn(name = "productId", nullable = false)
     @ManyToOne
-    @JoinColumn(name = "parentCategoryId")
-    @ColumnDefault("null")
-    private Category parentCategory;
+    private Product product;
+
+    @JoinColumn(name = "productCategoryId", nullable = false)
+    @ManyToOne
+    private ProductCategory productCategory;
 }

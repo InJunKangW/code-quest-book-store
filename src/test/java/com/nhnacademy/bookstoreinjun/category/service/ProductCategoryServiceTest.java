@@ -11,7 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterRequestDto;
-import com.nhnacademy.bookstoreinjun.entity.Category;
+import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.repository.CategoryRepository;
@@ -25,7 +25,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class CategoryServiceTest {
+public class ProductCategoryServiceTest {
 
     @InjectMocks
     private CategoryServiceImpl categoryService;
@@ -33,33 +33,33 @@ public class CategoryServiceTest {
     @Mock
     private CategoryRepository categoryRepository;
 
-    private final String TEST_CATEGORY_NAME = "Test Category";
+    private final String TEST_CATEGORY_NAME = "Test ProductCategory";
 
     @Test
     public void saveCategoryTest(){
-        Category category = Category.builder()
+        ProductCategory productCategory = ProductCategory.builder()
                 .categoryName(TEST_CATEGORY_NAME)
                 .build();
 
         CategoryRegisterRequestDto dto = CategoryRegisterRequestDto.builder()
-                .categoryName(category.getCategoryName())
+                .categoryName(productCategory.getCategoryName())
                 .build();
 
         categoryService.saveCategory(dto);
 
-        verify(categoryRepository, times(1)).save(any(Category.class));
+        verify(categoryRepository, times(1)).save(any(ProductCategory.class));
     }
 
     @Test
     public void saveCategoryTest2(){
-        when(categoryRepository.existsByCategoryName("parent category")).thenReturn(false);
-        Category category = Category.builder()
+        when(categoryRepository.existsByCategoryName("parent productCategory")).thenReturn(false);
+        ProductCategory productCategory = ProductCategory.builder()
                 .categoryName(TEST_CATEGORY_NAME)
                 .build();
 
         CategoryRegisterRequestDto dto = CategoryRegisterRequestDto.builder()
-                .categoryName(category.getCategoryName())
-                .parentCategoryName("parent category")
+                .categoryName(productCategory.getCategoryName())
+                .parentCategoryName("parent productCategory")
                 .build();
 
         assertThrows(NotFoundNameException.class, () -> categoryService.saveCategory(dto));
@@ -69,12 +69,12 @@ public class CategoryServiceTest {
     public void saveCategoryTest3(){
         when(categoryRepository.existsByCategoryName(any())).thenReturn(true);
 
-        Category category = Category.builder()
+        ProductCategory productCategory = ProductCategory.builder()
                 .categoryName(TEST_CATEGORY_NAME)
                 .build();
 
         CategoryRegisterRequestDto dto = CategoryRegisterRequestDto.builder()
-                .categoryName(category.getCategoryName())
+                .categoryName(productCategory.getCategoryName())
                 .build();
 
         assertThrows(DuplicateException.class, () -> categoryService.saveCategory(dto));
@@ -82,7 +82,7 @@ public class CategoryServiceTest {
 
     @Test
     public void getCategoryDtoTest1(){
-        when(categoryRepository.findByCategoryName(TEST_CATEGORY_NAME)).thenReturn(new Category());
+        when(categoryRepository.findByCategoryName(TEST_CATEGORY_NAME)).thenReturn(new ProductCategory());
 
         CategoryGetResponseDto dto = categoryService.getCategoryDtoByName(TEST_CATEGORY_NAME);
 
@@ -100,13 +100,13 @@ public class CategoryServiceTest {
 
     @Test
     public void getCategoryTest1(){
-        when(categoryRepository.findByCategoryName(TEST_CATEGORY_NAME)).thenReturn(new Category());
+        when(categoryRepository.findByCategoryName(TEST_CATEGORY_NAME)).thenReturn(new ProductCategory());
 
-        Category category = categoryService.getCategoryByName(TEST_CATEGORY_NAME);
+        ProductCategory productCategory = categoryService.getCategoryByName(TEST_CATEGORY_NAME);
 
         verify(categoryRepository, times(1)).findByCategoryName(TEST_CATEGORY_NAME);
 
-        assertNotNull(category);
+        assertNotNull(productCategory);
     }
 
     @Test
@@ -122,10 +122,10 @@ public class CategoryServiceTest {
     public void getAllCategoriesTest(){
         when(categoryRepository.findAll()).thenReturn(
                 Arrays.asList(
-                        Category.builder()
+                        ProductCategory.builder()
                                 .categoryName(TEST_CATEGORY_NAME + 1)
                                 .build(),
-                        Category.builder()
+                        ProductCategory.builder()
                                 .categoryName(TEST_CATEGORY_NAME + 2)
                                 .build()
                 ));
@@ -139,10 +139,10 @@ public class CategoryServiceTest {
     public void getCategoriesContaining(){
         when(categoryRepository.findAllByCategoryNameContaining("test")).thenReturn(
                 Arrays.asList(
-                Category.builder()
+                ProductCategory.builder()
                         .categoryName(TEST_CATEGORY_NAME + 1)
                         .build(),
-                Category.builder()
+                ProductCategory.builder()
                         .categoryName(TEST_CATEGORY_NAME + 2)
                         .build()));
         List<CategoryGetResponseDto> dto = categoryService.getNameContainingCategories("test");
@@ -159,7 +159,7 @@ public class CategoryServiceTest {
 
     @Test
     public void getSubCategoriesTest2(){
-        when(categoryRepository.findByCategoryName("test")).thenReturn(new Category());
+        when(categoryRepository.findByCategoryName("test")).thenReturn(new ProductCategory());
 
         categoryService.getSubCategories("test");
 

@@ -10,7 +10,6 @@ import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.repository.TagRepository;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,13 +33,13 @@ public class TagServiceImpl implements TagService {
         }
     }
 
-    public Tag updateTag(Tag tag) {
-        if (!tagRepository.existsById(tag.getTagId())) {
-            throw new NotFoundIdException(DUPLICATE_TYPE, tag.getTagId());
-        }else{
-            return tagRepository.save(tag);
-        }
-    }
+//    public Tag updateTag(Tag tag) {
+//        if (!tagRepository.existsById(tag.getTagId())) {
+//            throw new NotFoundIdException(DUPLICATE_TYPE, tag.getTagId());
+//        }else{
+//            return tagRepository.save(tag);
+//        }
+//    }
 
     public List<TagGetResponseDto> getAllTags() {
         return tagRepository.findAll().stream()
@@ -48,12 +47,6 @@ public class TagServiceImpl implements TagService {
                         .tagName(tag.getTagName())
                         .build())
                 .toList();
-//        return categoryRepository.findAll().stream()
-//                .map(category -> CategoryGetResponseDto.builder()
-//                        .categoryName(category.getCategoryName())
-//                        .parentCategory(category.getParentCategory())
-//                        .build())
-//                .collect(Collectors.toList());
     }
 
     public List<TagGetResponseDto> getTagsContaining(String tagName) {

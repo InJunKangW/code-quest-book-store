@@ -61,7 +61,7 @@ public class Product {
     //디비 자체에는 No image 를 적고 front 에서 저 파일을 띄우는 게 맞을지도.
 
     @Builder.Default
-    @Column(nullable = false, length = 1000)
+    @Column(nullable = false, length = 10000)
     @ColumnDefault("'상품입니다.'")
     private String productDescription = "상품입니다.";
 
@@ -71,7 +71,7 @@ public class Product {
     private LocalDateTime productRegisterDate = LocalDateTime.now();
 
     @Builder.Default
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TINYINT")
     @ColumnDefault("0")
     private int productState = 0;
 

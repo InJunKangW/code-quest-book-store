@@ -3,9 +3,8 @@ package com.nhnacademy.bookstoreinjun.service.category;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterResponseDto;
-import com.nhnacademy.bookstoreinjun.entity.Category;
+import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
-import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.repository.CategoryRepository;
 import java.util.List;
@@ -19,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
-    private final String TYPE = "category";
+    private final String TYPE = "productCategory";
 
     public CategoryRegisterResponseDto saveCategory(CategoryRegisterRequestDto categoryRegisterRequestDto) {
         String parentCategoryName = categoryRegisterRequestDto.parentCategoryName();
@@ -30,20 +29,20 @@ public class CategoryServiceImpl implements CategoryService {
         }else if (categoryRepository.existsByCategoryName(categoryName)){
             throw new DuplicateException(TYPE);
         }else {
-            Category parentCategory = categoryRepository.findByCategoryName(parentCategoryName);
-            categoryRepository.save(Category.builder()
+            ProductCategory parentProductCategory = categoryRepository.findByCategoryName(parentCategoryName);
+            categoryRepository.save(ProductCategory.builder()
                     .categoryName(categoryName)
-                    .parentCategory(parentCategory)
+                    .parentProductCategory(parentProductCategory)
                     .build());
             return new CategoryRegisterResponseDto(categoryName, parentCategoryName);
         }
     }
 
-//    public Category updateCategory(Category category) {
-//        if (!categoryRepository.existsById(category.getCategoryId())){
-//            throw new NotFoundIdException(TYPE, category.getCategoryId());
+//    public ProductCategory updateCategory(ProductCategory productCategory) {
+//        if (!categoryRepository.existsById(productCategory.getCategoryId())){
+//            throw new NotFoundIdException(TYPE, productCategory.getCategoryId());
 //        }else{
-//            return categoryRepository.save(category);
+//            return categoryRepository.save(productCategory);
 //        }
 //    }
 
@@ -51,7 +50,7 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.findAll().stream()
                 .map(category -> CategoryGetResponseDto.builder()
                         .categoryName(category.getCategoryName())
-                        .parentCategory(category.getParentCategory())
+                        .parentProductCategory(category.getParentProductCategory())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -61,43 +60,43 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.findAllByCategoryNameContaining(categoryName).stream()
                 .map(category -> CategoryGetResponseDto.builder()
                         .categoryName(category.getCategoryName())
-                        .parentCategory(category.getParentCategory())
+                        .parentProductCategory(category.getParentProductCategory())
                         .build())
                 .collect(Collectors.toList());
     }
 
     public List<CategoryGetResponseDto> getSubCategories(String categoryName) {
-        Category parent = categoryRepository.findByCategoryName(categoryName);
+        ProductCategory parent = categoryRepository.findByCategoryName(categoryName);
         if (parent == null) {
             throw new NotFoundNameException(TYPE, categoryName);
         }else {
             return categoryRepository.findSubCategoriesByParent(parent).stream()
                     .map(category -> CategoryGetResponseDto.builder()
                             .categoryName(category.getCategoryName())
-                            .parentCategory(category.getParentCategory())
+                            .parentProductCategory(category.getParentProductCategory())
                             .build())
                     .collect(Collectors.toList());
         }
     }
 
     public CategoryGetResponseDto getCategoryDtoByName(String categoryName) {
-        Category category = categoryRepository.findByCategoryName(categoryName);
-        if (category == null){
+        ProductCategory productCategory = categoryRepository.findByCategoryName(categoryName);
+        if (productCategory == null){
             throw new NotFoundNameException(TYPE, categoryName);
         }else{
             return CategoryGetResponseDto.builder()
                     .categoryName(categoryName)
-                    .parentCategory(category.getParentCategory())
+                    .parentProductCategory(productCategory.getParentProductCategory())
                     .build();
         }
     }
 
-    public Category getCategoryByName(String categoryName){
-        Category category = categoryRepository.findByCategoryName(categoryName);
-        if (category == null){
+    public ProductCategory getCategoryByName(String categoryName){
+        ProductCategory productCategory = categoryRepository.findByCategoryName(categoryName);
+        if (productCategory == null){
             throw new NotFoundNameException(TYPE, categoryName);
         }else{
-            return category;
+            return productCategory;
         }
     }
 }

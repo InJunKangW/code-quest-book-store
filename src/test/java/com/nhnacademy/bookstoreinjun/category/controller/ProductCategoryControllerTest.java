@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @WebMvcTest(CategoryController.class)
-public class CategoryControllerTest {
+public class ProductCategoryControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -46,7 +46,7 @@ public class CategoryControllerTest {
     @Test
     public void saveCategoryTest1() throws Exception {
         CategoryRegisterRequestDto dto = CategoryRegisterRequestDto.builder()
-                        .categoryName("test category 1")
+                        .categoryName("test productCategory 1")
                         .build();
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(dto);
@@ -64,7 +64,7 @@ public class CategoryControllerTest {
     public void saveCategoryTest2() throws Exception {
 
         CategoryRegisterRequestDto dto = CategoryRegisterRequestDto.builder()
-                .categoryName("duplicate category")
+                .categoryName("duplicate productCategory")
                 .build();
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(dto);
@@ -83,8 +83,8 @@ public class CategoryControllerTest {
     @Test
     public void saveCategoryTest3() throws Exception {
         CategoryRegisterRequestDto dto = CategoryRegisterRequestDto.builder()
-                .categoryName("test category 1")
-                .parentCategoryName("not exist category")
+                .categoryName("test productCategory 1")
+                .parentCategoryName("not exist productCategory")
                 .build();
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(dto);
@@ -113,19 +113,19 @@ public class CategoryControllerTest {
     @Test
     public void getAllContainingCategoriesTest() throws Exception {
         mockMvc.perform(get("/api/admin/category/list/containing")
-                .param("categoryName", "test category"))
+                .param("categoryName", "test productCategory"))
                 .andExpect(status().isOk());
 
-        verify(categoryService,times(1)).getNameContainingCategories("test category");
+        verify(categoryService,times(1)).getNameContainingCategories("test productCategory");
     }
 
     @DisplayName("카테고리 리스트 찾아오기 - 하위")
     @Test
     public void getAllSubCategoriesTest() throws Exception {
         mockMvc.perform(get("/api/admin/category/list/sub")
-                        .param("categoryName", "test parent category"))
+                        .param("categoryName", "test parent productCategory"))
                 .andExpect(status().isOk());
 
-        verify(categoryService,times(1)).getSubCategories("test parent category");
+        verify(categoryService,times(1)).getSubCategories("test parent productCategory");
     }
 }

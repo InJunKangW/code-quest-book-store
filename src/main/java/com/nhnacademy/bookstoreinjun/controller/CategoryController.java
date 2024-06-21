@@ -3,9 +3,7 @@ package com.nhnacademy.bookstoreinjun.controller;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterResponseDto;
-import com.nhnacademy.bookstoreinjun.entity.Category;
 import com.nhnacademy.bookstoreinjun.service.category.CategoryService;
-import com.nhnacademy.bookstoreinjun.service.category.CategoryServiceImpl;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,15 +43,15 @@ public class CategoryController {
     public ResponseEntity<CategoryRegisterResponseDto> createCategory(@RequestBody CategoryRegisterRequestDto categoryRegisterRequestDto) {
 
 //        CategoryRegisterResponseDto dto = categoryServiceImpl.createCategory(categoryRegisterRequestDto);
-//        Category parentCategory = category.getParentCategory();
+//        ProductCategory parentProductCategory = productCategory.getParentProductCategory();
 //        String parentCategoryName = null;
 //
-//        if (parentCategory != null) {
-//            parentCategoryName = parentCategory.getCategoryName();
+//        if (parentProductCategory != null) {
+//            parentCategoryName = parentProductCategory.getCategoryName();
 //        }
 //
 //        CategoryRegisterResponseDto dto = CategoryRegisterResponseDto.builder()
-//                .categoryName(category.getCategoryName())
+//                .categoryName(productCategory.getCategoryName())
 //                .parentCategoryName(parentCategoryName)
 //                .build();
 

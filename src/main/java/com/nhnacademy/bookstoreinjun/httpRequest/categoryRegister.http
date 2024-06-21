@@ -1,4 +1,4 @@
-POST localhost:8004/api/admin/category/register
+POST localhost:8004/api/admin/productCategory/register
 Content-Type: application/json
 
 {
@@ -6,4 +6,4 @@ Content-Type: application/json
 }
 
 ###
-GET localhost:8003/api/admin/category/list
+GET localhost:8003/api/admin/productCategory/list

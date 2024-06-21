@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.bookstoreinjun.controller.BookController;
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.entity.Product;
+import com.nhnacademy.bookstoreinjun.exception.AladinJsonProcessingException;
 import com.nhnacademy.bookstoreinjun.feignclient.AladinClient;
 import com.nhnacademy.bookstoreinjun.service.ProductCategoryService;
 import com.nhnacademy.bookstoreinjun.service.ProductService;
@@ -29,6 +30,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -95,7 +97,8 @@ public class BookControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value("123"));
+                .andExpect(jsonPath("$.id").value("123"))
+                .andDo(print());
 
         verify(productService,times(1)).saveProduct(any());
         verify(bookService,times(1)).saveBook(any());
@@ -103,5 +106,14 @@ public class BookControllerTest {
         verify(productCategoryService, times(2)).saveProductCategory(any());
         verify(tagService, times(2)).getTagByTagName(any());
         verify(productTagService, times(2)).saveProductTag(any());
+    }
+
+    @Test
+    public void test3() throws Exception {
+        when(aladinService.getAladdinBookList(any())).thenThrow(new AladinJsonProcessingException(any()));
+
+        mockMvc.perform(get("/api/admin/book")
+                        .param("title","이해"))
+                .andExpect(status().is5xxServerError());
     }
 }

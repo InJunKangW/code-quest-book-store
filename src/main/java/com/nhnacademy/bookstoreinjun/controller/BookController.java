@@ -1,19 +1,17 @@
 package com.nhnacademy.bookstoreinjun.controller;
 
 import com.nhnacademy.bookstoreinjun.dto.book.AladinBookListResponseDto;
-import com.nhnacademy.bookstoreinjun.dto.book.AladinBookResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductRegisterResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.book.BookRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.error.ErrorResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductRegisterRequestDto;
-import com.nhnacademy.bookstoreinjun.entity.Category;
-import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
+import com.nhnacademy.bookstoreinjun.entity.Product;
+import com.nhnacademy.bookstoreinjun.entity.ProductCategoryRelation;
 import com.nhnacademy.bookstoreinjun.entity.ProductTag;
 import com.nhnacademy.bookstoreinjun.entity.Tag;
 import com.nhnacademy.bookstoreinjun.exception.AladinJsonProcessingException;
-import com.nhnacademy.bookstoreinjun.feignclient.BookRegisterClient;
 import com.nhnacademy.bookstoreinjun.service.aladin.AladinService;
 import com.nhnacademy.bookstoreinjun.service.book.BookService;
 import com.nhnacademy.bookstoreinjun.service.category.CategoryService;
@@ -21,7 +19,6 @@ import com.nhnacademy.bookstoreinjun.service.ProductCategoryService;
 import com.nhnacademy.bookstoreinjun.service.ProductService;
 import com.nhnacademy.bookstoreinjun.service.ProductTagService;
 import com.nhnacademy.bookstoreinjun.service.tag.TagService;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +27,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -71,7 +67,6 @@ public class BookController {
         AladinBookListResponseDto aladinBookListResponseDto = aladinService.getAladdinBookList(title);
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
-        log.info("{}",aladinBookListResponseDto);
         return new ResponseEntity<>(aladinBookListResponseDto, headers, HttpStatus.OK);
     }
 
@@ -113,13 +108,13 @@ public class BookController {
         List<String> categories = bookProductRegisterRequestDto.categories();
         if (categories != null){
             for (String categoryName : categories) {
-                Category category = categoryService.getCategoryByName(categoryName);
-                ProductCategory productCategory = ProductCategory.builder()
-                        .category(category)
+                ProductCategory productCategory = categoryService.getCategoryByName(categoryName);
+                ProductCategoryRelation productCategoryRelation = ProductCategoryRelation.builder()
+                        .productCategory(productCategory)
                         .product(product)
                         .build();
 
-                productCategoryService.saveProductCategory(productCategory);
+                productCategoryService.saveProductCategory(productCategoryRelation);
             }
         }
 
