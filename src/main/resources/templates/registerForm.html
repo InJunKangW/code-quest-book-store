@@ -94,7 +94,7 @@
             var top = Math.max(0, (availHeight - newWindowHeight) / 2);
 
             // URL에 포함될 파라미터 문자열 생성
-            var url = "/api/admin/book/test/test?title=" + encodeURIComponent(inputValue);
+            var url = "/api/test/test?title=" + encodeURIComponent(inputValue);
 
             // 새 창 열기
             var newWindow = window.open(url, "_blank", "width=" + newWindowWidth + ",height=" + newWindowHeight + ",top=" + top + ",left=" + left);

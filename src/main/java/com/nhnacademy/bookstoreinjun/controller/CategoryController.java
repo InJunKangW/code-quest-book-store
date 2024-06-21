@@ -7,7 +7,9 @@ import com.nhnacademy.bookstoreinjun.service.category.CategoryService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,38 +25,28 @@ import org.springframework.web.bind.annotation.RestController;
 public class CategoryController {
     private final CategoryService categoryService;
 
+    private final HttpHeaders header = new HttpHeaders() {{
+        setContentType(MediaType.APPLICATION_JSON);
+    }};
+
     @GetMapping("/list/all")
     public ResponseEntity<List<CategoryGetResponseDto>> getAllCategories() {
         log.info("Called list all");
-        return ResponseEntity.ok(categoryService.getAllCategories());
+        return new ResponseEntity<>(categoryService.getAllCategories(), header, HttpStatus.OK);
     }
 
     @GetMapping("/list/containing")
     public ResponseEntity<List<CategoryGetResponseDto>> getNameContainingCategories(@RequestParam("categoryName") String categoryName){
-        return  ResponseEntity.ok(categoryService.getNameContainingCategories(categoryName));
+        return new ResponseEntity<>(categoryService.getNameContainingCategories(categoryName), header, HttpStatus.OK);
     }
 
     @GetMapping("/list/sub")
     public ResponseEntity<List<CategoryGetResponseDto>> getSubCategories(@RequestParam("categoryName") String categoryName){
-        return ResponseEntity.ok(categoryService.getSubCategories(categoryName));
+        return new ResponseEntity<>(categoryService.getSubCategories(categoryName), header, HttpStatus.OK);
     }
 
     @PostMapping("/register")
     public ResponseEntity<CategoryRegisterResponseDto> createCategory(@RequestBody CategoryRegisterRequestDto categoryRegisterRequestDto) {
-
-//        CategoryRegisterResponseDto dto = categoryServiceImpl.createCategory(categoryRegisterRequestDto);
-//        ProductCategory parentProductCategory = productCategory.getParentProductCategory();
-//        String parentCategoryName = null;
-//
-//        if (parentProductCategory != null) {
-//            parentCategoryName = parentProductCategory.getCategoryName();
-//        }
-//
-//        CategoryRegisterResponseDto dto = CategoryRegisterResponseDto.builder()
-//                .categoryName(productCategory.getCategoryName())
-//                .parentCategoryName(parentCategoryName)
-//                .build();
-
-        return new ResponseEntity<>(categoryService.saveCategory(categoryRegisterRequestDto), HttpStatus.CREATED);
+        return new ResponseEntity<>(categoryService.saveCategory(categoryRegisterRequestDto), header, HttpStatus.CREATED);
     }
 }

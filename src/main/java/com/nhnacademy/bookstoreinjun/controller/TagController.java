@@ -8,7 +8,9 @@ import com.nhnacademy.bookstoreinjun.service.tag.TagService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,24 +26,27 @@ import org.springframework.web.bind.annotation.RestController;
 public class TagController {
     private final TagService tagService;
 
+    private final HttpHeaders header = new HttpHeaders() {{
+        setContentType(MediaType.APPLICATION_JSON);
+    }};
+
     @GetMapping
     public ResponseEntity<TagGetResponseDto> getTag(@RequestParam("tagName") String tagName) {
-        return ResponseEntity.ok(tagService.getTagDtoByTagName(tagName));
+        return new ResponseEntity<>(tagService.getTagDtoByTagName(tagName), header, HttpStatus.OK);
     }
 
     @GetMapping("/list")
     public ResponseEntity<List<TagGetResponseDto>> getAllTags() {
-        return ResponseEntity.ok(tagService.getAllTags());
+        return new ResponseEntity<>(tagService.getAllTags(), header, HttpStatus.OK);
     }
 
     @GetMapping("/list/containing")
     public ResponseEntity<List<TagGetResponseDto>> getTagByTagName(@RequestParam("tagName") String tagName) {
-            return ResponseEntity.ok(tagService.getTagsContaining(tagName));
+        return new ResponseEntity<>(tagService.getTagsContaining(tagName), header, HttpStatus.OK);
     }
 
     @PostMapping
     public ResponseEntity<TagRegisterResponseDto> createTag(@RequestBody TagRegisterRequestDto tagRegisterRequestDto) {
-        log.info("post tag called");
-        return new ResponseEntity<>(tagService.saveTag(tagRegisterRequestDto), HttpStatus.CREATED);
+        return new ResponseEntity<>(tagService.saveTag(tagRegisterRequestDto), header, HttpStatus.CREATED);
     }
 }

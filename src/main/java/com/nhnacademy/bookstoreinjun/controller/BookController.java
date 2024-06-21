@@ -1,17 +1,23 @@
 package com.nhnacademy.bookstoreinjun.controller;
 
 import com.nhnacademy.bookstoreinjun.dto.book.AladinBookListResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.book.AladinBookResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.book.BookProductGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductRegisterRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.page.BookPageRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductRegisterResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.book.BookRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.error.ErrorResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductRegisterRequestDto;
+import com.nhnacademy.bookstoreinjun.entity.Book;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategoryRelation;
 import com.nhnacademy.bookstoreinjun.entity.ProductTag;
 import com.nhnacademy.bookstoreinjun.entity.Tag;
 import com.nhnacademy.bookstoreinjun.exception.AladinJsonProcessingException;
+import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
+import com.nhnacademy.bookstoreinjun.feignclient.BookRegisterClient;
 import com.nhnacademy.bookstoreinjun.service.aladin.AladinService;
 import com.nhnacademy.bookstoreinjun.service.book.BookService;
 import com.nhnacademy.bookstoreinjun.service.category.CategoryService;
@@ -19,28 +25,40 @@ import com.nhnacademy.bookstoreinjun.service.ProductCategoryService;
 import com.nhnacademy.bookstoreinjun.service.ProductService;
 import com.nhnacademy.bookstoreinjun.service.ProductTagService;
 import com.nhnacademy.bookstoreinjun.service.tag.TagService;
+import jakarta.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 //@RestController
 @Controller
-@RequestMapping("/api/admin/book")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class BookController {
-
 
     private final AladinService aladinService;
 
@@ -56,18 +74,20 @@ public class BookController {
 
     private final ProductTagService productTagService;
 
+    private final HttpHeaders header = new HttpHeaders() {{
+        setContentType(MediaType.APPLICATION_JSON);
+    }};
+
     @ExceptionHandler(AladinJsonProcessingException.class)
     public ResponseEntity<ErrorResponseDto> exceptionHandler(AladinJsonProcessingException ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponseDto(ex.getMessage()));
+        return new ResponseEntity<>(new ErrorResponseDto(ex.getMessage()), header, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     // feign 이 호출하는 메서드.
-    @GetMapping
+    @GetMapping("/admin/book")
     public ResponseEntity<AladinBookListResponseDto> getBooks(@RequestParam("title")String title){
         AladinBookListResponseDto aladinBookListResponseDto = aladinService.getAladdinBookList(title);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
-        return new ResponseEntity<>(aladinBookListResponseDto, headers, HttpStatus.OK);
+        return new ResponseEntity<>(aladinBookListResponseDto, header, HttpStatus.OK);
     }
 
 
@@ -97,8 +117,8 @@ public class BookController {
     }
 
     @Transactional
-    @PostMapping("/register")
-    public ResponseEntity<ProductRegisterResponseDto> saveBookProduct(@RequestBody BookProductRegisterRequestDto bookProductRegisterRequestDto){
+    @PostMapping("/admin/book/register")
+    public ResponseEntity<ProductRegisterResponseDto> saveBookProduct(@Valid @RequestBody BookProductRegisterRequestDto bookProductRegisterRequestDto){
 
         Product product = productService.saveProduct(getProductRegisterRequestDto(bookProductRegisterRequestDto));
 
@@ -133,17 +153,61 @@ public class BookController {
 
         ProductRegisterResponseDto dto = new ProductRegisterResponseDto(product.getProductId(), product.getProductRegisterDate());
 
-        return new ResponseEntity<>(dto, HttpStatus.CREATED);
+        return new ResponseEntity<>(dto, header, HttpStatus.CREATED);
     }
 
-    //웹에 있을 거
-//    private final int PAGE_SIZE = 5;
-//
+    @GetMapping("/books")
+    public ResponseEntity<Page<BookProductGetResponseDto>> getAllBookPage(
+           @Valid @ModelAttribute BookPageRequestDto bookPageRequestDto
+    ){
+        int page = Objects.requireNonNullElse(bookPageRequestDto.page(),1);
+        int size = Objects.requireNonNullElse(bookPageRequestDto.size(),5);
+        boolean desc = Objects.requireNonNullElse(bookPageRequestDto.desc(), true);
+        String sort =  Objects.requireNonNullElse(bookPageRequestDto.sort(), "pubDate");
+
+        Pageable pageable = PageRequest.of(page -1, size,
+                Sort.by(desc ? Sort.Direction.DESC : Sort.Direction.ASC, sort));
+        Page<Book> bookPage = bookService.getBookPage(pageable);
+
+        int total = bookPage.getTotalPages();
+        if (total < page){
+            throw new PageOutOfRangeException(total, page);
+        }
+
+        return new ResponseEntity<>
+                (bookPage.map(
+                book -> BookProductGetResponseDto.builder()
+                        .title(book.getTitle())
+                        .publisher(book.getPublisher())
+                        .author(book.getAuthor())
+                        .pubDate(book.getPubDate())
+                        .isbn(book.getIsbn())
+                        .isbn13(book.getIsbn13())
+                        .cover(book.getProduct().getProductThumbnailUrl())
+                        .packable(book.isPackable())
+                        .productDescription(book.getProduct().getProductDescription())
+                        .productRegisterDate(book.getProduct().getProductRegisterDate())
+                        .productPriceStandard(book.getProduct().getProductPriceStandard())
+                        .productPriceSales(book.getProduct().getProductPriceSales())
+                        .productInventory(book.getProduct().getProductInventory())
+                        .categories(categoryService.getCategoriesByProduct(book.getProduct()).stream()
+                                .map(ProductCategory ::getCategoryName)
+                                .collect(Collectors.toList()))
+                        .tags(tagService.getTagsByProduct(book.getProduct()).stream()
+                                .map(Tag::getTagName)
+                                .collect(Collectors.toList()))
+                        .build())
+
+                        , header, HttpStatus.OK
+        );
+    }
+
+
+
 //    //웹에 있을 거
 //    private final BookRegisterClient bookRegisterClient;
-
-    // 유레카, 게이트웨이, 웹 다 켜놓고 테스트하기 그럴 때 쓰려고 냅뒀습니다.
-    //웹에 있을 거
+//
+//    // 유레카, 게이트웨이, 웹 다 켜놓고 테스트하기 번거로울 때 주석 풀고 쓰려고 냅뒀습니다.
 //    @GetMapping
 //    @RequestMapping("/register")
 //    public String home() {

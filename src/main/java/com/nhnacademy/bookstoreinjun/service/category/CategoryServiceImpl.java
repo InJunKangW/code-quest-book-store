@@ -3,10 +3,14 @@ package com.nhnacademy.bookstoreinjun.service.category;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterResponseDto;
+import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
+import com.nhnacademy.bookstoreinjun.entity.ProductCategoryRelation;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.repository.CategoryRepository;
+import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
+    private final ProductCategoryRepository productCategoryRepository;
+
     private final String TYPE = "productCategory";
 
     public CategoryRegisterResponseDto saveCategory(CategoryRegisterRequestDto categoryRegisterRequestDto) {
@@ -91,12 +97,26 @@ public class CategoryServiceImpl implements CategoryService {
         }
     }
 
+    //밑의 둘은 내부적으로만 호출.
     public ProductCategory getCategoryByName(String categoryName){
         ProductCategory productCategory = categoryRepository.findByCategoryName(categoryName);
         if (productCategory == null){
             throw new NotFoundNameException(TYPE, categoryName);
         }else{
             return productCategory;
+        }
+    }
+
+    public List<ProductCategory> getCategoriesByProduct(Product product) {
+        if (product == null){
+            throw new NullPointerException();
+        }else{
+            List<ProductCategory> result = new ArrayList<>();
+            List<ProductCategoryRelation> productCategoryRelations= productCategoryRepository.findByProduct(product);
+            for (ProductCategoryRelation productCategoryRelation : productCategoryRelations){
+                result.add(productCategoryRelation.getProductCategory());
+            }
+            return result;
         }
     }
 }

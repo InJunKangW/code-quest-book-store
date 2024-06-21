@@ -4,11 +4,17 @@ import com.nhnacademy.bookstoreinjun.dto.category.CategoryGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.tag.TagGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.tag.TagRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.tag.TagRegisterResponseDto;
+import com.nhnacademy.bookstoreinjun.entity.Product;
+import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
+import com.nhnacademy.bookstoreinjun.entity.ProductCategoryRelation;
+import com.nhnacademy.bookstoreinjun.entity.ProductTag;
 import com.nhnacademy.bookstoreinjun.entity.Tag;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
+import com.nhnacademy.bookstoreinjun.repository.ProductTagRepository;
 import com.nhnacademy.bookstoreinjun.repository.TagRepository;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TagServiceImpl implements TagService {
     private final TagRepository tagRepository;
+
+    private final ProductTagRepository productTagRepository;
+
     private final String DUPLICATE_TYPE = "tag";
 
 
@@ -68,12 +77,27 @@ public class TagServiceImpl implements TagService {
         }
     }
 
+
+    //밑의 둘은 이 서비스 내부적으로만 호출됩니다.
     public Tag getTagByTagName(String tagName) {
         Tag tag = tagRepository.findByTagName(tagName);
         if (tag == null) {
             throw new NotFoundNameException(DUPLICATE_TYPE, tagName);
         }else{
             return tag;
+        }
+    }
+
+    public List<Tag> getTagsByProduct(Product product) {
+        if (product == null){
+            throw new NullPointerException();
+        }else{
+            List<Tag> result = new ArrayList<>();
+            List<ProductTag> productTagRelations= productTagRepository.findByProduct(product);
+            for (ProductTag productTag : productTagRelations){
+                result.add(productTag.getTag());
+            }
+            return result;
         }
     }
 }

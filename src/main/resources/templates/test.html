@@ -48,7 +48,7 @@
         // }
 
 
-        if (!window.opener || window.opener.location.href !== 'http://localhost:8004/api/admin/book/register') {
+        if (!window.opener || window.opener.location.href !== 'http://localhost:8004/api/register') {
             alert('잘못된 접근입니다.');
             if(!window.opener){
                 history.go(-1);
