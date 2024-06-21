@@ -21,7 +21,7 @@ import lombok.Setter;
 public class ProductTag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long productTagId;
 
     @ManyToOne
     @JoinColumn(name = "productId", nullable = false)
