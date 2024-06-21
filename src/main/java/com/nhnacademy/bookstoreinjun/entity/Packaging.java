@@ -1,9 +1,16 @@
 package com.nhnacademy.bookstoreinjun.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
+@Getter
+@Setter
 @Entity
-public class Package {
+@Builder
+@Table(name = "package")
+@NoArgsConstructor
+@AllArgsConstructor
+public class Packaging {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long packageId;
