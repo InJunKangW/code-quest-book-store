@@ -61,16 +61,19 @@ public class Product {
     //디비 자체에는 No image 를 적고 front 에서 저 파일을 띄우는 게 맞을지도.
 
     @Builder.Default
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     @ColumnDefault("'상품입니다.'")
     private String productDescription = "상품입니다.";
 
     //조회수랑 얘 둘은 굳이.. 어드민이 입력하게 해야할까?
     @Builder.Default
     @Column(nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-//    @ColumnDefault("CURRENT_TIMESTAMP")
     private LocalDateTime productRegisterDate = LocalDateTime.now();
 
+    @Builder.Default
+    @Column(nullable = false)
+    @ColumnDefault("0")
+    private int productState = 0;
 
     public void addViewCount(){
         this.productViewCount++;

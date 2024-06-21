@@ -18,7 +18,11 @@ public class AladinServiceImpl implements AladinService {
         try {
             byte[] bytes = title.getBytes(StandardCharsets.UTF_8);
             String utf8EncodedString = new String(bytes, StandardCharsets.UTF_8);
-            String responseBody = aladinClient.getBooks("ttbjasmine066220924001",utf8EncodedString,"Title",100);
+            String responseBody = aladinClient.getBooks("ttbjasmine066220924001"
+                    ,utf8EncodedString,
+                    "Title",
+                    "Big",
+                    100);
 
             XmlMapper xmlMapper = new XmlMapper();
             return xmlMapper.readValue(responseBody, AladinBookListResponseDto.class);

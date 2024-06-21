@@ -57,7 +57,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
 
-    public List<CategoryGetResponseDto> getCategoriesContaining(String categoryName) {
+    public List<CategoryGetResponseDto> getNameContainingCategories(String categoryName) {
         return categoryRepository.findAllByCategoryNameContaining(categoryName).stream()
                 .map(category -> CategoryGetResponseDto.builder()
                         .categoryName(category.getCategoryName())

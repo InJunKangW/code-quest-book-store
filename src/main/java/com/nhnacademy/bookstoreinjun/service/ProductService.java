@@ -28,11 +28,11 @@ public class ProductService {
                     .build());
     }
 
-    public Product updateProduct(Product product) {
-        if (!productRepository.existsByProductId(product.getProductId())) {
-            throw new NotFoundIdException(DUPLICATE_TYPE, product.getProductId());
-        }else{
-            return productRepository.save(product);
-        }
-    }
+//    public Product updateProduct(Product product) {
+//        if (!productRepository.existsByProductId(product.getProductId())) {
+//            throw new NotFoundIdException(DUPLICATE_TYPE, product.getProductId());
+//        }else{
+//            return productRepository.save(product);
+//        }
+//    }
 }
