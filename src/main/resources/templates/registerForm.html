@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Title</title>
     <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
-    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js" th:inline="javascript">
+    <script th:inline="javascript">
         /*<![CDATA[*/
         document.addEventListener('DOMContentLoaded', function() {
             const Editor = toastui.Editor;
@@ -81,11 +81,37 @@
                 return;
             }
 
+            // 화면의 가운데에 새 창을 열기 위한 위치 계산
+            // var screenWidth = window.innerWidth;
+            // var screenHeight = window.innerHeight;
+
+            var newWindowWidth = 600;  // 새 창의 너비
+            var newWindowHeight = 500; // 새 창의 높이
+
+            var availWidth = screen.availWidth;
+            var availHeight = screen.availHeight;
+            var left = Math.max(0, (availWidth - newWindowWidth) / 2);
+            var top = Math.max(0, (availHeight - newWindowHeight) / 2);
+
             // URL에 포함될 파라미터 문자열 생성
-            var url = "/api/book/test/test?title=" + encodeURIComponent(inputValue);
+            var url = "/api/admin/book/test/test?title=" + encodeURIComponent(inputValue);
 
             // 새 창 열기
-            var newWindow = window.open(url, "_blank", "width=600,height=400");
+            var newWindow = window.open(url, "_blank", "width=" + newWindowWidth + ",height=" + newWindowHeight + ",top=" + top + ",left=" + left);
+            // var left = (screenWidth - newWindowWidth) / 2;
+            // var top = (screenHeight - newWindowHeight) / 2;
+
+            // var _left = Math.ceil(( window.screen.width - newWindowWidth)/2);
+            // var _top = Math.ceil(( window.screen.height - newWindowHeight)/2);
+
+            // URL에 포함될 파라미터 문자열 생성
+            // var url = "/api/admin/book/test/test?title=" + encodeURIComponent(inputValue);
+            //
+            // // 새 창 열기
+            // var options = "width=" + newWindowWidth + ",height=" + newWindowHeight + ",top=" + _top + ",left=" +_left;
+            // var newWindow = window.open(url, "_blank", options);
+
+            // var newWindow = window.open(url, "_blank", "width=600,height=500");
 
             newWindow.focus();
 
@@ -110,9 +136,12 @@
                         break;
                     case 'pubDate':
                         if(event.data.data !== null){
-                            document.getElementById('pubDate').value = event.data.data;
+                            const date = new Date(event.data.data);
+                            // LocalDate 형식으로 변환 (yyyy-MM-dd)
+                            const localDate = date.toISOString().split('T')[0];
+                            document.getElementById('pubDate').value = localDate;
                         }else{
-                            document.getElementById('pubDate').value = '확인되지 않음';
+                            document.getElementById('pubDate').value = null;
                         }
                         break;
                     case 'isbn':

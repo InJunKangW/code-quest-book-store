@@ -11,7 +11,7 @@ public interface CategoryService {
 
     List<CategoryGetResponseDto> getAllCategories();
 
-    List<CategoryGetResponseDto> getCategoriesContaining(String categoryName);
+    List<CategoryGetResponseDto> getNameContainingCategories(String categoryName);
 
     List<CategoryGetResponseDto> getSubCategories(String categoryName);
 

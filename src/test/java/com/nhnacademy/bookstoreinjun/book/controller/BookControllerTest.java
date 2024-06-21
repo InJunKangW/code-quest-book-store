@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.bookstoreinjun.controller.BookController;
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.entity.Product;
+import com.nhnacademy.bookstoreinjun.feignclient.AladinClient;
 import com.nhnacademy.bookstoreinjun.service.ProductCategoryService;
 import com.nhnacademy.bookstoreinjun.service.ProductService;
 import com.nhnacademy.bookstoreinjun.service.ProductTagService;
@@ -39,9 +40,6 @@ public class BookControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private BookController bookController;
 
     @MockBean
     AladinService aladinService;
@@ -83,6 +81,7 @@ public class BookControllerTest {
     @Test
     public void test2() throws Exception {
         when(productService.saveProduct(any())).thenReturn(Product.builder().productId(123L).build());
+
         BookProductRegisterRequestDto bookProductRegisterRequestDto = BookProductRegisterRequestDto.builder()
                 .categories(Arrays.asList("test category1","test category2"))
                 .tags(Arrays.asList("test tag1","test tag2"))

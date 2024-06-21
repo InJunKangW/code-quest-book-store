@@ -69,10 +69,10 @@ public class CategoryRepositoryTest {
         List<Category> subCategories = categoryRepository.findSubCategoriesByParent(savedCategory);
 
         assertNotNull(subCategories);
-        assertEquals(subCategories.size(),10);
+        assertEquals(10, subCategories.size());
 
         List<Category> subContainingCategories = categoryRepository.findAllByCategoryNameContaining("add");
         assertNotNull(subContainingCategories);
-        assertEquals(subContainingCategories.size(),5);
+        assertEquals(5, subContainingCategories.size());
     }
 }

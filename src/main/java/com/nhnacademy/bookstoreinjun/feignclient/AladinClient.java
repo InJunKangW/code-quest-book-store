@@ -12,5 +12,7 @@ public interface AladinClient {
             @RequestParam("TTBKey") String ttbKey,
             @RequestParam("Query") String query,
             @RequestParam("QueryType") String queryType,
-            @RequestParam("MaxResults") int maxResults);
+            @RequestParam("Cover") String Cover,
+            @RequestParam("MaxResults") int maxResults
+            );
 }
