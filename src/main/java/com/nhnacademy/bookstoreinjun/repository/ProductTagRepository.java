@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductTagRepository extends JpaRepository<ProductTag, Long> {
     List<ProductTag> findByProduct(Product product);
+    void deleteByProduct(Product product);
 }

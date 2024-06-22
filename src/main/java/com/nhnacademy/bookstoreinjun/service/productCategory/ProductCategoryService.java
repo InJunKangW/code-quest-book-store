@@ -1,13 +1,12 @@
-package com.nhnacademy.bookstoreinjun.service.category;
+package com.nhnacademy.bookstoreinjun.service.productCategory;
 
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterResponseDto;
-import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import java.util.List;
 
-public interface CategoryService {
+public interface ProductCategoryService {
     CategoryRegisterResponseDto saveCategory(CategoryRegisterRequestDto requestDto);
 
     List<CategoryGetResponseDto> getAllCategories();
@@ -20,7 +19,4 @@ public interface CategoryService {
 
     //내부적으로만 호출됨.
     ProductCategory getCategoryByName(String categoryName);
-
-    //내부적으로만 호출됨.
-    List<ProductCategory> getCategoriesByProduct(Product product);
 }

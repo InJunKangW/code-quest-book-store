@@ -43,7 +43,6 @@ public class BookEntityTest {
                 .isbn("123456789a")
                 .isbn13("123456789abcd")
                 .pubDate(LocalDate.of(1960, 7, 11))
-                .packable(true)
                 .product(product)
                 .build();
 
@@ -55,7 +54,6 @@ public class BookEntityTest {
         assertEquals(savedBook.getIsbn(), "123456789a");
         assertEquals(savedBook.getIsbn13(), "123456789abcd");
         assertEquals(savedBook.getPubDate(), LocalDate.of(1960, 7, 11));
-        assertTrue(savedBook.isPackable());
         assertEquals(savedBook.getProduct(), product);
     }
 
@@ -96,7 +94,6 @@ public class BookEntityTest {
                 .isbn("123456789a")
                 .isbn13("123456789abcd")
                 .pubDate(LocalDate.of(1960, 7, 11))
-                .packable(true)
                 .product(product)
                 .build();
 
@@ -107,7 +104,6 @@ public class BookEntityTest {
         savedBook.setIsbn("23456789ab");
         savedBook.setIsbn13("23456789abcde");
         savedBook.setPubDate(LocalDate.of(1999, 7, 11));
-        savedBook.setPackable(false);
         savedBook.setProduct(product);
 
         entityManager.flush();
@@ -118,7 +114,6 @@ public class BookEntityTest {
         assertEquals(updatedBook.getIsbn(), "23456789ab");
         assertEquals(updatedBook.getIsbn13(), "23456789abcde");
         assertEquals(updatedBook.getPubDate(), LocalDate.of(1999, 7, 11));
-        assertFalse(updatedBook.isPackable());
         assertEquals(updatedBook.getProduct(), product);
 
         // When

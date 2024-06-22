@@ -6,7 +6,7 @@ import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.repository.CategoryRepository;
-import com.nhnacademy.bookstoreinjun.service.category.CategoryService;
+import com.nhnacademy.bookstoreinjun.service.productCategory.ProductCategoryService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class ProductCategoryControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private CategoryService categoryService;
+    private ProductCategoryService productCategoryService;
 
     @MockBean
     private CategoryRepository categoryRepository;
@@ -56,7 +56,7 @@ public class ProductCategoryControllerTest {
                 .content(json))
                 .andExpect(status().isCreated());
 
-        verify(categoryService,times(1)).saveCategory(any(CategoryRegisterRequestDto.class));
+        verify(productCategoryService,times(1)).saveCategory(any(CategoryRegisterRequestDto.class));
     }
 
     @DisplayName("카테고리 신규 등록 실패 테스트 - 중복 카테고리명")
@@ -69,14 +69,14 @@ public class ProductCategoryControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(dto);
 
-        when(categoryService.saveCategory(dto)).thenThrow(DuplicateException.class);
+        when(productCategoryService.saveCategory(dto)).thenThrow(DuplicateException.class);
 
         mockMvc.perform(post("/api/admin/category/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isConflict());
 
-        verify(categoryService,times(1)).saveCategory(any(CategoryRegisterRequestDto.class));
+        verify(productCategoryService,times(1)).saveCategory(any(CategoryRegisterRequestDto.class));
     }
 
     @DisplayName("카테고리 신규 등록 실패 테스트 - 존재하지 않는 상위 카테고리명")
@@ -89,7 +89,7 @@ public class ProductCategoryControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(dto);
 
-        when(categoryService.saveCategory(dto)).thenThrow(NotFoundNameException.class);
+        when(productCategoryService.saveCategory(dto)).thenThrow(NotFoundNameException.class);
 
 
         mockMvc.perform(post("/api/admin/category/register")
@@ -97,7 +97,7 @@ public class ProductCategoryControllerTest {
                         .content(json))
                 .andExpect(status().isNotFound());
 
-        verify(categoryService,times(1)).saveCategory(any(CategoryRegisterRequestDto.class));
+        verify(productCategoryService,times(1)).saveCategory(any(CategoryRegisterRequestDto.class));
     }
 
     @DisplayName("카테고리 리스트 찾아오기 - 모두")
@@ -106,7 +106,7 @@ public class ProductCategoryControllerTest {
         mockMvc.perform(get("/api/admin/category/list/all"))
                 .andExpect(status().isOk());
 
-        verify(categoryService,times(1)).getAllCategories();
+        verify(productCategoryService,times(1)).getAllCategories();
     }
 
     @DisplayName("카테고리 리스트 찾아오기 - 이름 포함")
@@ -116,7 +116,7 @@ public class ProductCategoryControllerTest {
                 .param("categoryName", "test productCategory"))
                 .andExpect(status().isOk());
 
-        verify(categoryService,times(1)).getNameContainingCategories("test productCategory");
+        verify(productCategoryService,times(1)).getNameContainingCategories("test productCategory");
     }
 
     @DisplayName("카테고리 리스트 찾아오기 - 하위")
@@ -126,6 +126,6 @@ public class ProductCategoryControllerTest {
                         .param("categoryName", "test parent productCategory"))
                 .andExpect(status().isOk());
 
-        verify(categoryService,times(1)).getSubCategories("test parent productCategory");
+        verify(productCategoryService,times(1)).getSubCategories("test parent productCategory");
     }
 }

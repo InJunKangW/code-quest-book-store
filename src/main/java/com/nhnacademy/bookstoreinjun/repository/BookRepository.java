@@ -18,7 +18,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 //
 //    public Page<Book> findByAuthorContaining(String author, Pageable pageable);
 //
-//    public boolean existsByBookId(Long bookId);
+    boolean existsByBookId(Long bookId);
 
     @Query("select b from Book b join b.product p where p.productState = 0")
     Page<Book> findBooksByProductState(Pageable pageable);

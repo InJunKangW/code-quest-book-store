@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductCategoryRepository extends JpaRepository<ProductCategoryRelation, Long> {
     List<ProductCategoryRelation> findByProduct(Product product);
+
+    void deleteByProduct(Product product);
 }

@@ -3,7 +3,7 @@ package com.nhnacademy.bookstoreinjun.controller;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterResponseDto;
-import com.nhnacademy.bookstoreinjun.service.category.CategoryService;
+import com.nhnacademy.bookstoreinjun.service.productCategory.ProductCategoryService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/admin/category")
 @RequiredArgsConstructor
 public class CategoryController {
-    private final CategoryService categoryService;
+    private final ProductCategoryService productCategoryService;
 
     private final HttpHeaders header = new HttpHeaders() {{
         setContentType(MediaType.APPLICATION_JSON);
@@ -32,21 +32,21 @@ public class CategoryController {
     @GetMapping("/list/all")
     public ResponseEntity<List<CategoryGetResponseDto>> getAllCategories() {
         log.info("Called list all");
-        return new ResponseEntity<>(categoryService.getAllCategories(), header, HttpStatus.OK);
+        return new ResponseEntity<>(productCategoryService.getAllCategories(), header, HttpStatus.OK);
     }
 
     @GetMapping("/list/containing")
     public ResponseEntity<List<CategoryGetResponseDto>> getNameContainingCategories(@RequestParam("categoryName") String categoryName){
-        return new ResponseEntity<>(categoryService.getNameContainingCategories(categoryName), header, HttpStatus.OK);
+        return new ResponseEntity<>(productCategoryService.getNameContainingCategories(categoryName), header, HttpStatus.OK);
     }
 
     @GetMapping("/list/sub")
     public ResponseEntity<List<CategoryGetResponseDto>> getSubCategories(@RequestParam("categoryName") String categoryName){
-        return new ResponseEntity<>(categoryService.getSubCategories(categoryName), header, HttpStatus.OK);
+        return new ResponseEntity<>(productCategoryService.getSubCategories(categoryName), header, HttpStatus.OK);
     }
 
     @PostMapping("/register")
     public ResponseEntity<CategoryRegisterResponseDto> createCategory(@RequestBody CategoryRegisterRequestDto categoryRegisterRequestDto) {
-        return new ResponseEntity<>(categoryService.saveCategory(categoryRegisterRequestDto), header, HttpStatus.CREATED);
+        return new ResponseEntity<>(productCategoryService.saveCategory(categoryRegisterRequestDto), header, HttpStatus.CREATED);
     }
 }

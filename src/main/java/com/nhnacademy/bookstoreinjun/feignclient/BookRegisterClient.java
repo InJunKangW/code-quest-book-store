@@ -1,7 +1,7 @@
 package com.nhnacademy.bookstoreinjun.feignclient;
 
 
-import com.nhnacademy.bookstoreinjun.dto.book.AladinBookListResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.book.aladin.AladinBookListResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductRegisterResponseDto;
 import org.springframework.cloud.openfeign.FeignClient;

@@ -15,7 +15,7 @@ import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.repository.CategoryRepository;
-import com.nhnacademy.bookstoreinjun.service.category.CategoryServiceImpl;
+import com.nhnacademy.bookstoreinjun.service.productCategory.ProductCategoryServiceImpl;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -25,10 +25,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class ProductCategoryServiceTest {
+public class ProductProductCategoryRelationServiceImplTest {
 
     @InjectMocks
-    private CategoryServiceImpl categoryService;
+    private ProductCategoryServiceImpl categoryService;
 
     @Mock
     private CategoryRepository categoryRepository;

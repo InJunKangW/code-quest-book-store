@@ -1,4 +1,4 @@
-package com.nhnacademy.bookstoreinjun.dto.book;
+package com.nhnacademy.bookstoreinjun.dto.book.aladin;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;

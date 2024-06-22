@@ -44,7 +44,6 @@ public class BookRepositoryTest {
                 .isbn("123456789a")
                 .isbn13("123456789abcd")
                 .pubDate(LocalDate.of(1999,9,9))
-                .packable(true)
                 .product(product)
                 .build();
 
@@ -56,7 +55,6 @@ public class BookRepositoryTest {
         assertEquals(savedBook.getIsbn(), "123456789a");
         assertEquals(savedBook.getIsbn13(), "123456789abcd");
         assertEquals(savedBook.getPubDate(), LocalDate.of(1999, 9, 9));
-        assertTrue(savedBook.isPackable());
         assertEquals(savedBook.getProduct(), product);
 
         assertTrue(bookRepository.existsByIsbn13("123456789abcd"));

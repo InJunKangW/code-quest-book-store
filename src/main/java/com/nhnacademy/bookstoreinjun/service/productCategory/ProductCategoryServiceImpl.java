@@ -1,16 +1,13 @@
-package com.nhnacademy.bookstoreinjun.service.category;
+package com.nhnacademy.bookstoreinjun.service.productCategory;
 
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterResponseDto;
-import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
-import com.nhnacademy.bookstoreinjun.entity.ProductCategoryRelation;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.repository.CategoryRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class CategoryServiceImpl implements CategoryService {
+public class ProductCategoryServiceImpl implements ProductCategoryService {
     private final CategoryRepository categoryRepository;
     private final ProductCategoryRepository productCategoryRepository;
 
@@ -104,19 +101,6 @@ public class CategoryServiceImpl implements CategoryService {
             throw new NotFoundNameException(TYPE, categoryName);
         }else{
             return productCategory;
-        }
-    }
-
-    public List<ProductCategory> getCategoriesByProduct(Product product) {
-        if (product == null){
-            throw new NullPointerException();
-        }else{
-            List<ProductCategory> result = new ArrayList<>();
-            List<ProductCategoryRelation> productCategoryRelations= productCategoryRepository.findByProduct(product);
-            for (ProductCategoryRelation productCategoryRelation : productCategoryRelations){
-                result.add(productCategoryRelation.getProductCategory());
-            }
-            return result;
         }
     }
 }

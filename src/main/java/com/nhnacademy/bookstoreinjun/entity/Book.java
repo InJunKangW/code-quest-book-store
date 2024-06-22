@@ -50,6 +50,4 @@ public class Book {
     @Column(name = "bookPubdate")
     private LocalDate pubDate;
 
-    @Column(nullable = false, name = "bookPackagable")
-    private boolean packable;
 }

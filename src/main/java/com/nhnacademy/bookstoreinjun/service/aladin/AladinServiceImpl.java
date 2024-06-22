@@ -2,7 +2,7 @@ package com.nhnacademy.bookstoreinjun.service.aladin;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.nhnacademy.bookstoreinjun.dto.book.AladinBookListResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.book.aladin.AladinBookListResponseDto;
 import com.nhnacademy.bookstoreinjun.exception.AladinJsonProcessingException;
 import com.nhnacademy.bookstoreinjun.feignclient.AladinClient;
 import java.nio.charset.StandardCharsets;

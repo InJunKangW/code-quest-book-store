@@ -75,6 +75,11 @@ public class Product {
     @ColumnDefault("0")
     private int productState = 0;
 
+    @Builder.Default
+    @Column(nullable = false, name = "packable")
+    @ColumnDefault("false")
+    private boolean packable = false;
+
     public void addViewCount(){
         this.productViewCount++;
     }
