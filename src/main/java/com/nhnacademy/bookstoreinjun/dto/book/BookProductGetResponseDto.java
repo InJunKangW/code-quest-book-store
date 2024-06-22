@@ -19,6 +19,8 @@ public record BookProductGetResponseDto (
         boolean packable,
         String productDescription,
         LocalDateTime productRegisterDate,
+        int productState,
+        long productViewCount,
         long productPriceStandard,
         long productPriceSales,
         long productInventory,

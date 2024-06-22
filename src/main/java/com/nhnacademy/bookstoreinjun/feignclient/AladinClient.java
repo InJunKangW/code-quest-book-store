@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface AladinClient {
 
     @GetMapping("/ttb/api/ItemSearch.aspx")
-    public String getBooks(
+    String getBooks(
             @RequestParam("TTBKey") String ttbKey,
             @RequestParam("Query") String query,
             @RequestParam("QueryType") String queryType,

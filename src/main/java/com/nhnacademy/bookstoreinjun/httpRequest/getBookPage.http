@@ -2,8 +2,4 @@ GET localhost:8004/api/books
 Content-Type: application/json
 
 {
-  "page": 3,
-  "size": 3,
-  "sort": "productProductRegisterDate",
-  "desc": false
 }

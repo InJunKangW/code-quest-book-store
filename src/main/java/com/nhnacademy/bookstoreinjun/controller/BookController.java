@@ -163,7 +163,7 @@ public class BookController {
         int page = Objects.requireNonNullElse(bookPageRequestDto.page(),1);
         int size = Objects.requireNonNullElse(bookPageRequestDto.size(),5);
         boolean desc = Objects.requireNonNullElse(bookPageRequestDto.desc(), true);
-        String sort =  Objects.requireNonNullElse(bookPageRequestDto.sort(), "pubDate");
+        String sort =  Objects.requireNonNullElse(bookPageRequestDto.sort(), "productProductRegisterDate");
 
         Pageable pageable = PageRequest.of(page -1, size,
                 Sort.by(desc ? Sort.Direction.DESC : Sort.Direction.ASC, sort));
@@ -173,7 +173,7 @@ public class BookController {
         if (total < page){
             throw new PageOutOfRangeException(total, page);
         }
-
+        //state 가 0이 아닌 북은 없애야.. 반환 값에 포함 안 되게 해야..
         return new ResponseEntity<>
                 (bookPage.map(
                 book -> BookProductGetResponseDto.builder()
@@ -187,6 +187,8 @@ public class BookController {
                         .packable(book.isPackable())
                         .productDescription(book.getProduct().getProductDescription())
                         .productRegisterDate(book.getProduct().getProductRegisterDate())
+                        .productState(book.getProduct().getProductState())
+                        .productViewCount(book.getProduct().getProductViewCount())
                         .productPriceStandard(book.getProduct().getProductPriceStandard())
                         .productPriceSales(book.getProduct().getProductPriceSales())
                         .productInventory(book.getProduct().getProductInventory())
