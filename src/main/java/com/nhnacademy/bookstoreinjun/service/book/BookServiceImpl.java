@@ -24,6 +24,7 @@ public class BookServiceImpl implements BookService {
     //내부적으로만 호출됨
     public Page<Book> getBookPage(Pageable pageable) {
         try{
+//            return bookRepository.findBooksByProductState(pageable);
             return bookRepository.findAll(pageable);
         }catch (IllegalArgumentException e) {
             StringBuilder stringBuilder = new StringBuilder();

@@ -4,6 +4,7 @@ import com.nhnacademy.bookstoreinjun.entity.Book;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -19,5 +20,8 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 //
 //    public boolean existsByBookId(Long bookId);
 
-    public boolean existsByIsbn13(String isbn13);
+    @Query("select b from Book b join b.product p where p.productState = 0")
+    Page<Book> findBooksByProductState(Pageable pageable);
+
+    boolean existsByIsbn13(String isbn13);
 }

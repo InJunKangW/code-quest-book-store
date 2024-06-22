@@ -2,4 +2,5 @@ GET localhost:8004/api/books
 Content-Type: application/json
 
 {
+  "sort": "productProductRegisterDate"
 }

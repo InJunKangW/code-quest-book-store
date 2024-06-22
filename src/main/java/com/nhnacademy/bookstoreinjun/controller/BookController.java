@@ -158,12 +158,14 @@ public class BookController {
 
     @GetMapping("/books")
     public ResponseEntity<Page<BookProductGetResponseDto>> getAllBookPage(
-           @Valid @ModelAttribute BookPageRequestDto bookPageRequestDto
+           @Valid @RequestBody BookPageRequestDto bookPageRequestDto
     ){
         int page = Objects.requireNonNullElse(bookPageRequestDto.page(),1);
         int size = Objects.requireNonNullElse(bookPageRequestDto.size(),5);
         boolean desc = Objects.requireNonNullElse(bookPageRequestDto.desc(), true);
         String sort =  Objects.requireNonNullElse(bookPageRequestDto.sort(), "productProductRegisterDate");
+
+        log.info("page {}, size {}, desc {}, sort {}", page, size, desc, sort);
 
         Pageable pageable = PageRequest.of(page -1, size,
                 Sort.by(desc ? Sort.Direction.DESC : Sort.Direction.ASC, sort));
