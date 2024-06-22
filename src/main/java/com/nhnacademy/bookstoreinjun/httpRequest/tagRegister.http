@@ -7,3 +7,12 @@ Content-Type: application/json
 
 ###
 GET localhost:8003/api/admin/tag/list/containing?tagName=2
+
+####
+PUT localhost:8004/api/admin/tag
+Content-Type: application/json
+
+{
+  "currentTagName": "tag2",
+  "newTagName": "newTag2"
+}

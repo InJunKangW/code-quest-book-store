@@ -4,6 +4,8 @@ package com.nhnacademy.bookstoreinjun.controller;
 import com.nhnacademy.bookstoreinjun.dto.tag.TagGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.tag.TagRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.tag.TagRegisterResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.tag.TagUpdateRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.tag.TagUpdateResponseDto;
 import com.nhnacademy.bookstoreinjun.service.tag.TagService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,5 +51,10 @@ public class TagController {
     @PostMapping
     public ResponseEntity<TagRegisterResponseDto> createTag(@RequestBody TagRegisterRequestDto tagRegisterRequestDto) {
         return new ResponseEntity<>(tagService.saveTag(tagRegisterRequestDto), header, HttpStatus.CREATED);
+    }
+
+    @PutMapping
+    public ResponseEntity<TagUpdateResponseDto> updateTag(@RequestBody TagUpdateRequestDto tagUpdateRequestDto) {
+        return new ResponseEntity<>(tagService.updateTag(tagUpdateRequestDto), header, HttpStatus.OK);
     }
 }

@@ -4,43 +4,47 @@ import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategoryRelation;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
-import com.nhnacademy.bookstoreinjun.repository.CategoryRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
+import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRelationRepository;
 import com.nhnacademy.bookstoreinjun.util.ProductCheckUtil;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ProductCategoryRelationServiceImpl implements ProductCategoryRelationService {
+    private final ProductCategoryRelationRepository productCategoryRelationRepository;
+
     private final ProductCategoryRepository productCategoryRepository;
 
-    private final CategoryRepository categoryRepository;
+    private final ProductCheckUtil productCheckUtil;
 
     public void saveProductCategory(ProductCategoryRelation productCategoryRelation) {
         Product product = productCategoryRelation.getProduct();
-        ProductCheckUtil.checkProduct(product);
+        productCheckUtil.checkProduct(product);
 
         ProductCategory productCategory = productCategoryRelation.getProductCategory();
         if (productCategory == null || productCategory.getProductCategoryId() == null) {
             throw new RuntimeException();
-        } else if (!categoryRepository.existsById(productCategory.getProductCategoryId())) {
+        } else if (!productCategoryRepository.existsById(productCategory.getProductCategoryId())) {
             throw new NotFoundIdException("productCategory", productCategory.getProductCategoryId());
         }
-        productCategoryRepository.save(productCategoryRelation);
+        productCategoryRelationRepository.save(productCategoryRelation);
     }
 
     public void clearCategoriesByProduct(Product product) {
-        productCategoryRepository.deleteByProduct(product);
+        productCategoryRelationRepository.deleteByProduct(product);
     }
 
     public List<ProductCategory> getCategoriesByProduct(Product product) {
-        ProductCheckUtil.checkProduct(product);
+        productCheckUtil.checkProduct(product);
 
         List<ProductCategory> result = new ArrayList<>();
-        List<ProductCategoryRelation> productCategoryRelations= productCategoryRepository.findByProduct(product);
+        List<ProductCategoryRelation> productCategoryRelations= productCategoryRelationRepository.findByProduct(product);
         for (ProductCategoryRelation productCategoryRelation : productCategoryRelations){
             result.add(productCategoryRelation.getProductCategory());
         }

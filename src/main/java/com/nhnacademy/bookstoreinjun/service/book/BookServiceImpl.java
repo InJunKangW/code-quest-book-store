@@ -15,13 +15,14 @@ import com.nhnacademy.bookstoreinjun.entity.Tag;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.InvalidSortNameException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
+import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
 import com.nhnacademy.bookstoreinjun.repository.BookRepository;
+import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
-import com.nhnacademy.bookstoreinjun.service.productCategoryRelation.ProductCategoryRelationServiceImpl;
+import com.nhnacademy.bookstoreinjun.repository.TagRepository;
+import com.nhnacademy.bookstoreinjun.service.productCategoryRelation.ProductCategoryRelationService;
 import com.nhnacademy.bookstoreinjun.service.productTag.ProductTagService;
-import com.nhnacademy.bookstoreinjun.service.productCategory.ProductCategoryService;
-import com.nhnacademy.bookstoreinjun.service.tag.TagService;
 import com.nhnacademy.bookstoreinjun.util.ProductCheckUtil;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
@@ -50,14 +51,15 @@ public class BookServiceImpl implements BookService {
 
     private final ProductRepository productRepository;
 
-    private final ProductCategoryService productCategoryService;
+    private final TagRepository tagRepository;
 
-    private final ProductCategoryRelationServiceImpl productCategoryRelationServiceImpl;
+    private final ProductCategoryRepository productCategoryRepository;
 
-    private final TagService tagService;
+    private final ProductCategoryRelationService productCategoryRelationService;
 
     private final ProductTagService productTagService;
 
+    private final ProductCheckUtil productCheckUtil;
 
     private final String TYPE = "book";
 
@@ -65,14 +67,17 @@ public class BookServiceImpl implements BookService {
     private void saveProductCategoryRelation(List<String> categories, Product product){
         if (categories != null){
             for (String categoryName : categories) {
-                ProductCategory productCategory = productCategoryService.getCategoryByName(categoryName);
+                ProductCategory productCategory = productCategoryRepository.findByCategoryName(categoryName);
+                if (productCategory == null){
+                    throw new NotFoundNameException(TYPE, categoryName);
+                }
 
                 ProductCategoryRelation productCategoryRelation = ProductCategoryRelation.builder()
                         .productCategory(productCategory)
                         .product(product)
                         .build();
 
-                productCategoryRelationServiceImpl.saveProductCategory(productCategoryRelation);
+                productCategoryRelationService.saveProductCategory(productCategoryRelation);
             }
         }
     }
@@ -80,7 +85,10 @@ public class BookServiceImpl implements BookService {
     private void saveProductTag(List<String> tags, Product product){
         if (tags != null){
             for (String tagName : tags) {
-                Tag tag = tagService.getTagByTagName(tagName);
+                Tag tag = tagRepository.findByTagName(tagName);
+                if (tag == null) {
+                    throw new NotFoundNameException("tag", tagName);
+                }
 
                 ProductTag productTag = ProductTag.builder()
                         .product(product)
@@ -108,7 +116,7 @@ public class BookServiceImpl implements BookService {
                 .productPriceStandard(book.getProduct().getProductPriceStandard())
                 .productPriceSales(book.getProduct().getProductPriceSales())
                 .productInventory(book.getProduct().getProductInventory())
-                .categories(productCategoryRelationServiceImpl.getCategoriesByProduct(book.getProduct()).stream()
+                .categories(productCategoryRelationService.getCategoriesByProduct(book.getProduct()).stream()
                         .map(ProductCategory ::getCategoryName)
                         .collect(Collectors.toList()))
                 .tags(productTagService.getTagsByProduct(book.getProduct()).stream()
@@ -207,18 +215,19 @@ public class BookServiceImpl implements BookService {
         }else {
             Book book = bookOptional.get();
             Product product = book.getProduct();
-            ProductCheckUtil.checkProduct(product);
+            productCheckUtil.checkProduct(product);
 
             product.setProductDescription(bookProductUpdateRequestDto.productDescription());
             product.setProductInventory(bookProductUpdateRequestDto.productInventory());
             product.setProductState(bookProductUpdateRequestDto.productState());
             product.setProductPriceSales(bookProductUpdateRequestDto.productPriceSales());
+            product.setPackable(bookProductUpdateRequestDto.packable());
 
             Product updateProduct = productRepository.save(product);
             List<String> categories = bookProductUpdateRequestDto.categories();
             List<String> tags = bookProductUpdateRequestDto.tags();
 
-            productCategoryRelationServiceImpl.clearCategoriesByProduct(updateProduct);
+            productCategoryRelationService.clearCategoriesByProduct(updateProduct);
             productTagService.clearTagsByProduct(updateProduct);
 
             saveProductCategoryRelation(categories, updateProduct);

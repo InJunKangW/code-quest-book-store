@@ -14,7 +14,7 @@ import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
-import com.nhnacademy.bookstoreinjun.repository.CategoryRepository;
+import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
 import com.nhnacademy.bookstoreinjun.service.productCategory.ProductCategoryServiceImpl;
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +31,7 @@ public class ProductProductCategoryRelationServiceImplTest {
     private ProductCategoryServiceImpl categoryService;
 
     @Mock
-    private CategoryRepository categoryRepository;
+    private ProductCategoryRepository productCategoryRepository;
 
     private final String TEST_CATEGORY_NAME = "Test ProductCategory";
 
@@ -47,12 +47,12 @@ public class ProductProductCategoryRelationServiceImplTest {
 
         categoryService.saveCategory(dto);
 
-        verify(categoryRepository, times(1)).save(any(ProductCategory.class));
+        verify(productCategoryRepository, times(1)).save(any(ProductCategory.class));
     }
 
     @Test
     public void saveCategoryTest2(){
-        when(categoryRepository.existsByCategoryName("parent productCategory")).thenReturn(false);
+        when(productCategoryRepository.existsByCategoryName("parent productCategory")).thenReturn(false);
         ProductCategory productCategory = ProductCategory.builder()
                 .categoryName(TEST_CATEGORY_NAME)
                 .build();
@@ -67,7 +67,7 @@ public class ProductProductCategoryRelationServiceImplTest {
 
     @Test
     public void saveCategoryTest3(){
-        when(categoryRepository.existsByCategoryName(any())).thenReturn(true);
+        when(productCategoryRepository.existsByCategoryName(any())).thenReturn(true);
 
         ProductCategory productCategory = ProductCategory.builder()
                 .categoryName(TEST_CATEGORY_NAME)
@@ -82,11 +82,11 @@ public class ProductProductCategoryRelationServiceImplTest {
 
     @Test
     public void getCategoryDtoTest1(){
-        when(categoryRepository.findByCategoryName(TEST_CATEGORY_NAME)).thenReturn(new ProductCategory());
+        when(productCategoryRepository.findByCategoryName(TEST_CATEGORY_NAME)).thenReturn(new ProductCategory());
 
         CategoryGetResponseDto dto = categoryService.getCategoryDtoByName(TEST_CATEGORY_NAME);
 
-        verify(categoryRepository, times(1)).findByCategoryName(TEST_CATEGORY_NAME);
+        verify(productCategoryRepository, times(1)).findByCategoryName(TEST_CATEGORY_NAME);
 
         assertNotNull(dto);
     }
@@ -95,32 +95,32 @@ public class ProductProductCategoryRelationServiceImplTest {
     public void getCategoryDtoTest2(){
         assertThrows(NotFoundNameException.class, () -> categoryService.getCategoryDtoByName(TEST_CATEGORY_NAME));
 
-        verify(categoryRepository, times(1)).findByCategoryName(TEST_CATEGORY_NAME);
+        verify(productCategoryRepository, times(1)).findByCategoryName(TEST_CATEGORY_NAME);
     }
 
     @Test
     public void getCategoryTest1(){
-        when(categoryRepository.findByCategoryName(TEST_CATEGORY_NAME)).thenReturn(new ProductCategory());
+        when(productCategoryRepository.findByCategoryName(TEST_CATEGORY_NAME)).thenReturn(new ProductCategory());
 
         ProductCategory productCategory = categoryService.getCategoryByName(TEST_CATEGORY_NAME);
 
-        verify(categoryRepository, times(1)).findByCategoryName(TEST_CATEGORY_NAME);
+        verify(productCategoryRepository, times(1)).findByCategoryName(TEST_CATEGORY_NAME);
 
         assertNotNull(productCategory);
     }
 
     @Test
     public void getCategoryTest2(){
-        when(categoryRepository.findByCategoryName(TEST_CATEGORY_NAME)).thenReturn(null);
+        when(productCategoryRepository.findByCategoryName(TEST_CATEGORY_NAME)).thenReturn(null);
 
         assertThrows(NotFoundNameException.class, () -> categoryService.getCategoryByName(TEST_CATEGORY_NAME));
 
-        verify(categoryRepository, times(1)).findByCategoryName(any());
+        verify(productCategoryRepository, times(1)).findByCategoryName(any());
     }
 
     @Test
     public void getAllCategoriesTest(){
-        when(categoryRepository.findAll()).thenReturn(
+        when(productCategoryRepository.findAll()).thenReturn(
                 Arrays.asList(
                         ProductCategory.builder()
                                 .categoryName(TEST_CATEGORY_NAME + 1)
@@ -132,12 +132,12 @@ public class ProductProductCategoryRelationServiceImplTest {
         List<CategoryGetResponseDto> dto = categoryService.getAllCategories();
         assertNotNull(dto);
         assertEquals(dto.size(), 2);
-        verify(categoryRepository, times(1)).findAll();
+        verify(productCategoryRepository, times(1)).findAll();
     }
 
     @Test
     public void getCategoriesContaining(){
-        when(categoryRepository.findAllByCategoryNameContaining("test")).thenReturn(
+        when(productCategoryRepository.findAllByCategoryNameContaining("test")).thenReturn(
                 Arrays.asList(
                 ProductCategory.builder()
                         .categoryName(TEST_CATEGORY_NAME + 1)
@@ -148,22 +148,22 @@ public class ProductProductCategoryRelationServiceImplTest {
         List<CategoryGetResponseDto> dto = categoryService.getNameContainingCategories("test");
         assertNotNull(dto);
         assertEquals(dto.size(), 2);
-        verify(categoryRepository, times(1)).findAllByCategoryNameContaining(any());
+        verify(productCategoryRepository, times(1)).findAllByCategoryNameContaining(any());
     }
 
     @Test
     public void getSubCategoriesTest1(){
-        when(categoryRepository.findByCategoryName("test")).thenReturn(null);
+        when(productCategoryRepository.findByCategoryName("test")).thenReturn(null);
         assertThrows(NotFoundNameException.class, () -> categoryService.getSubCategories("test"));
     }
 
     @Test
     public void getSubCategoriesTest2(){
-        when(categoryRepository.findByCategoryName("test")).thenReturn(new ProductCategory());
+        when(productCategoryRepository.findByCategoryName("test")).thenReturn(new ProductCategory());
 
         categoryService.getSubCategories("test");
 
-        verify(categoryRepository, times(1)).findByCategoryName(any());
+        verify(productCategoryRepository, times(1)).findByCategoryName(any());
     }
 
 }

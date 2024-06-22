@@ -22,10 +22,14 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req ->
                         req.requestMatchers("/h2-console/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/admin/**").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.POST, "/api/admin/**").hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.PUT, "/api/admin/**").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/admin/**").permitAll()
+//                                .hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.POST, "/api/admin/**").permitAll()
+//                                .hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.PUT, "/api/admin/**").permitAll()
+//                                .hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                                .anyRequest().permitAll()
                 )
                 .headers(h -> h.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
 //                .addFilterBefore(new EmailHeaderFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class);

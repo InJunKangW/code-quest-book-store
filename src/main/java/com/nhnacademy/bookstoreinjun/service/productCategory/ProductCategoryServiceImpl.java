@@ -3,11 +3,14 @@ package com.nhnacademy.bookstoreinjun.service.productCategory;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.category.CategoryUpdateRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.category.CategoryUpdateResponseDto;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
-import com.nhnacademy.bookstoreinjun.repository.CategoryRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
+import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRelationRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class ProductCategoryServiceImpl implements ProductCategoryService {
-    private final CategoryRepository categoryRepository;
     private final ProductCategoryRepository productCategoryRepository;
+    private final ProductCategoryRelationRepository productCategoryRelationRepository;
 
     private final String TYPE = "productCategory";
 
@@ -27,13 +30,13 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         String parentCategoryName = categoryRegisterRequestDto.parentCategoryName();
         String categoryName = categoryRegisterRequestDto.categoryName();
 
-        if (parentCategoryName != null && !categoryRepository.existsByCategoryName(parentCategoryName)){
+        if (parentCategoryName != null && !productCategoryRepository.existsByCategoryName(parentCategoryName)){
             throw new NotFoundNameException(TYPE, parentCategoryName);
-        }else if (categoryRepository.existsByCategoryName(categoryName)){
+        }else if (productCategoryRepository.existsByCategoryName(categoryName)){
             throw new DuplicateException(TYPE);
         }else {
-            ProductCategory parentProductCategory = categoryRepository.findByCategoryName(parentCategoryName);
-            categoryRepository.save(ProductCategory.builder()
+            ProductCategory parentProductCategory = productCategoryRepository.findByCategoryName(parentCategoryName);
+            productCategoryRepository.save(ProductCategory.builder()
                     .categoryName(categoryName)
                     .parentProductCategory(parentProductCategory)
                     .build());
@@ -41,16 +44,28 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         }
     }
 
-//    public ProductCategory updateCategory(ProductCategory productCategory) {
-//        if (!categoryRepository.existsById(productCategory.getCategoryId())){
-//            throw new NotFoundIdException(TYPE, productCategory.getCategoryId());
-//        }else{
-//            return categoryRepository.save(productCategory);
-//        }
-//    }
+    public CategoryUpdateResponseDto updateCategory(CategoryUpdateRequestDto categoryUpdateRequestDto) {
+        String currentCategoryName = categoryUpdateRequestDto.currentCategoryName();
+        String newCategoryName = categoryUpdateRequestDto.newCategoryName();
+        if (!productCategoryRepository.existsByCategoryName(currentCategoryName)){
+            throw new NotFoundNameException(TYPE, currentCategoryName);
+        }else if (productCategoryRepository.existsByCategoryName(newCategoryName)){
+            throw new DuplicateException(TYPE);
+        }else {
+            ProductCategory currentProductCategory = productCategoryRepository.findByCategoryName(currentCategoryName);
+            currentProductCategory.setCategoryName(newCategoryName);
+            productCategoryRepository.save(currentProductCategory);
+
+            return CategoryUpdateResponseDto.builder()
+                    .previousCategoryName(currentCategoryName)
+                    .newCategoryName(newCategoryName)
+                    .updateTime(LocalDateTime.now())
+                    .build();
+        }
+    }
 
     public List<CategoryGetResponseDto> getAllCategories() {
-        return categoryRepository.findAll().stream()
+        return productCategoryRepository.findAll().stream()
                 .map(category -> CategoryGetResponseDto.builder()
                         .categoryName(category.getCategoryName())
                         .parentProductCategory(category.getParentProductCategory())
@@ -60,7 +75,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
 
     public List<CategoryGetResponseDto> getNameContainingCategories(String categoryName) {
-        return categoryRepository.findAllByCategoryNameContaining(categoryName).stream()
+        return productCategoryRepository.findAllByCategoryNameContaining(categoryName).stream()
                 .map(category -> CategoryGetResponseDto.builder()
                         .categoryName(category.getCategoryName())
                         .parentProductCategory(category.getParentProductCategory())
@@ -69,11 +84,11 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     public List<CategoryGetResponseDto> getSubCategories(String categoryName) {
-        ProductCategory parent = categoryRepository.findByCategoryName(categoryName);
+        ProductCategory parent = productCategoryRepository.findByCategoryName(categoryName);
         if (parent == null) {
             throw new NotFoundNameException(TYPE, categoryName);
         }else {
-            return categoryRepository.findSubCategoriesByParent(parent).stream()
+            return productCategoryRepository.findSubCategoriesByParent(parent).stream()
                     .map(category -> CategoryGetResponseDto.builder()
                             .categoryName(category.getCategoryName())
                             .parentProductCategory(category.getParentProductCategory())
@@ -83,7 +98,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     public CategoryGetResponseDto getCategoryDtoByName(String categoryName) {
-        ProductCategory productCategory = categoryRepository.findByCategoryName(categoryName);
+        ProductCategory productCategory = productCategoryRepository.findByCategoryName(categoryName);
         if (productCategory == null){
             throw new NotFoundNameException(TYPE, categoryName);
         }else{
@@ -91,16 +106,6 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
                     .categoryName(categoryName)
                     .parentProductCategory(productCategory.getParentProductCategory())
                     .build();
-        }
-    }
-
-    //밑의 둘은 내부적으로만 호출.
-    public ProductCategory getCategoryByName(String categoryName){
-        ProductCategory productCategory = categoryRepository.findByCategoryName(categoryName);
-        if (productCategory == null){
-            throw new NotFoundNameException(TYPE, categoryName);
-        }else{
-            return productCategory;
         }
     }
 }

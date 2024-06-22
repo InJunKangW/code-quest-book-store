@@ -2,7 +2,7 @@ package com.nhnacademy.bookstoreinjun.category.repository;
 
 
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
-import com.nhnacademy.bookstoreinjun.repository.CategoryRepository;
+import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @TestPropertySource(locations = "classpath:application-dev.properties")
-public class ProductCategoryRepositoryTest {
+public class ProductCategoryRelationRepositoryTest {
 
     @Autowired
-    private CategoryRepository categoryRepository;
+    private ProductCategoryRepository productCategoryRepository;
 
     private ProductCategory productCategory;
 
@@ -33,7 +33,7 @@ public class ProductCategoryRepositoryTest {
 
     @Test
     public void categorySaveTest() {
-        ProductCategory savedProductCategory = categoryRepository.save(productCategory);
+        ProductCategory savedProductCategory = productCategoryRepository.save(productCategory);
         assertNotNull(savedProductCategory);
         assertEquals(savedProductCategory.getCategoryName(), "test category1");
         assertNull(savedProductCategory.getParentProductCategory());
@@ -42,18 +42,18 @@ public class ProductCategoryRepositoryTest {
 
     @Test
     public void categoryCheckTest() {
-        ProductCategory savedProductCategory = categoryRepository.save(productCategory);
+        ProductCategory savedProductCategory = productCategoryRepository.save(productCategory);
         assertNotNull(savedProductCategory);
-        assertTrue(categoryRepository.existsByCategoryName("test category1"));
+        assertTrue(productCategoryRepository.existsByCategoryName("test category1"));
 
-        ProductCategory foundProductCategory = categoryRepository.findByCategoryName("test category1");
+        ProductCategory foundProductCategory = productCategoryRepository.findByCategoryName("test category1");
         assertNotNull(foundProductCategory);
         assertEquals(savedProductCategory, foundProductCategory);
     }
 
     @Test
     public void categoriesCheckTest(){
-        ProductCategory savedProductCategory = categoryRepository.save(productCategory);
+        ProductCategory savedProductCategory = productCategoryRepository.save(productCategory);
         for (int i = 0; i < 10; i ++){
             String value = "";
             if(i % 2 == 0){
@@ -63,14 +63,14 @@ public class ProductCategoryRepositoryTest {
                     .categoryName("sub productCategory" + value + i)
                     .parentProductCategory(savedProductCategory)
                     .build();
-            categoryRepository.save(subProductCategory);
+            productCategoryRepository.save(subProductCategory);
         }
-        List<ProductCategory> subCategories = categoryRepository.findSubCategoriesByParent(savedProductCategory);
+        List<ProductCategory> subCategories = productCategoryRepository.findSubCategoriesByParent(savedProductCategory);
 
         assertNotNull(subCategories);
         assertEquals(10, subCategories.size());
 
-        List<ProductCategory> subContainingCategories = categoryRepository.findAllByCategoryNameContaining("add");
+        List<ProductCategory> subContainingCategories = productCategoryRepository.findAllByCategoryNameContaining("add");
         assertNotNull(subContainingCategories);
         assertEquals(5, subContainingCategories.size());
     }

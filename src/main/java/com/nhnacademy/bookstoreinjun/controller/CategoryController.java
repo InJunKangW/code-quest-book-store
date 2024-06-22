@@ -3,6 +3,8 @@ package com.nhnacademy.bookstoreinjun.controller;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.category.CategoryUpdateRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.category.CategoryUpdateResponseDto;
 import com.nhnacademy.bookstoreinjun.service.productCategory.ProductCategoryService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,5 +51,10 @@ public class CategoryController {
     @PostMapping("/register")
     public ResponseEntity<CategoryRegisterResponseDto> createCategory(@RequestBody CategoryRegisterRequestDto categoryRegisterRequestDto) {
         return new ResponseEntity<>(productCategoryService.saveCategory(categoryRegisterRequestDto), header, HttpStatus.CREATED);
+    }
+
+    @PutMapping
+    public ResponseEntity<CategoryUpdateResponseDto> updateCategory(@RequestBody CategoryUpdateRequestDto categoryUpdateRequestDto) {
+        return new ResponseEntity<>(productCategoryService.updateCategory(categoryUpdateRequestDto), header, HttpStatus.OK);
     }
 }

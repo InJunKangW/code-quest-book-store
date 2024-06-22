@@ -5,7 +5,7 @@ import com.nhnacademy.bookstoreinjun.controller.CategoryController;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
-import com.nhnacademy.bookstoreinjun.repository.CategoryRepository;
+import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
 import com.nhnacademy.bookstoreinjun.service.productCategory.ProductCategoryService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,7 @@ public class ProductCategoryControllerTest {
     private ProductCategoryService productCategoryService;
 
     @MockBean
-    private CategoryRepository categoryRepository;
+    private ProductCategoryRepository productCategoryRepository;
 
     @Test
     public void contextLoads(){

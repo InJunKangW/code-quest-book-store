@@ -11,17 +11,21 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ProductTagServiceImpl implements ProductTagService {
     private final ProductTagRepository productTagRepository;
 
     private final TagRepository tagRepository;
 
+    private final ProductCheckUtil productCheckUtil;
+
     public void saveProductTag(ProductTag productTag) {
         Product product = productTag.getProduct();
-        ProductCheckUtil.checkProduct(product);
+        productCheckUtil.checkProduct(product);
 
         Tag tag = productTag.getTag();
         if (tag == null || tag.getTagId() == null) {
@@ -37,7 +41,7 @@ public class ProductTagServiceImpl implements ProductTagService {
     }
 
     public List<Tag> getTagsByProduct(Product product) {
-        ProductCheckUtil.checkProduct(product);
+        productCheckUtil.checkProduct(product);
         List<Tag> result = new ArrayList<>();
         List<ProductTag> productTagRelations= productTagRepository.findByProduct(product);
         for (ProductTag productTag : productTagRelations){

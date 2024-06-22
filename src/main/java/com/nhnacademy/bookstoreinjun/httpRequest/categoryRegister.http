@@ -7,3 +7,12 @@ Content-Type: application/json
 
 ###
 GET localhost:8003/api/admin/productCategory/list
+
+###
+PUT localhost:8004/api/admin/category
+Content-Type: application/json
+
+{
+  "currentCategoryName": "카테고리3",
+  "newCategoryName": "뉴카테고리3"
+}

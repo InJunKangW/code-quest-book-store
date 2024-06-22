@@ -15,12 +15,31 @@ Content-Type: application/json
   "productPriceStandard": 5000012,
   "productPriceSales": 1000012,
   "categories": [
-
+      "카테고리3", "뉴카테고리3"
   ],
   "tags": [
-
+    "tag2", "newTag2"
   ]
 }
 
 ###
 GET localhost:8003/api/admin/book/test/test?title=사랑
+
+###
+PUT localhost:8004/api/admin/book
+Content-Type: application/json
+
+{
+  "bookId": 1,
+  "packable": true,
+  "productDescription": "changed description",
+  "productInventory": 1023,
+  "productPriceSales": 100,
+  "productState": 1,
+  "categories": [
+    "카테고리3"
+  ],
+  "tags": [
+    "tag2"
+  ]
+}
