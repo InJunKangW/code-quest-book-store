@@ -1,8 +1,10 @@
 package com.nhnacademy.bookstoreinjun.dto.page;
 
 import jakarta.validation.constraints.Min;
+import lombok.Builder;
 
-public record BookPageRequestDto(
+@Builder
+public record PageRequestDto(
        @Min(1) Integer page,
        @Min(1) Integer size,
         String sort,

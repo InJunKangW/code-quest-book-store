@@ -6,7 +6,13 @@ Content-Type: application/json
 }
 
 ###
-GET localhost:8003/api/admin/productCategory/list
+GET localhost:8004/api/admin/category/test
+Content-Type: application/json
+
+{
+ "page": 1,
+  "sort": "wrong"
+}
 
 ###
 PUT localhost:8004/api/admin/category

@@ -5,15 +5,22 @@ import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryUpdateRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryUpdateResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
+import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
-import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRelationRepository;
+import com.nhnacademy.bookstoreinjun.util.MakePageableUtil;
+import com.nhnacademy.bookstoreinjun.util.SortCheckUtil;
+import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,9 +29,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ProductCategoryServiceImpl implements ProductCategoryService {
     private final ProductCategoryRepository productCategoryRepository;
-    private final ProductCategoryRelationRepository productCategoryRelationRepository;
 
     private final String TYPE = "productCategory";
+
+    private final int DEFAULT_PAGE_SIZE = 10;
+
+    private final String DEFAULT_SORT = "productCategoryId";
 
     public CategoryRegisterResponseDto saveCategory(CategoryRegisterRequestDto categoryRegisterRequestDto) {
         String parentCategoryName = categoryRegisterRequestDto.parentCategoryName();
@@ -47,6 +57,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     public CategoryUpdateResponseDto updateCategory(CategoryUpdateRequestDto categoryUpdateRequestDto) {
         String currentCategoryName = categoryUpdateRequestDto.currentCategoryName();
         String newCategoryName = categoryUpdateRequestDto.newCategoryName();
+
         if (!productCategoryRepository.existsByCategoryName(currentCategoryName)){
             throw new NotFoundNameException(TYPE, currentCategoryName);
         }else if (productCategoryRepository.existsByCategoryName(newCategoryName)){
@@ -64,6 +75,25 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         }
     }
 
+
+    private CategoryGetResponseDto makeCategoryGetResponseDtoFromProductCategory(ProductCategory productCategory) {
+        return CategoryGetResponseDto.builder()
+                .categoryName(productCategory.getCategoryName())
+                .parentProductCategory(productCategory.getParentProductCategory())
+                .build();
+    }
+
+    private Page<CategoryGetResponseDto> makeCategoryGetResponseDtoPage(Pageable pageable, Page<ProductCategory> productCategoryPage) {
+        int total = productCategoryPage.getTotalPages();
+        int maxPage = pageable.getPageNumber() + 1;
+
+        if (total < maxPage){
+            throw new PageOutOfRangeException(total, maxPage);
+        }
+        return productCategoryPage.map(this::makeCategoryGetResponseDtoFromProductCategory);
+    }
+
+
     public List<CategoryGetResponseDto> getAllCategories() {
         return productCategoryRepository.findAll().stream()
                 .map(category -> CategoryGetResponseDto.builder()
@@ -71,6 +101,18 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
                         .parentProductCategory(category.getParentProductCategory())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+
+    public Page<CategoryGetResponseDto> getAllCategoryPage(@Valid PageRequestDto pageRequestDto) {
+        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+
+        try{
+            Page<ProductCategory> productCategoryPage = productCategoryRepository.findAll(pageable);
+            return makeCategoryGetResponseDtoPage(pageable, productCategoryPage);
+        }catch (PropertyReferenceException e) {
+           throw SortCheckUtil.sortExceptionHandle(pageable);
+        }
     }
 
 
@@ -82,6 +124,18 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+
+    public Page<CategoryGetResponseDto> getNameContainingCategoryPage(@Valid PageRequestDto pageRequestDto, String categoryName) {
+        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+        try{
+            Page<ProductCategory> productCategoryPage = productCategoryRepository.findAllByCategoryNameContaining(pageable, categoryName);
+            return makeCategoryGetResponseDtoPage(pageable, productCategoryPage);
+        }catch (PropertyReferenceException e) {
+            throw SortCheckUtil.sortExceptionHandle(pageable);
+        }
+    }
+
 
     public List<CategoryGetResponseDto> getSubCategories(String categoryName) {
         ProductCategory parent = productCategoryRepository.findByCategoryName(categoryName);
@@ -96,6 +150,23 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
                     .collect(Collectors.toList());
         }
     }
+
+    public Page<CategoryGetResponseDto> getSubCategoryPage(@Valid PageRequestDto pageRequestDto, String categoryName) {
+        ProductCategory parent = productCategoryRepository.findByCategoryName(categoryName);
+        if (parent == null) {
+            throw new NotFoundNameException(TYPE, categoryName);
+        }else {
+            Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+
+            try{
+                Page<ProductCategory> productCategoryPage = productCategoryRepository.findAllByParentProductCategory(pageable, parent);
+                return makeCategoryGetResponseDtoPage(pageable, productCategoryPage);
+            }catch (PropertyReferenceException e) {
+                throw SortCheckUtil.sortExceptionHandle(pageable);
+            }
+        }
+    }
+
 
     public CategoryGetResponseDto getCategoryDtoByName(String categoryName) {
         ProductCategory productCategory = productCategoryRepository.findByCategoryName(categoryName);

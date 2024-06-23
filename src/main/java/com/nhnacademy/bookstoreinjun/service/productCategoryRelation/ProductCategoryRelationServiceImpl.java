@@ -23,7 +23,7 @@ public class ProductCategoryRelationServiceImpl implements ProductCategoryRelati
 
     private final ProductCheckUtil productCheckUtil;
 
-    public void saveProductCategory(ProductCategoryRelation productCategoryRelation) {
+    public void saveProductCategoryRelation(ProductCategoryRelation productCategoryRelation) {
         Product product = productCategoryRelation.getProduct();
         productCheckUtil.checkProduct(product);
 
@@ -36,11 +36,12 @@ public class ProductCategoryRelationServiceImpl implements ProductCategoryRelati
         productCategoryRelationRepository.save(productCategoryRelation);
     }
 
-    public void clearCategoriesByProduct(Product product) {
+    public void clearProductCategoryRelationsByProduct(Product product) {
+        productCheckUtil.checkProduct(product);
         productCategoryRelationRepository.deleteByProduct(product);
     }
 
-    public List<ProductCategory> getCategoriesByProduct(Product product) {
+    public List<ProductCategory> getProductCategoryRelationsByProduct(Product product) {
         productCheckUtil.checkProduct(product);
 
         List<ProductCategory> result = new ArrayList<>();

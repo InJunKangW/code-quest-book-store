@@ -1,15 +1,19 @@
 package com.nhnacademy.bookstoreinjun.controller;
 
 
+import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.tag.TagGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.tag.TagRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.tag.TagRegisterResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.tag.TagUpdateRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.tag.TagUpdateResponseDto;
 import com.nhnacademy.bookstoreinjun.service.tag.TagService;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -43,9 +47,19 @@ public class TagController {
         return new ResponseEntity<>(tagService.getAllTags(), header, HttpStatus.OK);
     }
 
+    @GetMapping("/tags/all")
+    public ResponseEntity<Page<TagGetResponseDto>> getAllTags(@Valid @RequestBody PageRequestDto pageRequestDto) {
+        return new ResponseEntity<>(tagService.getAllTagPage(pageRequestDto), header, HttpStatus.OK);
+    }
+
     @GetMapping("/list/containing")
     public ResponseEntity<List<TagGetResponseDto>> getTagByTagName(@RequestParam("tagName") String tagName) {
-        return new ResponseEntity<>(tagService.getTagsContaining(tagName), header, HttpStatus.OK);
+        return new ResponseEntity<>(tagService.getNameContainingTags(tagName), header, HttpStatus.OK);
+    }
+
+    @GetMapping("/tags/containing")
+    public ResponseEntity<Page<TagGetResponseDto>> getNameContainingTagPage(@Valid @RequestBody PageRequestDto pageRequestDto, @RequestParam("tagName") String tagName) {
+        return new ResponseEntity<>(tagService.getNameContainingTagPage(pageRequestDto, tagName), header, HttpStatus.OK);
     }
 
     @PostMapping

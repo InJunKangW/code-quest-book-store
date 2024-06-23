@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @TestPropertySource(locations = "classpath:application-dev.properties")
-public class ProductCategoryRelationRepositoryTest {
+public class ProductCategoryRepositoryTest {
 
     @Autowired
     private ProductCategoryRepository productCategoryRepository;

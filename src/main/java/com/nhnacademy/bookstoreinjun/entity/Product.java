@@ -80,7 +80,4 @@ public class Product {
     @ColumnDefault("false")
     private boolean packable = false;
 
-    public void addViewCount(){
-        this.productViewCount++;
-    }
 }

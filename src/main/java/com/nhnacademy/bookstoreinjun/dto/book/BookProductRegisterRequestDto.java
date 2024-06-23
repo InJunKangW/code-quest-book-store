@@ -5,8 +5,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
+import lombok.Builder;
 import org.hibernate.validator.constraints.Length;
 
+@Builder
 public record BookProductRegisterRequestDto(
         @NotBlank
         @NotNull
@@ -29,6 +31,11 @@ public record BookProductRegisterRequestDto(
 
         @NotNull
         String cover,
+
+        @NotNull
+        @NotBlank
+        @Length(min = 2)
+        String productName,
 
         boolean packable,
 

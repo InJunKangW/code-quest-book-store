@@ -9,6 +9,7 @@ Content-Type: application/json
   "isbn": "isbnisbn18",
   "isbn13": "isbnisbnisbn8",
   "cover": "cover",
+  "productName": "product",
   "packable": false,
   "productDescription": "설명",
   "productInventory": 1012,
@@ -31,11 +32,12 @@ Content-Type: application/json
 
 {
   "bookId": 1,
+  "productName": "product changed",
   "packable": true,
   "productDescription": "changed description",
   "productInventory": 1023,
   "productPriceSales": 100,
-  "productState": 1,
+  "productState": 0,
   "categories": [
     "카테고리3"
   ],

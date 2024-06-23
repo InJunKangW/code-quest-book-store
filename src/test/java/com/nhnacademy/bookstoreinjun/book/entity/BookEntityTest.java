@@ -40,6 +40,7 @@ public class BookEntityTest {
                 .bookId(1L)
                 .title("test Title")
                 .author("test Author")
+                .publisher("test Publisher")
                 .isbn("123456789a")
                 .isbn13("123456789abcd")
                 .pubDate(LocalDate.of(1960, 7, 11))
@@ -49,41 +50,15 @@ public class BookEntityTest {
         Book savedBook = entityManager.merge(book);
 
         assertNotNull(savedBook);
+        assertEquals(savedBook.getBookId(), 1);
         assertEquals(savedBook.getTitle(), "test Title");
         assertEquals(savedBook.getAuthor(), "test Author");
+        assertEquals(savedBook.getPublisher(), "test Publisher");
         assertEquals(savedBook.getIsbn(), "123456789a");
         assertEquals(savedBook.getIsbn13(), "123456789abcd");
         assertEquals(savedBook.getPubDate(), LocalDate.of(1960, 7, 11));
         assertEquals(savedBook.getProduct(), product);
     }
-
-
-//    @Test
-//    public void testSaveBook() {
-//        Book book = Book.builder()
-//                .title("test Title")
-//                .author("test Author")
-//                .isbn("123456789a")
-//                .isbn13("123456789abcd")
-//                .pubDate(LocalDate.of(1960, 7, 11))
-//                .packable(true)
-//                .product(product)
-//                .build();
-//
-//        // When
-////        Book savedBook = bookRepository.save(book);
-//        entityManager.flush();
-//        entityManager.clear();
-//
-//        // Then
-////        assertNotNull(savedBook.getBookId());
-////        assertEquals(book.getTitle(), savedBook.getTitle());
-////        assertEquals(book.getAuthor(), savedBook.getAuthor());
-////        assertEquals(book.getIsbn(), savedBook.getIsbn());
-////        assertEquals(book.getIsbn13(), savedBook.getIsbn13());
-////        assertEquals(book.getPubDate(), savedBook.getPubDate());
-////        assertEquals(book.isPackable(), savedBook.isPackable());
-//    }
 
     @Test
     public void testUpdateBook() {
@@ -91,6 +66,7 @@ public class BookEntityTest {
                 .bookId(1L)
                 .title("test Title")
                 .author("test Author")
+                .publisher("test Publisher")
                 .isbn("123456789a")
                 .isbn13("123456789abcd")
                 .pubDate(LocalDate.of(1960, 7, 11))
@@ -101,6 +77,7 @@ public class BookEntityTest {
 
         savedBook.setTitle("new test Title");
         savedBook.setAuthor("new test Author");
+        savedBook.setPublisher("new test Publisher");
         savedBook.setIsbn("23456789ab");
         savedBook.setIsbn13("23456789abcde");
         savedBook.setPubDate(LocalDate.of(1999, 7, 11));
@@ -111,26 +88,10 @@ public class BookEntityTest {
         Book updatedBook = entityManager.merge(savedBook);
         assertEquals(updatedBook.getTitle(), "new test Title");
         assertEquals(updatedBook.getAuthor(), "new test Author");
+        assertEquals(updatedBook.getPublisher(), "new test Publisher");
         assertEquals(updatedBook.getIsbn(), "23456789ab");
         assertEquals(updatedBook.getIsbn13(), "23456789abcde");
         assertEquals(updatedBook.getPubDate(), LocalDate.of(1999, 7, 11));
         assertEquals(updatedBook.getProduct(), product);
-
-        // When
-//        Book savedBook = bookRepository.save(book);
-//        entityManager.flush();
-//        entityManager.clear();
-//
-//        Book updatedBook = bookRepository.findById(savedBook.getBookId()).get();
-//
-//        assertEquals(book.getTitle(), updatedBook.getTitle());
-//        // Then
-//        assertNotNull(savedBook.getBookId());
-//        assertEquals(book.getTitle(), savedBook.getTitle());
-//        assertEquals(book.getAuthor(), savedBook.getAuthor());
-//        assertEquals(book.getIsbn(), savedBook.getIsbn());
-//        assertEquals(book.getIsbn13(), savedBook.getIsbn13());
-//        assertEquals(book.getPubDate(), savedBook.getPubDate());
-//        assertEquals(book.isPackable(), savedBook.isPackable());
     }
 }

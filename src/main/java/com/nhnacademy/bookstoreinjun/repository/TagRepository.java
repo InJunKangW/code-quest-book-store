@@ -2,6 +2,8 @@ package com.nhnacademy.bookstoreinjun.repository;
 
 import com.nhnacademy.bookstoreinjun.entity.Tag;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -28,4 +30,6 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
      * @return 해당 태그명을 포함하는 모든 태그의 리스트
      */
     List<Tag> findAllByTagNameContaining(String tagName);
+
+    Page<Tag> findAllByTagNameContaining(Pageable pageable, String tagName);
 }

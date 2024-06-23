@@ -5,10 +5,13 @@ import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryUpdateRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryUpdateResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.service.productCategory.ProductCategoryService;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/admin/category")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class CategoryController {
     private final ProductCategoryService productCategoryService;
@@ -32,29 +35,52 @@ public class CategoryController {
         setContentType(MediaType.APPLICATION_JSON);
     }};
 
-    @GetMapping("/list/all")
+    @GetMapping("/category/list/all")
     public ResponseEntity<List<CategoryGetResponseDto>> getAllCategories() {
         log.info("Called list all");
         return new ResponseEntity<>(productCategoryService.getAllCategories(), header, HttpStatus.OK);
     }
 
-    @GetMapping("/list/containing")
+
+    @GetMapping("/category/list/containing")
     public ResponseEntity<List<CategoryGetResponseDto>> getNameContainingCategories(@RequestParam("categoryName") String categoryName){
         return new ResponseEntity<>(productCategoryService.getNameContainingCategories(categoryName), header, HttpStatus.OK);
     }
 
-    @GetMapping("/list/sub")
+    @GetMapping("/category/list/sub")
     public ResponseEntity<List<CategoryGetResponseDto>> getSubCategories(@RequestParam("categoryName") String categoryName){
         return new ResponseEntity<>(productCategoryService.getSubCategories(categoryName), header, HttpStatus.OK);
     }
 
-    @PostMapping("/register")
+    @PostMapping("/admin/category/register")
     public ResponseEntity<CategoryRegisterResponseDto> createCategory(@RequestBody CategoryRegisterRequestDto categoryRegisterRequestDto) {
         return new ResponseEntity<>(productCategoryService.saveCategory(categoryRegisterRequestDto), header, HttpStatus.CREATED);
     }
 
-    @PutMapping
+    @PutMapping("/admin/category/update")
     public ResponseEntity<CategoryUpdateResponseDto> updateCategory(@RequestBody CategoryUpdateRequestDto categoryUpdateRequestDto) {
         return new ResponseEntity<>(productCategoryService.updateCategory(categoryUpdateRequestDto), header, HttpStatus.OK);
     }
+
+    @GetMapping("/categories/all")
+    public ResponseEntity<Page<CategoryGetResponseDto>> getAllCategories(@Valid @RequestBody PageRequestDto pageRequestDto) {
+        return new ResponseEntity<>(productCategoryService.getAllCategoryPage(pageRequestDto), header, HttpStatus.OK);
+    }
+
+    @GetMapping("/categories/containing")
+    public ResponseEntity<Page<CategoryGetResponseDto>> getNameContainingCategories(@Valid @RequestBody PageRequestDto pageRequestDto, @RequestParam("categoryName") String categoryName) {
+        return new ResponseEntity<>(productCategoryService.getNameContainingCategoryPage(pageRequestDto, categoryName), header, HttpStatus.OK);
+    }
+
+    @GetMapping("/categories/sub")
+    public ResponseEntity<Page<CategoryGetResponseDto>> getSubCategories(@Valid @RequestBody PageRequestDto pageRequestDto, @RequestParam("categoryName") String categoryName) {
+        return new ResponseEntity<>(productCategoryService.getSubCategoryPage(pageRequestDto, categoryName), header, HttpStatus.OK);
+    }
+
+
+//    @GetMapping("/categories")
+//    public ResponseEntity<Page<CategoryGetResponseDto>> getAllCategories(@Valid @RequestBody PageRequestDto pageRequestDto) {
+//        return new ResponseEntity<>(productCategoryService.getAllCategoryPage(pageRequestDto), header, HttpStatus.OK);
+//    }
+
 }

@@ -1,5 +1,6 @@
 package com.nhnacademy.bookstoreinjun.category.entity;
 
+import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -22,53 +23,71 @@ public class ProductCategoryEntityTest {
     @PersistenceContext
     private EntityManager entityManager;
 
+    private final String TEST_CATEGORY_NAME = "Test Category";
+
     @Test
     public void testSaveCategory() {
         ProductCategory productCategory = ProductCategory.builder()
-                .categoryName("test category1")
+                .categoryName(TEST_CATEGORY_NAME)
                 .build();
 
         ProductCategory savedProductCategory = entityManager.merge(productCategory);
 
         assertNotNull(savedProductCategory);
-        assertEquals("test category1", savedProductCategory.getCategoryName());
+        assertNotNull(savedProductCategory.getProductCategoryId());
+        assertEquals(TEST_CATEGORY_NAME, savedProductCategory.getCategoryName());
         assertNull(savedProductCategory.getParentProductCategory());
     }
 
     @Test
     public void testSaveCategory2() {
         ProductCategory parentProductCategory = ProductCategory.builder()
-                .categoryName("test parent category1")
+                .categoryName(TEST_CATEGORY_NAME + "parent")
                 .build();
 
         entityManager.persist(parentProductCategory);
         entityManager.flush();
 
         ProductCategory productCategory = ProductCategory.builder()
-                .categoryName("test category1")
+                .categoryName(TEST_CATEGORY_NAME)
                 .parentProductCategory(parentProductCategory)
                 .build();
 
         ProductCategory savedProductCategory = entityManager.merge(productCategory);
         assertNotNull(savedProductCategory);
-        assertEquals("test category1", savedProductCategory.getCategoryName());
-        assertEquals(parentProductCategory, savedProductCategory.getParentProductCategory());
+        assertNotNull(savedProductCategory.getProductCategoryId());
+
+        ProductCategory savedParentProductCategory = savedProductCategory.getParentProductCategory();
+
+        assertEquals(parentProductCategory, savedParentProductCategory);
+        assertEquals(TEST_CATEGORY_NAME + "parent", savedParentProductCategory.getCategoryName());
     }
 
     @Test
     public void testUpdateCategory() {
+        ProductCategory parentProductCategory = ProductCategory.builder()
+                .categoryName(TEST_CATEGORY_NAME + "parent")
+                .build();
+
+        entityManager.persist(parentProductCategory);
+        entityManager.flush();
+
         ProductCategory productCategory = ProductCategory.builder()
-                .categoryName("test category1")
+                .categoryName(TEST_CATEGORY_NAME)
+                .parentProductCategory(parentProductCategory)
                 .build();
 
         ProductCategory savedProductCategory = entityManager.merge(productCategory);
 
-        savedProductCategory.setCategoryName("test category2");
+        savedProductCategory.setCategoryName("new" + TEST_CATEGORY_NAME);
+        parentProductCategory.setCategoryName("new" + TEST_CATEGORY_NAME + "parent");
 
         entityManager.flush();
 
         ProductCategory updatedProductCategory = entityManager.merge(savedProductCategory);
 
-        assertEquals("test category2", updatedProductCategory.getCategoryName());
+        assertNotNull(savedProductCategory.getProductCategoryId());
+        assertEquals("new" + TEST_CATEGORY_NAME, updatedProductCategory.getCategoryName());
+        assertEquals("new" + TEST_CATEGORY_NAME + "parent", updatedProductCategory.getParentProductCategory().getCategoryName());
     }
 }

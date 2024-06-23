@@ -6,7 +6,7 @@ import com.nhnacademy.bookstoreinjun.entity.ProductCategoryRelation;
 import java.util.List;
 
 public interface ProductCategoryRelationService {
-    void saveProductCategory(ProductCategoryRelation productCategoryRelation);
-    void clearCategoriesByProduct(Product product);
-    List<ProductCategory> getCategoriesByProduct(Product product);
+    void saveProductCategoryRelation(ProductCategoryRelation productCategoryRelation);
+    void clearProductCategoryRelationsByProduct(Product product);
+    List<ProductCategory> getProductCategoryRelationsByProduct(Product product);
 }

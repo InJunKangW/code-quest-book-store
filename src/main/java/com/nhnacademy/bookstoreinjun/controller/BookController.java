@@ -4,7 +4,7 @@ import com.nhnacademy.bookstoreinjun.dto.book.aladin.AladinBookListResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductUpdateRequestDto;
-import com.nhnacademy.bookstoreinjun.dto.page.BookPageRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductRegisterResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.error.ErrorResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductUpdateResponseDto;
@@ -62,8 +62,8 @@ public class BookController {
 
     //페이지 조회. 기본적으로 판매 중인 책만 조회합니다.
     @GetMapping("/books")
-    public ResponseEntity<Page<BookProductGetResponseDto>> getAllBookPage(@Valid @RequestBody BookPageRequestDto bookPageRequestDto){
-        return new ResponseEntity<>(bookService.getBookPage(bookPageRequestDto), header, HttpStatus.OK);
+    public ResponseEntity<Page<BookProductGetResponseDto>> getAllBookPage(@Valid @RequestBody PageRequestDto pageRequestDto){
+        return new ResponseEntity<>(bookService.getBookPage(pageRequestDto), header, HttpStatus.OK);
     }
 
     @GetMapping("/book/{bookId}")

@@ -2,5 +2,6 @@ GET localhost:8004/api/books
 Content-Type: application/json
 
 {
-  "desc": false
+  "desc": false,
+  "sort": "wrong"
 }

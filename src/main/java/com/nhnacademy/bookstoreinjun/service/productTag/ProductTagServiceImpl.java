@@ -37,6 +37,7 @@ public class ProductTagServiceImpl implements ProductTagService {
     }
 
     public void clearTagsByProduct(Product product) {
+        productCheckUtil.checkProduct(product);
         productTagRepository.deleteByProduct(product);
     }
 
