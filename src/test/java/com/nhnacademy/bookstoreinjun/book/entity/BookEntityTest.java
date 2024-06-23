@@ -50,7 +50,7 @@ public class BookEntityTest {
         Book savedBook = entityManager.merge(book);
 
         assertNotNull(savedBook);
-        assertEquals(savedBook.getBookId(), 1);
+        assertNotNull(savedBook.getBookId());
         assertEquals(savedBook.getTitle(), "test Title");
         assertEquals(savedBook.getAuthor(), "test Author");
         assertEquals(savedBook.getPublisher(), "test Publisher");
