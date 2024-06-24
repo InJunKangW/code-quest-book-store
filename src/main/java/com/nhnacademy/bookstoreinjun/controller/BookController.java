@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-//@Controller
 @RequestMapping("/api/product")
 @RequiredArgsConstructor
 public class BookController {
@@ -42,6 +41,8 @@ public class BookController {
     private final AladinService aladinService;
 
     private final BookService bookService;
+
+
 
     private final HttpHeaders header = new HttpHeaders() {{
         setContentType(MediaType.APPLICATION_JSON);
@@ -81,38 +82,5 @@ public class BookController {
     @PutMapping("/admin/book/update")
     public ResponseEntity<ProductUpdateResponseDto> updateBook(@Valid @RequestBody BookProductUpdateRequestDto bookProductUpdateRequestDto){
         return new ResponseEntity<>(bookService.updateBook(bookProductUpdateRequestDto), header, HttpStatus.OK);
-    }
 
-
-//    //웹에 있을 거
-//    private final BookRegisterClient bookRegisterClient;
-//
-//    // 유레카, 게이트웨이, 웹 다 켜놓고 테스트하기 번거로울 때 주석 풀고 쓰려고 냅뒀습니다.
-//    @GetMapping
-//    @RequestMapping("/register")
-//    public String home() {
-//        return "registerForm";
-//    }
-//
-//    //    웹에 있을 거
-//    @GetMapping
-//    @RequestMapping("/test/test")
-//    public String test(@RequestParam("title")String title, Model model) {
-//        log.error("test called + title : {}", title);
-//        ResponseEntity<AladinBookListResponseDto> aladinBookListResponseDtoResponseEntity = bookRegisterClient.getBookList(title);
-//
-//        AladinBookListResponseDto aladinBookListResponseDto = aladinBookListResponseDtoResponseEntity.getBody();
-//
-//        if (aladinBookListResponseDto == null) {
-//            log.info("dto is null");
-//            model.addAttribute("bookList", new ArrayList<>());
-//        }else{
-//            log.info("dto isn't null");
-//
-//            List<AladinBookResponseDto> bookList = aladinBookListResponseDto.getBooks();
-//            model.addAttribute("bookList", bookList);
-//        }
-//
-//        return "test";
-//    }
 }
