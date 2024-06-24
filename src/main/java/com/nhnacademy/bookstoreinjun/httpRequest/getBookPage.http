@@ -5,3 +5,11 @@ Content-Type: application/json
   "desc": false,
   "sort": "wrong"
 }
+
+###
+GET localhost:8004/api/product/admin/book?title=이해
+Content-Type: application/json
+
+{
+
+}

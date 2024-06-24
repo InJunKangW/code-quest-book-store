@@ -76,8 +76,8 @@ public class Product {
     private int productState = 0;
 
     @Builder.Default
-    @Column(nullable = false, name = "packable")
+    @Column(nullable = false, name = "productPackable")
     @ColumnDefault("false")
-    private boolean packable = false;
+    private boolean productPackable = false;
 
 }

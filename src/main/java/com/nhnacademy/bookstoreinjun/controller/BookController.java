@@ -4,6 +4,7 @@ import com.nhnacademy.bookstoreinjun.dto.book.aladin.AladinBookListResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductUpdateRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.book.aladin.AladinBookResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductRegisterResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.error.ErrorResponseDto;
@@ -22,17 +23,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
-//@RestController
-@Controller
-@RequestMapping("/api")
+@RestController
+//@Controller
+@RequestMapping("/api/product")
 @RequiredArgsConstructor
 public class BookController {
 
@@ -51,8 +54,10 @@ public class BookController {
 
     // feign 이 호출하는 메서드.
     @GetMapping("/admin/book")
-    public ResponseEntity<AladinBookListResponseDto> getBooks(@RequestParam("title")String title){
-        return new ResponseEntity<>(aladinService.getAladdinBookList(title), header, HttpStatus.OK);
+    public ResponseEntity<Page<AladinBookResponseDto>> getBooks(@RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "sort", required = false) String sort, @RequestParam("title") String title){
+        log.info("controller called");
+        PageRequestDto pageRequestDto = PageRequestDto.builder().page(page).sort(sort).build();
+        return new ResponseEntity<>(aladinService.getAladdinBookPage(pageRequestDto, title), header, HttpStatus.OK);
     }
 
     @PostMapping("/admin/book/register")
@@ -62,7 +67,8 @@ public class BookController {
 
     //페이지 조회. 기본적으로 판매 중인 책만 조회합니다.
     @GetMapping("/books")
-    public ResponseEntity<Page<BookProductGetResponseDto>> getAllBookPage(@Valid @RequestBody PageRequestDto pageRequestDto){
+    public ResponseEntity<Page<BookProductGetResponseDto>> getAllBookPage(@RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "sort", required = false) String sort){
+        PageRequestDto pageRequestDto = PageRequestDto.builder().page(page).sort(sort).build();
         return new ResponseEntity<>(bookService.getBookPage(pageRequestDto), header, HttpStatus.OK);
     }
 
@@ -72,7 +78,7 @@ public class BookController {
     }
 
 
-    @PutMapping("/admin/book")
+    @PutMapping("/admin/book/update")
     public ResponseEntity<ProductUpdateResponseDto> updateBook(@Valid @RequestBody BookProductUpdateRequestDto bookProductUpdateRequestDto){
         return new ResponseEntity<>(bookService.updateBook(bookProductUpdateRequestDto), header, HttpStatus.OK);
     }

@@ -8,6 +8,7 @@ import org.hibernate.validator.constraints.Length;
 
 @Builder
 public record BookProductGetResponseDto (
+        long bookId,
         String title,
         String publisher,
         String author,

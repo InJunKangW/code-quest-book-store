@@ -35,6 +35,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -89,12 +90,12 @@ public class BookControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void test1() throws Exception {
-        mockMvc.perform(get("/api/admin/book")
+        mockMvc.perform(get("/api/product/admin/book")
                         .param("title","이해"))
                 .andExpect(status().isOk())
                 .andExpect(header().stringValues("Content-Type", "application/json"));
 
-        verify(aladinService,times(1)).getAladdinBookList("이해");
+        verify(aladinService,times(1)).getAladdinBookPage(any(), eq("이해"));
     }
 
     @DisplayName("도서 상품 등록 성공 테스트")
@@ -123,7 +124,7 @@ public class BookControllerTest {
 
         String json = objectMapper.writeValueAsString(bookProductRegisterRequestDto);
 
-        mockMvc.perform(post("/api/admin/book/register")
+        mockMvc.perform(post("/api/product/admin/book/register")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
@@ -158,7 +159,7 @@ public class BookControllerTest {
 
         String json = objectMapper.writeValueAsString(bookProductRegisterRequestDto);
 
-        mockMvc.perform(post("/api/admin/book/register")
+        mockMvc.perform(post("/api/product/admin/book/register")
                         .content(json)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -174,7 +175,7 @@ public class BookControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void test3() throws Exception {
-        mockMvc.perform(get("/api/admin/book")
+        mockMvc.perform(get("/api/product/admin/book")
                         .param("title","이해"))
                 .andExpect(status().isOk());
     }
@@ -183,9 +184,9 @@ public class BookControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void test4() throws Exception {
-        when(aladinService.getAladdinBookList(any())).thenThrow(new AladinJsonProcessingException(any()));
+        when(aladinService.getAladdinBookPage(any(), eq("이해"))).thenThrow(new AladinJsonProcessingException("error"));
 
-        mockMvc.perform(get("/api/admin/book")
+        mockMvc.perform(get("/api/product/admin/book")
                         .param("title","이해"))
                 .andExpect(status().is5xxServerError());
     }
@@ -194,7 +195,7 @@ public class BookControllerTest {
     @Test
     @WithMockUser(roles = "CLIENT")
     public void getIndividualBookTestSuccess() throws Exception {
-        mockMvc.perform(get("/api/book/1"))
+        mockMvc.perform(get("/api/product/book/1"))
                 .andExpect(status().isOk());
     }
 
@@ -204,7 +205,7 @@ public class BookControllerTest {
     public void getIndividualBookTestFailure() throws Exception {
         when(bookService.getBookByBookId(1L)).thenThrow(NotFoundIdException.class);
 
-        mockMvc.perform(get("/api/book/1"))
+        mockMvc.perform(get("/api/product/book/1"))
                 .andExpect(status().isNotFound());
     }
 
@@ -216,7 +217,7 @@ public class BookControllerTest {
 
         String json = objectMapper.writeValueAsString(dto);
 
-        mockMvc.perform(get("/api/books")
+        mockMvc.perform(get("/api/product/books")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -234,7 +235,7 @@ public class BookControllerTest {
 
         String json = objectMapper.writeValueAsString(dto);
 
-        mockMvc.perform(get("/api/books")
+        mockMvc.perform(get("/api/product/books")
                         .content(json)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -252,7 +253,7 @@ public class BookControllerTest {
 
         String json = objectMapper.writeValueAsString(dto);
 
-        mockMvc.perform(get("/api/books")
+        mockMvc.perform(get("/api/product/books")
                         .content(json)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());

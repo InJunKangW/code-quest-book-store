@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/admin/tag")
+@RequestMapping("/api/product")
 @RequiredArgsConstructor
 public class TagController {
     private final TagService tagService;
@@ -48,7 +48,8 @@ public class TagController {
     }
 
     @GetMapping("/tags/all")
-    public ResponseEntity<Page<TagGetResponseDto>> getAllTags(@Valid @RequestBody PageRequestDto pageRequestDto) {
+    public ResponseEntity<Page<TagGetResponseDto>> getAllTags(@RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "desc", required = false) Boolean desc) {
+        PageRequestDto pageRequestDto = PageRequestDto.builder().page(page).desc(desc).build();
         return new ResponseEntity<>(tagService.getAllTagPage(pageRequestDto), header, HttpStatus.OK);
     }
 
@@ -58,16 +59,17 @@ public class TagController {
     }
 
     @GetMapping("/tags/containing")
-    public ResponseEntity<Page<TagGetResponseDto>> getNameContainingTagPage(@Valid @RequestBody PageRequestDto pageRequestDto, @RequestParam("tagName") String tagName) {
+    public ResponseEntity<Page<TagGetResponseDto>> getNameContainingTagPage(@RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "desc", required = false) Boolean desc, @RequestParam("tagName") String tagName) {
+        PageRequestDto pageRequestDto = PageRequestDto.builder().page(page).desc(desc).build();
         return new ResponseEntity<>(tagService.getNameContainingTagPage(pageRequestDto, tagName), header, HttpStatus.OK);
     }
 
-    @PostMapping
+    @PostMapping("/admin/tag/register")
     public ResponseEntity<TagRegisterResponseDto> createTag(@RequestBody TagRegisterRequestDto tagRegisterRequestDto) {
         return new ResponseEntity<>(tagService.saveTag(tagRegisterRequestDto), header, HttpStatus.CREATED);
     }
 
-    @PutMapping
+    @PutMapping("/admin/tag/update")
     public ResponseEntity<TagUpdateResponseDto> updateTag(@RequestBody TagUpdateRequestDto tagUpdateRequestDto) {
         return new ResponseEntity<>(tagService.updateTag(tagUpdateRequestDto), header, HttpStatus.OK);
     }

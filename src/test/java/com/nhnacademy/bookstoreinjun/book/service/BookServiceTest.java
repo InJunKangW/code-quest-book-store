@@ -215,6 +215,7 @@ public class BookServiceTest {
     @Test
     public void getIndividualBookTestSuccess(){
         Book testBook = new Book();
+        testBook.setBookId(1L);
         Product testProduct = new Product();
         testBook.setProduct(testProduct);
 
@@ -259,6 +260,7 @@ public class BookServiceTest {
     @Test
     public void getBookPageTestSuccess(){
         Book testBook = new Book();
+        testBook.setBookId(1L);
         Product testProduct = new Product();
         testBook.setProduct(testProduct);
 

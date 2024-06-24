@@ -32,10 +32,6 @@ public class TagControllerTest {
     private TagService tagService;
 
     @Test
-    public void contextLoads() throws Exception {
-    }
-
-    @Test
     @WithMockUser(roles = "ADMIN")
     public void testCreateTag() throws Exception {
         TagRegisterRequestDto dto = TagRegisterRequestDto.builder()
@@ -45,7 +41,7 @@ public class TagControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(dto);
 
-        mockMvc.perform(post("/api/admin/tag")
+        mockMvc.perform(post("/api/product/admin/tag/register")
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());

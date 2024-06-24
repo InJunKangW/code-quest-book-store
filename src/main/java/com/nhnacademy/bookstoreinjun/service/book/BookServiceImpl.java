@@ -101,6 +101,7 @@ public class BookServiceImpl implements BookService {
 
     private BookProductGetResponseDto makeBookProductGetResponseDtoFromBook(Book book){
         return BookProductGetResponseDto.builder()
+                .bookId(book.getBookId())
                 .title(book.getTitle())
                 .publisher(book.getPublisher())
                 .author(book.getAuthor())
@@ -108,7 +109,7 @@ public class BookServiceImpl implements BookService {
                 .isbn(book.getIsbn())
                 .isbn13(book.getIsbn13())
                 .cover(book.getProduct().getProductThumbnailUrl())
-                .packable(book.getProduct().isPackable())
+                .packable(book.getProduct().isProductPackable())
                 .productDescription(book.getProduct().getProductDescription())
                 .productRegisterDate(book.getProduct().getProductRegisterDate())
                 .productState(book.getProduct().getProductState())
@@ -140,7 +141,7 @@ public class BookServiceImpl implements BookService {
         boolean desc = Objects.requireNonNullElse(pageRequestDto.desc(), true);
         String sort =  Objects.requireNonNullElse(pageRequestDto.sort(), "product.productRegisterDate");
 
-
+        log.info("page : {}, size : {}, desc : {}, sort : {}", page, size, desc, sort);
         Pageable pageable = PageRequest.of(page -1, size, Sort.by(desc ? Sort.Direction.DESC : Sort.Direction.ASC, sort));
 
         try{
@@ -171,7 +172,7 @@ public class BookServiceImpl implements BookService {
                     .productInventory(bookProductRegisterRequestDto.productInventory())
                     .productThumbnailUrl(bookProductRegisterRequestDto.cover())
                     .productDescription(bookProductRegisterRequestDto.productDescription())
-                    .packable(bookProductRegisterRequestDto.packable())
+                    .productPackable(bookProductRegisterRequestDto.packable())
                     .build());
 
             List<String> categories = bookProductRegisterRequestDto.categories();
@@ -212,7 +213,7 @@ public class BookServiceImpl implements BookService {
             product.setProductInventory(bookProductUpdateRequestDto.productInventory());
             product.setProductState(bookProductUpdateRequestDto.productState());
             product.setProductPriceSales(bookProductUpdateRequestDto.productPriceSales());
-            product.setPackable(bookProductUpdateRequestDto.packable());
+            product.setProductPackable(bookProductUpdateRequestDto.packable());
 
             Product updateProduct = productRepository.save(product);
             List<String> categories = bookProductUpdateRequestDto.categories();

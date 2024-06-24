@@ -40,15 +40,7 @@ public class ProductCategoryControllerTest {
     @MockBean
     private ProductCategoryService productCategoryService;
 
-    @MockBean
-    private ProductCategoryRepository productCategoryRepository;
-
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-    @Test
-    public void contextLoads(){
-
-    }
 
     @DisplayName("카테고리 신규 등록 성공 테스트")
     @Test
@@ -59,7 +51,7 @@ public class ProductCategoryControllerTest {
                         .build();
         String json = objectMapper.writeValueAsString(dto);
 
-        mockMvc.perform(post("/api/admin/category/register")
+        mockMvc.perform(post("/api/product/admin/category/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isCreated());
@@ -79,7 +71,7 @@ public class ProductCategoryControllerTest {
 
         when(productCategoryService.saveCategory(dto)).thenThrow(DuplicateException.class);
 
-        mockMvc.perform(post("/api/admin/category/register")
+        mockMvc.perform(post("/api/product/admin/category/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isConflict());
@@ -100,7 +92,7 @@ public class ProductCategoryControllerTest {
         when(productCategoryService.saveCategory(dto)).thenThrow(NotFoundNameException.class);
 
 
-        mockMvc.perform(post("/api/admin/category/register")
+        mockMvc.perform(post("/api/product/admin/category/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isNotFound());
@@ -112,7 +104,7 @@ public class ProductCategoryControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void getAllCategoriesTest() throws Exception {
-        mockMvc.perform(get("/api/category/list/all"))
+        mockMvc.perform(get("/api/product/category/list/all"))
                 .andExpect(status().isOk());
 
         verify(productCategoryService,times(1)).getAllCategories();
@@ -122,7 +114,7 @@ public class ProductCategoryControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void getAllContainingCategoriesTest() throws Exception {
-        mockMvc.perform(get("/api/category/list/containing")
+        mockMvc.perform(get("/api/product/category/list/containing")
                 .param("categoryName", "test productCategory"))
                 .andExpect(status().isOk());
 
@@ -133,7 +125,7 @@ public class ProductCategoryControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void getAllSubCategoriesTest() throws Exception {
-        mockMvc.perform(get("/api/category/list/sub")
+        mockMvc.perform(get("/api/product/category/list/sub")
                         .param("categoryName", "test parent productCategory"))
                 .andExpect(status().isOk());
 
@@ -151,7 +143,7 @@ public class ProductCategoryControllerTest {
 
         String json = objectMapper.writeValueAsString(dto);
 
-        mockMvc.perform(put("/api/admin/category/update")
+        mockMvc.perform(put("/api/product/admin/category/update")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isOk());

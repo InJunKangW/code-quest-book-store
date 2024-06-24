@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/product")
 @RequiredArgsConstructor
 public class CategoryController {
     private final ProductCategoryService productCategoryService;
@@ -63,24 +63,21 @@ public class CategoryController {
     }
 
     @GetMapping("/categories/all")
-    public ResponseEntity<Page<CategoryGetResponseDto>> getAllCategories(@Valid @RequestBody PageRequestDto pageRequestDto) {
+    public ResponseEntity<Page<CategoryGetResponseDto>> getAllCategories(@RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "desc", required = false) Boolean desc, @RequestParam(name = "sort", required = false) String sort) {
+        PageRequestDto pageRequestDto = PageRequestDto.builder().page(page).desc(desc).sort(sort).build();
         return new ResponseEntity<>(productCategoryService.getAllCategoryPage(pageRequestDto), header, HttpStatus.OK);
     }
 
     @GetMapping("/categories/containing")
-    public ResponseEntity<Page<CategoryGetResponseDto>> getNameContainingCategories(@Valid @RequestBody PageRequestDto pageRequestDto, @RequestParam("categoryName") String categoryName) {
+    public ResponseEntity<Page<CategoryGetResponseDto>> getNameContainingCategories(@RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "desc", required = false) Boolean desc, @RequestParam(name = "sort", required = false) String sort, @RequestParam("categoryName") String categoryName) {
+        PageRequestDto pageRequestDto = PageRequestDto.builder().page(page).desc(desc).sort(sort).build();
         return new ResponseEntity<>(productCategoryService.getNameContainingCategoryPage(pageRequestDto, categoryName), header, HttpStatus.OK);
     }
 
     @GetMapping("/categories/sub")
-    public ResponseEntity<Page<CategoryGetResponseDto>> getSubCategories(@Valid @RequestBody PageRequestDto pageRequestDto, @RequestParam("categoryName") String categoryName) {
+    public ResponseEntity<Page<CategoryGetResponseDto>> getSubCategories(@RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "desc", required = false) Boolean desc,  @RequestParam(name = "sort", required = false) String sort, @RequestParam("categoryName") String categoryName) {
+        PageRequestDto pageRequestDto = PageRequestDto.builder().page(page).desc(desc).sort(sort).build();
         return new ResponseEntity<>(productCategoryService.getSubCategoryPage(pageRequestDto, categoryName), header, HttpStatus.OK);
     }
-
-
-//    @GetMapping("/categories")
-//    public ResponseEntity<Page<CategoryGetResponseDto>> getAllCategories(@Valid @RequestBody PageRequestDto pageRequestDto) {
-//        return new ResponseEntity<>(productCategoryService.getAllCategoryPage(pageRequestDto), header, HttpStatus.OK);
-//    }
 
 }
