@@ -1,4 +1,4 @@
-package com.nhnacademy.bookstoreinjun.service;
+package com.nhnacademy.bookstoreinjun.service.packaging;
 
 import com.nhnacademy.bookstoreinjun.dto.packaging.PackageInfoResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.packaging.PackageInsertRequestDto;
@@ -9,21 +9,19 @@ import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PackagingService {
+public class PackagingServiceImpl implements PackagingService {
     private final PackagingRepository packageRepository;
     private final ProductRepository productRepository;
 
-    public PackageInfoResponseDto getPackageInfoById(Long packageId) {
+    public PackageInfoResponseDto getPackageInfoById(Long packageId){
         Packaging packaging = packageRepository.findById(packageId).orElse(null);
         if (packaging == null) {
             return null;
