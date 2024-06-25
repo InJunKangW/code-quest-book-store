@@ -2,10 +2,12 @@ package com.nhnacademy.bookstoreinjun.repository;
 
 import com.nhnacademy.bookstoreinjun.entity.Book;
 import com.nhnacademy.bookstoreinjun.entity.Product;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -25,6 +27,9 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     */
     @Query("select b from Book b join b.product p where p.productState = 0")
     Page<Book> findBooksByProductState(Pageable pageable);
+
+    @Query("select b from Book b join b.product p where p.productState = 0 and b.title like %:title%")
+    Page<Book> findBooksByProductStateAndNameContaining(Pageable pageable, @Param("title") String title);
 
     /**
      * @param isbn13 도서의 isbn13 (각 도서별로 고유한 코드. 이걸로 세계 모든 도서를 구분할 수 있습니다.)

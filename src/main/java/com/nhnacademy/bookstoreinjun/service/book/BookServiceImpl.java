@@ -20,6 +20,7 @@ import com.nhnacademy.bookstoreinjun.repository.BookRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
 import com.nhnacademy.bookstoreinjun.repository.TagRepository;
+import com.nhnacademy.bookstoreinjun.service.product.ProductDtoService;
 import com.nhnacademy.bookstoreinjun.service.productCategoryRelation.ProductCategoryRelationService;
 import com.nhnacademy.bookstoreinjun.service.productTag.ProductTagService;
 import com.nhnacademy.bookstoreinjun.util.MakePageableUtil;
@@ -27,14 +28,17 @@ import com.nhnacademy.bookstoreinjun.util.ProductCheckUtil;
 import com.nhnacademy.bookstoreinjun.util.SortCheckUtil;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -59,6 +63,8 @@ public class BookServiceImpl implements BookService {
     private final ProductCategoryRelationService productCategoryRelationService;
 
     private final ProductTagService productTagService;
+
+    private final ProductDtoService productDtoService;
 
     private final ProductCheckUtil productCheckUtil;
 
@@ -145,11 +151,76 @@ public class BookServiceImpl implements BookService {
             Page<Book> bookPage = bookRepository.findBooksByProductState(pageable);
             int total = bookPage.getTotalPages();
 
-            if (total < page){
+            if (total != 0 && total < page){
                 throw new PageOutOfRangeException(total, page);
             }
 
             return bookPage.map(this::makeBookProductGetResponseDtoFromBook);
+
+        }catch (InvalidDataAccessApiUsageException e) {
+            throw SortCheckUtil.sortExceptionHandle(pageable);
+        }
+    }
+
+
+    public Page<BookProductGetResponseDto> getBookPageFilterByCategories(@Valid PageRequestDto pageRequestDto, Set<String> categories, Boolean conditionIsAnd) {
+        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, 5, "product.productRegisterDate");
+        int maxPage = pageable.getPageNumber() + 1;
+
+        Set<Product> productSet = productDtoService.findAllByCategories(categories, conditionIsAnd);
+        List<Book> bookList = makeBookList(productSet);
+        return makeBookPage(bookList, pageable);
+    }
+
+    public Page<BookProductGetResponseDto> getBookPageFilterByTags(@Valid PageRequestDto pageRequestDto, Set<String> tags, Boolean conditionIsAnd) {
+        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, 5, "product.productRegisterDate");
+        int maxPage = pageable.getPageNumber() + 1;
+
+        Set<Product> productSet = productDtoService.findAllByTags(tags, conditionIsAnd);
+        List<Book> bookList = makeBookList(productSet);
+        return makeBookPage(bookList, pageable);
+    }
+
+
+    private Page<BookProductGetResponseDto> makeBookPage(List<Book> bookList, Pageable pageable) {
+        int maxPage = pageable.getPageNumber() + 1;
+        try{
+            Page<Book> bookPage = new PageImpl<>(bookList, pageable, bookList.size());
+            return makeBookPage(bookPage, maxPage);
+        }catch (InvalidDataAccessApiUsageException e) {
+            throw SortCheckUtil.sortExceptionHandle(pageable);
+        }
+    }
+
+    private List<Book> makeBookList(Set<Product> productSet){
+        List<Book> bookList = new ArrayList<>();
+        for (Product product : productSet){
+            Book book = bookRepository.findByProduct(product);
+            if (book == null){
+                throw new NotFoundIdException(TYPE, product.getProductId());
+            }
+            bookList.add(book);
+        }
+        return bookList;
+    }
+
+    private Page<BookProductGetResponseDto> makeBookPage(Page<Book> bookPage, int requestPage){
+        int total = bookPage.getTotalPages();
+
+        if (total != 0 && total < requestPage){
+            throw new PageOutOfRangeException(total, requestPage);
+        }
+
+        return bookPage.map(this::makeBookProductGetResponseDtoFromBook);
+    }
+
+    public Page<BookProductGetResponseDto> getBookPageNameContaining(@Valid PageRequestDto pageRequestDto, String title) {
+        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, 5, "product.productRegisterDate");
+        log.error("request title : {}", title);
+        int maxPage = pageable.getPageNumber() + 1;
+        try{
+            Page<Book> bookPage = bookRepository.findBooksByProductStateAndNameContaining(pageable, title);
+            return makeBookPage(bookPage, maxPage);
 
         }catch (InvalidDataAccessApiUsageException e) {
             throw SortCheckUtil.sortExceptionHandle(pageable);
@@ -226,4 +297,6 @@ public class BookServiceImpl implements BookService {
             return new ProductUpdateResponseDto(LocalDateTime.now());
         }
     }
+
+
 }

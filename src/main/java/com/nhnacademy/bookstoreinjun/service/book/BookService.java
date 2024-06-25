@@ -7,6 +7,8 @@ import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductRegisterResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductUpdateResponseDto;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
+import jakarta.validation.Valid;
+import java.util.Set;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
 
@@ -69,4 +71,11 @@ public interface BookService {
      * @return 등록 결과. 상품 업데이트 시간 (현재 시간)을 반환합니다.
      */
     ProductUpdateResponseDto updateBook(BookProductUpdateRequestDto bookProductUpdateRequestDto);
+
+    Page<BookProductGetResponseDto> getBookPageNameContaining(PageRequestDto pageRequestDto, String title);
+
+    Page<BookProductGetResponseDto> getBookPageFilterByCategories(PageRequestDto pageRequestDto, Set<String> categories, Boolean conditionIsAnd);
+
+    Page<BookProductGetResponseDto> getBookPageFilterByTags(PageRequestDto pageRequestDto, Set<String> tags, Boolean conditionIsAnd);
+
 }

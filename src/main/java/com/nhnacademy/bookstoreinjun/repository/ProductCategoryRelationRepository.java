@@ -28,6 +28,4 @@ public interface ProductCategoryRelationRepository extends JpaRepository<Product
      */
     List<ProductCategoryRelation> findByProductCategory(ProductCategory productCategory);
 
-    List<ProductCategoryRelation> findByProductCategories(List<ProductCategory> a);
-
 }

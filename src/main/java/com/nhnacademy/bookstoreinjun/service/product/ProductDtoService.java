@@ -2,9 +2,14 @@ package com.nhnacademy.bookstoreinjun.service.product;
 
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductGetResponseDto;
+import com.nhnacademy.bookstoreinjun.entity.Product;
+import java.util.List;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 
 public interface ProductDtoService {
     Page<ProductGetResponseDto> findAllPage(PageRequestDto pageRequestDto);
     Page<ProductGetResponseDto> findNameContainingPage(PageRequestDto pageRequestDto, String productName);
+    Set<Product> findAllByCategories(Set<String> categories, Boolean conditionIsAnd);
+    Set<Product> findAllByTags(Set<String> tags, Boolean conditionIsAnd);
 }

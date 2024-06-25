@@ -3,9 +3,12 @@ package com.nhnacademy.bookstoreinjun.controller;
 
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductGetResponseDto;
+import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.service.product.ProductDtoService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -49,5 +52,13 @@ public class ProductController {
             @NotBlank @RequestParam(name = "productName") String productName) {
 //        PageRequestDto pageRequestDto = PageRequestDto.builder().page(page).desc(desc).sort(sort).build();
         return new ResponseEntity<>(productDtoService.findNameContainingPage(pageRequestDto, productName), header, HttpStatus.OK);
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<Set<Product>> test(
+            @RequestParam("tags") Set<String> tags,
+            @RequestParam("condition") Boolean conditionIsAnd){
+        if (conditionIsAnd == null){conditionIsAnd = false;}
+        return new ResponseEntity<>(productDtoService.findAllByTags(tags, conditionIsAnd), header, HttpStatus.OK);
     }
 }

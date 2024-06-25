@@ -27,7 +27,7 @@ Content-Type: application/json
 GET localhost:8003/api/admin/book/test/test?title=사랑
 
 ###
-PUT localhost:8004/api/admin/book
+PUT localhost:8004/api/product/admin/book/update
 Content-Type: application/json
 
 {

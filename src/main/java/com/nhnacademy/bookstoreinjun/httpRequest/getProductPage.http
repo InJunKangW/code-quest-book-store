@@ -14,3 +14,6 @@ GET localhost:8004/api/admin/product/page/containing?productName=
 
 # Boolean desc : 오름차순/내림차순을 지정합니다. true면 내림차순 ( = productId 가 큰 순서 = 최근 등록된 순서)  false면 오름차순이 됩니다. null이면 내림차순이 됩니다.
 #
+
+###
+GET localhost:8004/api/admin/product/test?tags=tag3,tag2
