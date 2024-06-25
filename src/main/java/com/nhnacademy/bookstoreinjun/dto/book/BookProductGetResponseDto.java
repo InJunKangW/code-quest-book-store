@@ -16,9 +16,13 @@ public record BookProductGetResponseDto (
         @Length(min = 10, max =10) String isbn,
         @Length(min = 13, max =13) String isbn13,
 
+
+
+
         String cover,
         boolean packable,
         String productDescription,
+        String productName,
         LocalDateTime productRegisterDate,
         int productState,
         long productViewCount,

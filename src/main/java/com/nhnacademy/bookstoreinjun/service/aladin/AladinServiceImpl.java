@@ -40,7 +40,7 @@ public class AladinServiceImpl implements AladinService {
 
             log.info("size : {}", pageRequestDto.size());
 
-            Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, 5, "pubDate");
+            Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, 4, "pubDate");
             log.info("page size : {}", pageable.getPageSize());
 
             log.info("getAladdinBookPage done");

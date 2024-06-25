@@ -109,6 +109,7 @@ public class BookServiceImpl implements BookService {
                 .isbn(book.getIsbn())
                 .isbn13(book.getIsbn13())
                 .cover(book.getProduct().getProductThumbnailUrl())
+                .productName(book.getProduct().getProductName())
                 .packable(book.getProduct().isProductPackable())
                 .productDescription(book.getProduct().getProductDescription())
                 .productRegisterDate(book.getProduct().getProductRegisterDate())
@@ -161,6 +162,7 @@ public class BookServiceImpl implements BookService {
 
 
     public ProductRegisterResponseDto saveBook(@Valid BookProductRegisterRequestDto bookProductRegisterRequestDto) {
+        log.error("product name : {}", bookProductRegisterRequestDto.productName());
         if (bookRepository.existsByIsbn13(bookProductRegisterRequestDto.isbn13())){
             throw new DuplicateException(TYPE);
         }else{

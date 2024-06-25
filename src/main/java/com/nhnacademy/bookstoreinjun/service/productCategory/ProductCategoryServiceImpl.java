@@ -78,6 +78,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     private CategoryGetResponseDto makeCategoryGetResponseDtoFromProductCategory(ProductCategory productCategory) {
         return CategoryGetResponseDto.builder()
+                .productCategoryId(productCategory.getProductCategoryId())
                 .categoryName(productCategory.getCategoryName())
                 .parentProductCategory(productCategory.getParentProductCategory())
                 .build();

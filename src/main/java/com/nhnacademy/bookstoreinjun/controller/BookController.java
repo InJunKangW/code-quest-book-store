@@ -65,7 +65,14 @@ public class BookController {
         return new ResponseEntity<>(bookService.saveBook(bookProductRegisterRequestDto), header, HttpStatus.CREATED);
     }
 
-    //페이지 조회. 기본적으로 판매 중인 책만 조회합니다.
+
+    /**
+     *
+     * @param page 페이지 넘버 null 이면 기본 1페이지.
+     * @param sort 정렬 조건. null 이면
+     * @return
+     */
+
     @GetMapping("/books")
     public ResponseEntity<Page<BookProductGetResponseDto>> getAllBookPage(@RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "sort", required = false) String sort){
         PageRequestDto pageRequestDto = PageRequestDto.builder().page(page).sort(sort).build();

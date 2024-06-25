@@ -11,21 +11,21 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     public boolean existsByProductId(Long productId);
 
-    public List<Product> findByProductNameLike(String productName);
-
-    public List<Product> findByProductPriceSalesBetween(long minPrice, long maxPrice);
-
-    public List<Product> findByProductPriceSalesAfter(long minPrice);
-
-    public List<Product> findByProductPriceSalesBefore(long maxPrice);
-
-    public List<Product> findByProductPriceSalesLessThan(long minPrice);
-
-    public List<Product> findByProductPriceSalesGreaterThan(long maxPrice);
-
-    public List<Product> findByProductNameContaining(String productName);
-
-    public List<Product> findByProductNameStartingWith(String productName);
-
-    public List<Product> findByProductIdOrderByProductViewCount(Long productId);
+//    public List<Product> findByProductNameLike(String productName);
+//
+//    public List<Product> findByProductPriceSalesBetween(long minPrice, long maxPrice);
+//
+//    public List<Product> findByProductPriceSalesAfter(long minPrice);
+//
+//    public List<Product> findByProductPriceSalesBefore(long maxPrice);
+//
+//    public List<Product> findByProductPriceSalesLessThan(long minPrice);
+//
+//    public List<Product> findByProductPriceSalesGreaterThan(long maxPrice);
+//
+//    public List<Product> findByProductNameContaining(String productName);
+//
+//    public List<Product> findByProductNameStartingWith(String productName);
+//
+//    public List<Product> findByProductIdOrderByProductViewCount(Long productId);
 }
