@@ -1,102 +1,86 @@
 package com.nhnacademy.bookstoreinjun.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.nhnacademy.bookstoreinjun.dto.AladinBookListResponseDto;
-import com.nhnacademy.bookstoreinjun.dto.AladinBookResponseDto;
-import com.nhnacademy.bookstoreinjun.feignclient.BookRegisterClient;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
+import com.nhnacademy.bookstoreinjun.dto.book.aladin.AladinBookListResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.book.BookProductGetResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.book.BookProductRegisterRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.book.BookProductUpdateRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.book.aladin.AladinBookResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.product.ProductRegisterResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.error.ErrorResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.product.ProductUpdateResponseDto;
+import com.nhnacademy.bookstoreinjun.exception.AladinJsonProcessingException;
+import com.nhnacademy.bookstoreinjun.service.aladin.AladinService;
+import com.nhnacademy.bookstoreinjun.service.book.BookService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
-@Controller
-@RequestMapping("/api/book")
+@RestController
+@RequestMapping("/api/product")
 @RequiredArgsConstructor
 public class BookController {
 
-    private final int PAGE_SIZE = 5;
-    private final RestTemplate restTemplate;
+    private final AladinService aladinService;
+
+    private final BookService bookService;
 
 
-    private final BookRegisterClient bookRegisterClient;
 
-    @GetMapping
-    @RequestMapping("/register")
-    public String home() {
-        return "registerForm";
+    private final HttpHeaders header = new HttpHeaders() {{
+        setContentType(MediaType.APPLICATION_JSON);
+    }};
+
+    @ExceptionHandler(AladinJsonProcessingException.class)
+    public ResponseEntity<ErrorResponseDto> exceptionHandler(AladinJsonProcessingException ex) {
+        return new ResponseEntity<>(new ErrorResponseDto(ex.getMessage()), header, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    // feign 이 호출하는 메서드.
+    @GetMapping("/admin/book")
+    public ResponseEntity<Page<AladinBookResponseDto>> getBooks(@RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "sort", required = false) String sort, @RequestParam("title") String title){
+        log.info("controller called");
+        PageRequestDto pageRequestDto = PageRequestDto.builder().page(page).sort(sort).build();
+        return new ResponseEntity<>(aladinService.getAladdinBookPage(pageRequestDto, title), header, HttpStatus.OK);
+    }
+
+    @PostMapping("/admin/book/register")
+    public ResponseEntity<ProductRegisterResponseDto> saveBookProduct(@Valid @RequestBody BookProductRegisterRequestDto bookProductRegisterRequestDto){
+        return new ResponseEntity<>(bookService.saveBook(bookProductRegisterRequestDto), header, HttpStatus.CREATED);
+    }
+
+    //페이지 조회. 기본적으로 판매 중인 책만 조회합니다.
+    @GetMapping("/books")
+    public ResponseEntity<Page<BookProductGetResponseDto>> getAllBookPage(@RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "sort", required = false) String sort){
+        PageRequestDto pageRequestDto = PageRequestDto.builder().page(page).sort(sort).build();
+        return new ResponseEntity<>(bookService.getBookPage(pageRequestDto), header, HttpStatus.OK);
+    }
+
+    @GetMapping("/book/{bookId}")
+    public ResponseEntity<BookProductGetResponseDto> getSingleBookInfo(@PathVariable long bookId){
+        return new ResponseEntity<>(bookService.getBookByBookId(bookId), header, HttpStatus.OK);
     }
 
 
-    @GetMapping
-    public
-    ResponseEntity<AladinBookListResponseDto> getBooks(@RequestParam("title")String title) throws JsonProcessingException {
-        log.error("test called");
+    @PutMapping("/admin/book/update")
+    public ResponseEntity<ProductUpdateResponseDto> updateBook(@Valid @RequestBody BookProductUpdateRequestDto bookProductUpdateRequestDto){
+        return new ResponseEntity<>(bookService.updateBook(bookProductUpdateRequestDto), header, HttpStatus.OK);
 
-//       검색할 제목
-        byte[] bytes = title.getBytes(StandardCharsets.UTF_8);
-        String utf8EncodedString = new String(bytes, StandardCharsets.UTF_8);
-
-
-        URI uri = UriComponentsBuilder
-                .fromUriString("http://www.aladin.co.kr")
-                .path("/ttb/api/ItemSearch.aspx")
-                .queryParam("TTBKey","ttbjasmine066220924001")
-                .queryParam("Query",utf8EncodedString)
-                .queryParam("QueryType","Title")
-                .queryParam("MaxResults", 100)
-                .encode()
-                .build()
-                .toUri();
-        //제목 검색 - 리스트 보기.
-
-
-        ResponseEntity<String> responseEntity = restTemplate.exchange(RequestEntity.get(uri).build(), String.class);
-        String responseBody = responseEntity.getBody();
-
-        XmlMapper xmlMapper = new XmlMapper();
-        AladinBookListResponseDto aladinBookListResponseDto = xmlMapper.readValue(responseBody, AladinBookListResponseDto.class);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
-        return new ResponseEntity<>(aladinBookListResponseDto, headers, HttpStatus.OK);
-    }
-
-
-    //웹에 있을 거
-    @GetMapping
-    @RequestMapping("/test/test")
-    public String test(@RequestParam("title")String title, Model model) {
-        log.error("test called + title : {}", title);
-        ResponseEntity<AladinBookListResponseDto> aladinBookListResponseDtoResponseEntity = bookRegisterClient.getBookList(title);
-        AladinBookListResponseDto aladinBookListResponseDto = aladinBookListResponseDtoResponseEntity.getBody();
-        List<AladinBookResponseDto> bookList = aladinBookListResponseDto.getBooks();
-        model.addAttribute("bookList", bookList);
-
-        return "test";
-    }
-
-    @PostMapping
-    public String post(@ModelAttribute AladinBookResponseDto AladinBookResponseDto, Model model) throws JsonProcessingException {
-        log.error("test called");
-        log.info("title : {}, author : {}, isbn : {} cover : {}, priceStandard : {}, isbn13: {}, pubdate :{}, publisher : {}"
-                ,AladinBookResponseDto.getTitle(), AladinBookResponseDto.getAuthor(), AladinBookResponseDto.getIsbn(), AladinBookResponseDto.getCover(), AladinBookResponseDto.getPriceStandard(), AladinBookResponseDto.getIsbn13(), AladinBookResponseDto.getPubDate(), AladinBookResponseDto.getPublisher());
-        model.addAttribute("book", AladinBookResponseDto);
-        return "eachBook";
-    }
 }

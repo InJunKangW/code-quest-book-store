@@ -1,7 +1,6 @@
-package com.nhnacademy.bookstoreinjun.dto;
+package com.nhnacademy.bookstoreinjun.dto.book.aladin;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -22,7 +21,6 @@ public class AladinBookResponseDto {
     private String priceStandard;
     private String pubDate;
     private String priceSales;
-    private String discount;
     private String isbn;
     private String isbn13;
 }

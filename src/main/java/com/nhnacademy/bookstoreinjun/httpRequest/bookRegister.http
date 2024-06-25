@@ -1,0 +1,47 @@
+POST localhost:8004/api/admin/book/register
+Content-Type: application/json
+
+{
+  "title": "제목",
+  "publisher": "출판사",
+  "author": "작가",
+  "pubDate": "2024-06-20",
+  "isbn": "isbnisbn18",
+  "isbn13": "isbnisbnisbn8",
+  "cover": "cover",
+  "productName": "product",
+  "packable": false,
+  "productDescription": "설명",
+  "productInventory": 1012,
+  "productPriceStandard": 5000012,
+  "productPriceSales": 1000012,
+  "categories": [
+      "카테고리3", "뉴카테고리3"
+  ],
+  "tags": [
+    "tag2", "newTag2"
+  ]
+}
+
+###
+GET localhost:8003/api/admin/book/test/test?title=사랑
+
+###
+PUT localhost:8004/api/admin/book
+Content-Type: application/json
+
+{
+  "bookId": 1,
+  "productName": "product changed",
+  "packable": true,
+  "productDescription": "changed description",
+  "productInventory": 1023,
+  "productPriceSales": 100,
+  "productState": 0,
+  "categories": [
+    "카테고리3"
+  ],
+  "tags": [
+    "tag2"
+  ]
+}

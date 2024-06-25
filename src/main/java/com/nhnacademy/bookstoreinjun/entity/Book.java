@@ -14,13 +14,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Book {
     @Id
@@ -29,24 +28,27 @@ public class Book {
     private Long bookId;
 
     @OneToOne
-    @JoinColumn(name = "product_id", unique = true, nullable = false)
+    @JoinColumn(name = "productId", unique = true, nullable = false)
     private Product product;
 
     @Builder.Default
-    @Column(nullable = false)
+    @Column(nullable = false, name = "bookTitle")
     @ColumnDefault("'제목 없음'")
     private String title ="제목 없음";
 
+    @Column(name = "bookPublisher")
     private String publisher;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "bookAuthor")
     private String author;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true, length = 10, name = "bookIsbn_10")
     private String isbn;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true, length = 13, name = "bookIsbn_13")
     private String isbn13;
 
+    @Column(name = "bookPubdate")
     private LocalDate pubDate;
+
 }

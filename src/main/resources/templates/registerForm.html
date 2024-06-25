@@ -2,9 +2,59 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Title</title>
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
     <script th:inline="javascript">
         /*<![CDATA[*/
+        document.addEventListener('DOMContentLoaded', function() {
+            const Editor = toastui.Editor;
+
+            const editor = new Editor({
+                el: document.querySelector('#editor'),
+                height: '500px',
+                initialEditType: 'markdown',
+                previewStyle: 'vertical',
+                initialValue: 'Hello, TOAST UI Editor!'
+            });
+
+            function extractImagesAndText(editorContent) {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(editorContent, 'text/html');
+                const images = [];
+                const textElements = [];
+
+                doc.body.childNodes.forEach(node => {
+                    if (node.nodeName === 'IMG') {
+                        images.push(node.src);
+                    } else {
+                        textElements.push(node.outerHTML);
+                    }
+                });
+
+                return {
+                    images: images.join(','),
+                    text: textElements.join('')
+                };
+            }
+
+            editor.on('change', function() {
+                const htmlContent = editor.getHtml();
+                const { images, text } = extractImagesAndText(htmlContent);
+
+                document.getElementById('descriptionInput').value = text;
+                document.getElementById('imagesInput').value = images;
+            });
+
+            document.getElementById('bookProductRegister').addEventListener('submit', function(event) {
+                const htmlContent = editor.getHtml();
+                const { images, text } = extractImagesAndText(htmlContent);
+
+                document.getElementById('descriptionInput').value = text;
+                document.getElementById('imagesInput').value = images;
+            });
+        });
+
         function formValidation(event){
             event.preventDefault(); // 폼 제출을 막음
 
@@ -31,11 +81,37 @@
                 return;
             }
 
+            // 화면의 가운데에 새 창을 열기 위한 위치 계산
+            // var screenWidth = window.innerWidth;
+            // var screenHeight = window.innerHeight;
+
+            var newWindowWidth = 600;  // 새 창의 너비
+            var newWindowHeight = 500; // 새 창의 높이
+
+            var availWidth = screen.availWidth;
+            var availHeight = screen.availHeight;
+            var left = Math.max(0, (availWidth - newWindowWidth) / 2);
+            var top = Math.max(0, (availHeight - newWindowHeight) / 2);
+
             // URL에 포함될 파라미터 문자열 생성
-            var url = "/api/book/test/test?title=" + encodeURIComponent(inputValue);
+            var url = "/api/test/test?title=" + encodeURIComponent(inputValue);
 
             // 새 창 열기
-            var newWindow = window.open(url, "_blank", "width=600,height=400");
+            var newWindow = window.open(url, "_blank", "width=" + newWindowWidth + ",height=" + newWindowHeight + ",top=" + top + ",left=" + left);
+            // var left = (screenWidth - newWindowWidth) / 2;
+            // var top = (screenHeight - newWindowHeight) / 2;
+
+            // var _left = Math.ceil(( window.screen.width - newWindowWidth)/2);
+            // var _top = Math.ceil(( window.screen.height - newWindowHeight)/2);
+
+            // URL에 포함될 파라미터 문자열 생성
+            // var url = "/api/admin/book/test/test?title=" + encodeURIComponent(inputValue);
+            //
+            // // 새 창 열기
+            // var options = "width=" + newWindowWidth + ",height=" + newWindowHeight + ",top=" + _top + ",left=" +_left;
+            // var newWindow = window.open(url, "_blank", options);
+
+            // var newWindow = window.open(url, "_blank", "width=600,height=500");
 
             newWindow.focus();
 
@@ -58,11 +134,14 @@
                         document.getElementById('cover').src = event.data.data; // Assuming you want to set the source of an image element
                         document.getElementById('coverURL').value = event.data.data; // Assuming you want to set the source of an image element
                         break;
-                    case 'pubdate':
+                    case 'pubDate':
                         if(event.data.data !== null){
-                            document.getElementById('pubdate').value = event.data.data;
+                            const date = new Date(event.data.data);
+                            // LocalDate 형식으로 변환 (yyyy-MM-dd)
+                            const localDate = date.toISOString().split('T')[0];
+                            document.getElementById('pubDate').value = localDate;
                         }else{
-                            document.getElementById('pubdate').value = '확인되지 않음';
+                            document.getElementById('pubDate').value = null;
                         }
                         break;
                     case 'isbn':
@@ -77,11 +156,6 @@
                     default:
                         console.warn('Unhandled event type:', event.data.type);
                 }
-                // if (event.data.type === 'title') {
-                //     document.getElementById('title').value = event.data.data;
-                // } else if (event.data.type === 'author') {
-                //     document.getElementById('author').innerText = event.data.data;
-                // }
             });
         }
         function calculateDiscount() {
@@ -111,14 +185,13 @@
 <input type="text" id="inputValue" name="inputValue" required>
 <button onclick="openNewWindowWithParam()">Open New Window</button>
 <div id="errorMessage" style="color: red;"></div>
-<!--    <div id="title" th:text="'hello world'"></div>-->
-<form action="/test" method="post" onsubmit="formValidation(event)">
+<form action="/api/admin/book/register" id="bookProductRegister" method="post" onsubmit="formValidation(event)">
     <label for="title">제목 </label><input type="text" name="title" id="title" readonly/><br>
     <label for="author">작가 </label><input type="text" id="author" name="author" th:text="'hello world author'" readonly/><br>
     <label for="publisher">출판사 </label><input type="text" name="publisher" id="publisher" readonly/><br>
     <label for="cover">표지 </label><input type="image" id="cover" src="https://i.postimg.cc/fbT2n5jH/Pngtree-man-face-6836758.png" style="cursor: default;" width="300px" height="420px" readonly/><br>
     <label for="coverURL"></label><input type="hidden" name="cover" id="coverURL" readonly/><br>
-    <label for="pubdate">출판일 </label><input type="text" name="pubdate" id="pubdate" readonly/><br>
+    <label for="pubDate">출판일 </label><input type="text" name="pubDate" id="pubDate" th:text="'출판일.. '" readonly/><br>
     <label for="isbn">isbn </label><input type="text" name="isbn" id="isbn" readonly/><br>
     <label for="isbn13">isbn13 </label><input type="text" name="isbn13" id="isbn13" readonly/><br>
     <label for="priceStandard">정가 </label><input type="number" name="priceStandard" id="priceStandard" readonly/><br>
