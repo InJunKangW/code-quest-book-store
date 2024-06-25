@@ -143,7 +143,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         if (parent == null) {
             throw new NotFoundNameException(TYPE, categoryName);
         }else {
-            return productCategoryRepository.findSubCategoriesByParent(parent).stream()
+            return productCategoryRepository.findSubCategoriesByParentProductCategory(parent).stream()
                     .map(category -> CategoryGetResponseDto.builder()
                             .categoryName(category.getCategoryName())
                             .parentProductCategory(category.getParentProductCategory())

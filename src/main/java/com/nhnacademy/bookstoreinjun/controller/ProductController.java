@@ -3,7 +3,7 @@ package com.nhnacademy.bookstoreinjun.controller;
 
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductGetResponseDto;
-import com.nhnacademy.bookstoreinjun.service.product.ProductService;
+import com.nhnacademy.bookstoreinjun.service.product.ProductDtoService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/admin/product")
 public class ProductController {
-    private final ProductService productService;
+    private final ProductDtoService productDtoService;
 
     private final HttpHeaders header = new HttpHeaders() {{
         setContentType(MediaType.APPLICATION_JSON);
@@ -37,7 +37,7 @@ public class ProductController {
 //            @RequestParam(name = "sort", required = false) String sort
     ) {
 //        PageRequestDto pageRequestDto = PageRequestDto.builder().page(page).desc(desc).sort(sort).build();
-        return new ResponseEntity<>(productService.findAllPage(pageRequestDto), header, HttpStatus.OK);
+        return new ResponseEntity<>(productDtoService.findAllPage(pageRequestDto), header, HttpStatus.OK);
     }
 
     @GetMapping("/page/containing")
@@ -48,6 +48,6 @@ public class ProductController {
 //            @RequestParam(name = "sort", required = false) String sort,
             @NotBlank @RequestParam(name = "productName") String productName) {
 //        PageRequestDto pageRequestDto = PageRequestDto.builder().page(page).desc(desc).sort(sort).build();
-        return new ResponseEntity<>(productService.findNameContainingPage(pageRequestDto, productName), header, HttpStatus.OK);
+        return new ResponseEntity<>(productDtoService.findNameContainingPage(pageRequestDto, productName), header, HttpStatus.OK);
     }
 }

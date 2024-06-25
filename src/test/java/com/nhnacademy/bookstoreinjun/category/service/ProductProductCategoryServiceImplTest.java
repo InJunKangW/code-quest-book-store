@@ -18,7 +18,6 @@ import com.nhnacademy.bookstoreinjun.dto.category.CategoryUpdateRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryUpdateResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
-import com.nhnacademy.bookstoreinjun.entity.Tag;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.InvalidSortNameException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
@@ -202,7 +201,7 @@ public class ProductProductCategoryServiceImplTest {
         ProductCategory testCategory = new ProductCategory();
         when(productCategoryRepository.findByCategoryName("test")).thenReturn(testCategory);
 
-        when(productCategoryRepository.findSubCategoriesByParent(testCategory)).thenReturn(
+        when(productCategoryRepository.findSubCategoriesByParentProductCategory(testCategory)).thenReturn(
                 Arrays.asList(
                         ProductCategory.builder()
                                 .categoryName(TEST_CATEGORY_NAME + 1)
@@ -216,7 +215,7 @@ public class ProductProductCategoryServiceImplTest {
         assertEquals(dto.size(), 2);
 
         verify(productCategoryRepository, times(1)).findByCategoryName("test");
-        verify(productCategoryRepository, times(1)).findSubCategoriesByParent(testCategory);
+        verify(productCategoryRepository, times(1)).findSubCategoriesByParentProductCategory(testCategory);
     }
 
     @DisplayName("특정 카테고리의 하위 카테고리 리스트 조회 실패 테스트 - 존재하지 않는 상위 카테고리")
