@@ -16,7 +16,11 @@ public class MakePageableUtil {
         int page = Objects.requireNonNullElse(pageRequestDto.page(),1);
         int size = Objects.requireNonNullElse(pageRequestDto.size(),defaultSize);
         boolean desc = Objects.requireNonNullElse(pageRequestDto.desc(), true);
-        String sort =  Objects.requireNonNullElse(pageRequestDto.sort(), defaultSort);
+
+        String sort = pageRequestDto.sort();
+        if (sort == null || sort.trim().isEmpty()) {
+            sort = defaultSort;
+        }
 
         return PageRequest.of(page -1, size, Sort.by(desc ? Sort.Direction.DESC : Sort.Direction.ASC, sort));
     }

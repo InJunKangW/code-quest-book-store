@@ -41,6 +41,7 @@ public class MyExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDto> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException ex) {
+        log.info("MethodArgumentNotValidException");
         return getErrorResponse(ex, HttpStatus.BAD_REQUEST);
     }
 

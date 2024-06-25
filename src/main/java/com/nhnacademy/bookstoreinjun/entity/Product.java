@@ -57,7 +57,6 @@ public class Product {
     @Column(nullable = false)
     @ColumnDefault("'https://i.postimg.cc/fbT2n5jH/Pngtree-man-face-6836758.png'")
     private String productThumbnailUrl = "https://i.postimg.cc/fbT2n5jH/Pngtree-man-face-6836758.png";
-    //이미지 없음 이라는 이미지로 바꾸기. 지금 아주 간단한 파일 써놨음.
     //디비 자체에는 No image 를 적고 front 에서 저 파일을 띄우는 게 맞을지도.
 
     @Builder.Default
@@ -65,7 +64,6 @@ public class Product {
     @ColumnDefault("'상품입니다.'")
     private String productDescription = "상품입니다.";
 
-    //조회수랑 얘 둘은 굳이.. 어드민이 입력하게 해야할까?
     @Builder.Default
     @Column(nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime productRegisterDate = LocalDateTime.now();

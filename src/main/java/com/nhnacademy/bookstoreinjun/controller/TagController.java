@@ -9,6 +9,7 @@ import com.nhnacademy.bookstoreinjun.dto.tag.TagUpdateRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.tag.TagUpdateResponseDto;
 import com.nhnacademy.bookstoreinjun.service.tag.TagService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +60,10 @@ public class TagController {
     }
 
     @GetMapping("/tags/containing")
-    public ResponseEntity<Page<TagGetResponseDto>> getNameContainingTagPage(@RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "desc", required = false) Boolean desc, @RequestParam("tagName") String tagName) {
+    public ResponseEntity<Page<TagGetResponseDto>> getNameContainingTagPage(
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "desc", required = false) Boolean desc,
+            @NotBlank @RequestParam("tagName") String tagName) {
         PageRequestDto pageRequestDto = PageRequestDto.builder().page(page).desc(desc).build();
         return new ResponseEntity<>(tagService.getNameContainingTagPage(pageRequestDto, tagName), header, HttpStatus.OK);
     }

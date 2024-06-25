@@ -2,14 +2,19 @@ package com.nhnacademy.bookstoreinjun.repository;
 
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    public Product findByProductId(Long productId);
+    Product findByProductId(Long productId);
 
-    public boolean existsByProductId(Long productId);
+    boolean existsByProductId(Long productId);
+
+    Page<Product> findByProductNameContaining(Pageable pageable, String productName);
+
 
 //    public List<Product> findByProductNameLike(String productName);
 //

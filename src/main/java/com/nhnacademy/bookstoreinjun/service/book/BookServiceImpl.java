@@ -22,6 +22,7 @@ import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
 import com.nhnacademy.bookstoreinjun.repository.TagRepository;
 import com.nhnacademy.bookstoreinjun.service.productCategoryRelation.ProductCategoryRelationService;
 import com.nhnacademy.bookstoreinjun.service.productTag.ProductTagService;
+import com.nhnacademy.bookstoreinjun.util.MakePageableUtil;
 import com.nhnacademy.bookstoreinjun.util.ProductCheckUtil;
 import com.nhnacademy.bookstoreinjun.util.SortCheckUtil;
 import jakarta.validation.Valid;
@@ -137,14 +138,9 @@ public class BookServiceImpl implements BookService {
     }
 
     public Page<BookProductGetResponseDto> getBookPage(@Valid PageRequestDto pageRequestDto) {
-        int page = Objects.requireNonNullElse(pageRequestDto.page(),1);
-        int size = Objects.requireNonNullElse(pageRequestDto.size(),5);
-        boolean desc = Objects.requireNonNullElse(pageRequestDto.desc(), true);
-        String sort =  Objects.requireNonNullElse(pageRequestDto.sort(), "product.productRegisterDate");
+        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, 5, "product.productRegisterDate");
 
-        log.info("page : {}, size : {}, desc : {}, sort : {}", page, size, desc, sort);
-        Pageable pageable = PageRequest.of(page -1, size, Sort.by(desc ? Sort.Direction.DESC : Sort.Direction.ASC, sort));
-
+        int page = pageable.getPageNumber() + 1;
         try{
             Page<Book> bookPage = bookRepository.findBooksByProductState(pageable);
             int total = bookPage.getTotalPages();

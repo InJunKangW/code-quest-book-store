@@ -66,16 +66,11 @@ public class BookController {
     }
 
 
-    /**
-     *
-     * @param page 페이지 넘버 null 이면 기본 1페이지.
-     * @param sort 정렬 조건. null 이면
-     * @return
-     */
 
     @GetMapping("/books")
-    public ResponseEntity<Page<BookProductGetResponseDto>> getAllBookPage(@RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "sort", required = false) String sort){
-        PageRequestDto pageRequestDto = PageRequestDto.builder().page(page).sort(sort).build();
+    public ResponseEntity<Page<BookProductGetResponseDto>> getAllBookPage(
+           @Valid @ModelAttribute PageRequestDto pageRequestDto
+    ){
         return new ResponseEntity<>(bookService.getBookPage(pageRequestDto), header, HttpStatus.OK);
     }
 
@@ -90,36 +85,4 @@ public class BookController {
         return new ResponseEntity<>(bookService.updateBook(bookProductUpdateRequestDto), header, HttpStatus.OK);
     }
 
-
-//    //웹에 있을 거
-//    private final BookRegisterClient bookRegisterClient;
-//
-//    // 유레카, 게이트웨이, 웹 다 켜놓고 테스트하기 번거로울 때 주석 풀고 쓰려고 냅뒀습니다.
-//    @GetMapping
-//    @RequestMapping("/register")
-//    public String home() {
-//        return "registerForm";
-//    }
-//
-//    //    웹에 있을 거
-//    @GetMapping
-//    @RequestMapping("/test/test")
-//    public String test(@RequestParam("title")String title, Model model) {
-//        log.error("test called + title : {}", title);
-//        ResponseEntity<AladinBookListResponseDto> aladinBookListResponseDtoResponseEntity = bookRegisterClient.getBookList(title);
-//
-//        AladinBookListResponseDto aladinBookListResponseDto = aladinBookListResponseDtoResponseEntity.getBody();
-//
-//        if (aladinBookListResponseDto == null) {
-//            log.info("dto is null");
-//            model.addAttribute("bookList", new ArrayList<>());
-//        }else{
-//            log.info("dto isn't null");
-//
-//            List<AladinBookResponseDto> bookList = aladinBookListResponseDto.getBooks();
-//            model.addAttribute("bookList", bookList);
-//        }
-//
-//        return "test";
-//    }
 }

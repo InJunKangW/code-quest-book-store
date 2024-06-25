@@ -62,7 +62,6 @@ public class TagControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(dto);
 
-        when ()
 
         mockMvc.perform(post("/api/product/admin/tag/register")
                         .content(json)
