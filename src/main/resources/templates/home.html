@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        function formValidation(event){
+            event.preventDefault(); // 폼 제출을 막음
+
+
+            // 여기서 추가적인 처리를 수행할 수 있음
+
+            // 폼을 제출하거나 다른 동작을 수행하도록 원하는 경우
+            var title = document.getElementById('title').value;
+            if (!title) {
+                alert('사용자 이름을 입력하세요.');
+                return; // 유효하지 않으면 제출하지 않음
+            }
+            event.target.submit(); // 폼 제출
+
+        }
+        function openNewWindowWithParam() {
+            // 파라미터 값을 가져옵니다 (여기서는 input의 값을 사용합니다)
+            var inputValue = document.getElementById("inputValue").value;
+
+            if (inputValue.trim() === '') {
+                // 값이 비어있을 경우 메시지 표시
+                document.getElementById('errorMessage').innerText = '값을 입력하세요';
+                return;
+            }
+
+            // URL에 포함될 파라미터 문자열 생성
+            var url = "/test?title=" + encodeURIComponent(inputValue);
+
+            // 새 창 열기
+            var newWindow = window.open(url, "_blank", "width=600,height=400");
+
+            newWindow.focus();
+
+
+
+
+            window.addEventListener('message', function(event) {
+                // 자식 창이 보낸 메시지 처리
+                switch (event.data.type){
+                    case 'title':
+                        document.getElementById('title').value = event.data.data;
+                        break;
+                    case 'author':
+                        document.getElementById('author').value = event.data.data;
+                        break;
+                    case 'publisher':
+                        document.getElementById('publisher').value = event.data.data;
+                        break;
+                    case 'cover':
+                        document.getElementById('cover').src = event.data.data; // Assuming you want to set the source of an image element
+                        document.getElementById('coverURL').value = event.data.data; // Assuming you want to set the source of an image element
+                        break;
+                    case 'pubdate':
+                        if(event.data.data !== null){
+                            document.getElementById('pubdate').value = event.data.data;
+                        }else{
+                            document.getElementById('pubdate').value = '확인되지 않음';
+                        }
+                        break;
+                    case 'isbn':
+                        document.getElementById('isbn').value = event.data.data;
+                        break;
+                    case 'isbn13':
+                        document.getElementById('isbn13').value = event.data.data;
+                        break;
+                    case 'priceStandard':
+                        document.getElementById('priceStandard').value = event.data.data;
+                        break;
+                    default:
+                        console.warn('Unhandled event type:', event.data.type);
+                }
+                // if (event.data.type === 'title') {
+                //     document.getElementById('title').value = event.data.data;
+                // } else if (event.data.type === 'author') {
+                //     document.getElementById('author').innerText = event.data.data;
+                // }
+            });
+        }
+        function calculateDiscount() {
+            let priceStandard = parseFloat(document.getElementById('priceStandard').value);
+            let priceSales = parseFloat(document.getElementById('priceSales').value);
+
+            // 정가와 판매가가 비어있지 않은 경우에만 할인율 계산
+            if (!isNaN(priceStandard) && !isNaN(priceSales) && priceStandard !== 0) {
+                let discount = (1 - (priceSales / priceStandard)) * 100;
+
+                // 할인율이 NaN이거나 Infinity인 경우 처리
+                if (isNaN(discount) || !isFinite(discount)) {
+                    discount = 0; // 기본값 0으로 설정
+                }
+
+                document.getElementById('discount').value = discount.toFixed(2); // 소수점 둘째자리까지 표시
+            } else {
+                // 정가나 판매가가 비어있는 경우 할인율 input을 비움
+                document.getElementById('discount').value = 0;
+            }
+        }
+        /*]]>*/
+    </script>
+</head>
+<body>
+<label for="inputValue">Input Value:</label>
+<input type="text" id="inputValue" name="inputValue" required>
+<button onclick="openNewWindowWithParam()">Open New Window</button>
+<div id="errorMessage" style="color: red;"></div>
+<!--    <div id="title" th:text="'hello world'"></div>-->
+<form action="/test" method="post" onsubmit="formValidation(event)">
+    <label for="title">제목 </label><input type="text" name="title" id="title" readonly/><br>
+    <label for="author">작가 </label><input type="text" id="author" name="author" th:text="'hello world author'" readonly/><br>
+    <label for="publisher">출판사 </label><input type="text" name="publisher" id="publisher" readonly/><br>
+    <label for="cover">표지 </label><input type="image" id="cover" src="https://i.postimg.cc/fbT2n5jH/Pngtree-man-face-6836758.png" style="cursor: default;" width="300px" height="420px" readonly/><br>
+    <label for="coverURL"></label><input type="hidden" name="cover" id="coverURL" readonly/><br>
+    <label for="pubdate">출판일 </label><input type="text" name="pubdate" id="pubdate" readonly/><br>
+    <label for="isbn">isbn </label><input type="text" name="isbn" id="isbn" readonly/><br>
+    <label for="isbn13">isbn13 </label><input type="text" name="isbn13" id="isbn13" readonly/><br>
+    <label for="priceStandard">정가 </label><input type="number" name="priceStandard" id="priceStandard" readonly/><br>
+    <label for="priceSales">판매가 </label><input type="number" name="priceSales" id="priceSales" onchange="calculateDiscount()" required/><br>
+    <label for="discount">할인율 </label><input type="number" name="discount" id="discount" readonly/><br>
+    <button type="submit">등록</button>
+</form>
+</body>
+</html>

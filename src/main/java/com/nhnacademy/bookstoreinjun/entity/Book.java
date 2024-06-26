@@ -24,6 +24,7 @@ import org.hibernate.annotations.ColumnDefault;
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Long bookId;
 
     @OneToOne

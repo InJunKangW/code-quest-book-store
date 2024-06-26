@@ -38,7 +38,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-//@Controller
 @RequestMapping("/api/product")
 @RequiredArgsConstructor
 public class BookController {
@@ -100,6 +99,7 @@ public class BookController {
             @Min(1) @PathVariable long bookId){
         return new ResponseEntity<>(bookService.getBookByBookId(bookId), header, HttpStatus.OK);
     }
+
 
     @GetMapping("/books/categoryFilter")
     public ResponseEntity<Page<BookProductGetResponseDto>> getBookPageFilterByCategory(
