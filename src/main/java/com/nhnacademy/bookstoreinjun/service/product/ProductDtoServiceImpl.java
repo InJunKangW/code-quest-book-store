@@ -2,16 +2,23 @@ package com.nhnacademy.bookstoreinjun.service.product;
 
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductGetResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeResponseDto;
 import com.nhnacademy.bookstoreinjun.entity.Product;
+import com.nhnacademy.bookstoreinjun.entity.ProductLike;
+import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
+import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
+import com.nhnacademy.bookstoreinjun.exception.XUserIdNotFoundException;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRelationRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
+import com.nhnacademy.bookstoreinjun.repository.ProductLikeRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductTagRepository;
 import com.nhnacademy.bookstoreinjun.repository.TagRepository;
 import com.nhnacademy.bookstoreinjun.util.MakePageableUtil;
 import com.nhnacademy.bookstoreinjun.util.SortCheckUtil;
 import jakarta.validation.Valid;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,13 +33,7 @@ public class ProductDtoServiceImpl implements ProductDtoService {
 
     private final ProductRepository productRepository;
 
-    private final ProductCategoryRepository productCategoryRepository;
-
-    private final ProductCategoryRelationRepository productCategoryRelationRepository;
-
-    private final TagRepository tagRepository;
-
-    private final ProductTagRepository productTagRepository;
+    private final ProductLikeRepository productLikeRepository;
 
     private final int DEFAULT_PAGE_SIZE = 10;
 
@@ -80,5 +81,25 @@ public class ProductDtoServiceImpl implements ProductDtoService {
         }catch (PropertyReferenceException e) {
             throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
         }
+    }
+
+    public ProductLikeResponseDto saveProductLike(Long clientId, Long productId){
+        if (clientId ==- 1){
+            throw new XUserIdNotFoundException();
+        }
+        Optional<Product> optionalProduct = productRepository.findById(productId);
+        if(optionalProduct.isPresent()){
+            Product product = optionalProduct.get();
+            if (productLikeRepository.existsByClientIdAndProduct(clientId, product)){
+                throw new DuplicateException("Product Like");
+            }
+            productLikeRepository.save(ProductLike.builder()
+                    .clientId(clientId)
+                    .product(product)
+                    .build());
+        }else {
+            throw new NotFoundIdException("product", productId);
+        }
+        return new ProductLikeResponseDto();
     }
 }

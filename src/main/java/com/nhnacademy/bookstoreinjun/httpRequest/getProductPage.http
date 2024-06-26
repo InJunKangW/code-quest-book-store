@@ -16,4 +16,9 @@ GET localhost:8004/api/admin/product/page/containing?productName=
 #
 
 ###
-GET localhost:8004/api/admin/product/test?tags=tag3,tag2
+POST localhost:8004/api/product/1/like
+X-User-Id: 100
+Content-Type: application/json
+
+{
+}

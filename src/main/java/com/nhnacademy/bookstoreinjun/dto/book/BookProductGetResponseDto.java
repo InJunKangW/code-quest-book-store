@@ -21,7 +21,7 @@ public record BookProductGetResponseDto (
 
 
 
-
+        long productId,
         String cover,
         boolean packable,
         String productDescription,
