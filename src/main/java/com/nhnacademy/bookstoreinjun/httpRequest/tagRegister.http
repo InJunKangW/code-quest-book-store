@@ -1,8 +1,8 @@
-POST localhost:8004/api/admin/tag
+POST localhost:8004/api/product/admin/tag/register
 Content-Type: application/json
 
 {
-  "tagName": "tag12"
+  "tagName": "tag4"
 }
 
 ###

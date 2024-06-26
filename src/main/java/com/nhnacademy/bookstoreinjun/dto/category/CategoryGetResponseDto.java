@@ -5,6 +5,7 @@ import lombok.Builder;
 
 @Builder
 public record CategoryGetResponseDto (
+        Long productCategoryId,
         String categoryName,
         ProductCategory parentProductCategory
 ){

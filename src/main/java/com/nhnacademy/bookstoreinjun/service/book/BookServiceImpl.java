@@ -16,30 +16,31 @@ import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
+import com.nhnacademy.bookstoreinjun.repository.BookQuerydslRepository;
 import com.nhnacademy.bookstoreinjun.repository.BookRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
 import com.nhnacademy.bookstoreinjun.repository.TagRepository;
+import com.nhnacademy.bookstoreinjun.service.product.ProductDtoService;
 import com.nhnacademy.bookstoreinjun.service.productCategoryRelation.ProductCategoryRelationService;
 import com.nhnacademy.bookstoreinjun.service.productTag.ProductTagService;
+import com.nhnacademy.bookstoreinjun.util.MakePageableUtil;
 import com.nhnacademy.bookstoreinjun.util.ProductCheckUtil;
 import com.nhnacademy.bookstoreinjun.util.SortCheckUtil;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 
 @Slf4j
@@ -48,6 +49,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
+
+    private final BookQuerydslRepository querydslRepository;
 
     private final ProductRepository productRepository;
 
@@ -63,22 +66,19 @@ public class BookServiceImpl implements BookService {
 
     private final String TYPE = "book";
 
-
     private void saveProductCategoryRelation(List<String> categories, Product product){
-        if (categories != null){
-            for (String categoryName : categories) {
-                ProductCategory productCategory = productCategoryRepository.findByCategoryName(categoryName);
-                if (productCategory == null){
-                    throw new NotFoundNameException(TYPE, categoryName);
-                }
-
-                ProductCategoryRelation productCategoryRelation = ProductCategoryRelation.builder()
-                        .productCategory(productCategory)
-                        .product(product)
-                        .build();
-
-                productCategoryRelationService.saveProductCategoryRelation(productCategoryRelation);
+        for (String categoryName : categories) {
+            ProductCategory productCategory = productCategoryRepository.findByCategoryName(categoryName);
+            if (productCategory == null){
+                throw new NotFoundNameException(TYPE, categoryName);
             }
+
+            ProductCategoryRelation productCategoryRelation = ProductCategoryRelation.builder()
+                    .productCategory(productCategory)
+                    .product(product)
+                    .build();
+
+            productCategoryRelationService.saveProductCategoryRelation(productCategoryRelation);
         }
     }
 
@@ -109,6 +109,7 @@ public class BookServiceImpl implements BookService {
                 .isbn(book.getIsbn())
                 .isbn13(book.getIsbn13())
                 .cover(book.getProduct().getProductThumbnailUrl())
+                .productName(book.getProduct().getProductName())
                 .packable(book.getProduct().isProductPackable())
                 .productDescription(book.getProduct().getProductDescription())
                 .productRegisterDate(book.getProduct().getProductRegisterDate())
@@ -117,13 +118,36 @@ public class BookServiceImpl implements BookService {
                 .productPriceStandard(book.getProduct().getProductPriceStandard())
                 .productPriceSales(book.getProduct().getProductPriceSales())
                 .productInventory(book.getProduct().getProductInventory())
-                .categories(productCategoryRelationService.getProductCategoryRelationsByProduct(book.getProduct()).stream()
+                .categories(book.getProduct().getProductCategoryRelations().stream()
+                        .map(ProductCategoryRelation ::getProductCategory)
                         .map(ProductCategory ::getCategoryName)
                         .collect(Collectors.toList()))
-                .tags(productTagService.getTagsByProduct(book.getProduct()).stream()
+                .tags(book.getProduct().getProductTags().stream()
+                        .map(ProductTag ::getTag)
                         .map(Tag::getTagName)
                         .collect(Collectors.toList()))
                 .build();
+    }
+
+
+    private Page<BookProductGetResponseDto> makeBookPage(List<Book> bookList, Pageable pageable) {
+        int maxPage = pageable.getPageNumber() + 1;
+        try{
+            Page<Book> bookPage = new PageImpl<>(bookList, pageable, bookList.size());
+            return makeValidBookPage(bookPage, maxPage);
+        }catch (InvalidDataAccessApiUsageException e) {
+            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
+        }
+    }
+
+    private Page<BookProductGetResponseDto> makeValidBookPage(Page<Book> bookPage, int requestPage){
+        int total = bookPage.getTotalPages();
+
+        if (total != 0 && total < requestPage){
+            throw new PageOutOfRangeException(total, requestPage);
+        }
+
+        return bookPage.map(this::makeBookProductGetResponseDtoFromBook);
     }
 
     public BookProductGetResponseDto getBookByBookId(Long bookId) {
@@ -131,37 +155,54 @@ public class BookServiceImpl implements BookService {
         if (book == null){
             throw new NotFoundIdException(TYPE, bookId);
         }else{
+            Product product = book.getProduct();
+            productCheckUtil.checkProduct(product);
+            productRepository.addProductViewCount(product.getProductId());
             return makeBookProductGetResponseDtoFromBook(book);
         }
     }
 
-    public Page<BookProductGetResponseDto> getBookPage(@Valid PageRequestDto pageRequestDto) {
-        int page = Objects.requireNonNullElse(pageRequestDto.page(),1);
-        int size = Objects.requireNonNullElse(pageRequestDto.size(),5);
-        boolean desc = Objects.requireNonNullElse(pageRequestDto.desc(), true);
-        String sort =  Objects.requireNonNullElse(pageRequestDto.sort(), "product.productRegisterDate");
 
-        log.info("page : {}, size : {}, desc : {}, sort : {}", page, size, desc, sort);
-        Pageable pageable = PageRequest.of(page -1, size, Sort.by(desc ? Sort.Direction.DESC : Sort.Direction.ASC, sort));
+    public Page<BookProductGetResponseDto> getBookPage(PageRequestDto pageRequestDto) {
+        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, 5, "product.productRegisterDate");
 
+        int requestPage = pageable.getPageNumber() + 1;
         try{
             Page<Book> bookPage = bookRepository.findBooksByProductState(pageable);
-            int total = bookPage.getTotalPages();
-
-            if (total < page){
-                throw new PageOutOfRangeException(total, page);
-            }
-
-            return bookPage.map(this::makeBookProductGetResponseDtoFromBook);
-
+            return makeValidBookPage(bookPage, requestPage);
         }catch (InvalidDataAccessApiUsageException e) {
-            throw SortCheckUtil.sortExceptionHandle(pageable);
+            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
+        }
+    }
+
+    public Page<BookProductGetResponseDto> getNameContainingBookPage(PageRequestDto pageRequestDto, String title) {
+        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, 5, "product.productRegisterDate");
+        int requestPage = pageable.getPageNumber() + 1;
+        try{
+            Page<Book> bookPage = bookRepository.findBooksByProductStateAndNameContaining(pageable, title);
+            return makeValidBookPage(bookPage, requestPage);
+        }catch (InvalidDataAccessApiUsageException e) {
+            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
         }
     }
 
 
-    public ProductRegisterResponseDto saveBook(@Valid BookProductRegisterRequestDto bookProductRegisterRequestDto) {
-        if (bookRepository.existsByIsbn13(bookProductRegisterRequestDto.isbn13())){
+    public Page<BookProductGetResponseDto> getBookPageFilterByCategories(PageRequestDto pageRequestDto, Set<String> categories, Boolean conditionIsAnd) {
+        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, 5, "product.productRegisterDate");
+        List<Book> bookListFilterByTags = querydslRepository.findBooksByCategoryFilter(categories, conditionIsAnd);
+        return makeBookPage(bookListFilterByTags, pageable);
+    }
+
+    public Page<BookProductGetResponseDto> getBookPageFilterByTags(PageRequestDto pageRequestDto, Set<String> tags, Boolean conditionIsAnd) {
+        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, 5, "product.productRegisterDate");
+        List<Book> bookListFilterByTags = querydslRepository.findBooksByTagFilter(tags, conditionIsAnd);
+        return makeBookPage(bookListFilterByTags, pageable);
+    }
+
+
+    public ProductRegisterResponseDto saveBook(BookProductRegisterRequestDto bookProductRegisterRequestDto) {
+        log.error("product name : {}", bookProductRegisterRequestDto.productName());
+        if (bookRepository.existsByIsbn(bookProductRegisterRequestDto.isbn())){
             throw new DuplicateException(TYPE);
         }else{
             Product product = productRepository.save(
@@ -174,6 +215,8 @@ public class BookServiceImpl implements BookService {
                     .productDescription(bookProductRegisterRequestDto.productDescription())
                     .productPackable(bookProductRegisterRequestDto.packable())
                     .build());
+
+            productCheckUtil.checkProduct(product);
 
             List<String> categories = bookProductRegisterRequestDto.categories();
             List<String> tags = bookProductRegisterRequestDto.tags();
@@ -197,9 +240,7 @@ public class BookServiceImpl implements BookService {
     }
 
 
-
-
-    public ProductUpdateResponseDto updateBook(@Valid BookProductUpdateRequestDto bookProductUpdateRequestDto) {
+    public ProductUpdateResponseDto updateBook(BookProductUpdateRequestDto bookProductUpdateRequestDto) {
         Long bookId = bookProductUpdateRequestDto.bookId();
         Optional<Book> bookOptional = bookRepository.findById(bookId);
         if (bookOptional.isEmpty()){
@@ -228,4 +269,6 @@ public class BookServiceImpl implements BookService {
             return new ProductUpdateResponseDto(LocalDateTime.now());
         }
     }
+
+
 }

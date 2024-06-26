@@ -149,7 +149,7 @@ public class TagServiceTest {
 
 
     @Test
-    public void getAllTagsTest(){
+    public void getAllTagListTest(){
         when(tagRepository.findAll()).thenReturn(
                 Arrays.asList(
                     Tag.builder()
@@ -159,7 +159,7 @@ public class TagServiceTest {
                             .build()
                 ));
 
-        List<TagGetResponseDto> dto = tagService.getAllTags();
+        List<TagGetResponseDto> dto = tagService.getAllTagList();
         assertNotNull(dto);
         assertEquals(dto.size(),2);
         verify(tagRepository, times(1)).findAll();
@@ -280,7 +280,7 @@ public class TagServiceTest {
                                 .build()
                 ));
 
-        List<TagGetResponseDto> dto = tagService.getNameContainingTags("test");
+        List<TagGetResponseDto> dto = tagService.getNameContainingTagList("test");
         assertNotNull(dto);
         assertEquals(dto.size(),2);
     }

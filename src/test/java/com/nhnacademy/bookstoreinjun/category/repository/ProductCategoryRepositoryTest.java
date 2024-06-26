@@ -65,7 +65,7 @@ public class ProductCategoryRepositoryTest {
                     .build();
             productCategoryRepository.save(subProductCategory);
         }
-        List<ProductCategory> subCategories = productCategoryRepository.findSubCategoriesByParent(savedProductCategory);
+        List<ProductCategory> subCategories = productCategoryRepository.findSubCategoriesByParentProductCategory(savedProductCategory);
 
         assertNotNull(subCategories);
         assertEquals(10, subCategories.size());

@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Slf4j
 @org.springframework.web.bind.annotation.ControllerAdvice
@@ -41,6 +42,13 @@ public class MyExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDto> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException ex) {
+        log.info("MethodArgumentNotValidException");
+        return getErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponseDto> MethodArgumentTypeMismatchExceptionHandler(MethodArgumentTypeMismatchException ex) {
+        log.info("MethodArgumentTypeMismatchException");
         return getErrorResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
@@ -58,5 +66,4 @@ public class MyExceptionHandler {
     public ResponseEntity<ErrorResponseDto> exceptionHandler(Exception ex) {
         return getErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
 }

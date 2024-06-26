@@ -5,6 +5,7 @@ import com.nhnacademy.bookstoreinjun.config.SecurityConfig;
 import com.nhnacademy.bookstoreinjun.controller.TagController;
 import com.nhnacademy.bookstoreinjun.dto.tag.TagRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.service.tag.TagService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -31,9 +32,10 @@ public class TagControllerTest {
     @MockBean
     private TagService tagService;
 
+    @DisplayName("태그 등록 성공 테스트")
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void testCreateTag() throws Exception {
+    public void testCreateTagSuccess() throws Exception {
         TagRegisterRequestDto dto = TagRegisterRequestDto.builder()
                         .tagName("test tag")
                         .build();
@@ -48,4 +50,25 @@ public class TagControllerTest {
 
         verify(tagService,times(1)).saveTag(dto);
     }
+
+    @DisplayName("태그 등록 실패 테스트 - 중복된 태그명")
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void testCreateTagFailureByDuplicateTagName() throws Exception {
+        TagRegisterRequestDto dto = TagRegisterRequestDto.builder()
+                .tagName("test tag")
+                .build();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(dto);
+
+
+        mockMvc.perform(post("/api/product/admin/tag/register")
+                        .content(json)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated());
+
+        verify(tagService,times(1)).saveTag(dto);
+    }
+
 }

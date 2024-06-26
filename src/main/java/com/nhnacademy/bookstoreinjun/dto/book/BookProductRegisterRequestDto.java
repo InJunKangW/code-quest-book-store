@@ -2,7 +2,9 @@ package com.nhnacademy.bookstoreinjun.dto.book;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.Builder;
@@ -26,7 +28,6 @@ public record BookProductRegisterRequestDto(
         @NotNull
         @Length(min = 10, max =10) String isbn,
 
-        @NotNull
         @Length(min = 13, max =13) String isbn13,
 
         @NotNull
@@ -51,6 +52,9 @@ public record BookProductRegisterRequestDto(
         @Min(0)
         long productInventory,
 
+        @NotNull(message = "{must.have.category}")
+        @Size(min = 1, message = "{must.have.category}")
+        @Size(max =10, message = "{too.much.category}")
         List<String> categories,
         List<String> tags
 ) {}

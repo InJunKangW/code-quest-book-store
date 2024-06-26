@@ -7,7 +7,6 @@ import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.category.CategoryUpdateRequestDto;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
-import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
 import com.nhnacademy.bookstoreinjun.service.productCategory.ProductCategoryService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -107,7 +106,7 @@ public class ProductCategoryControllerTest {
         mockMvc.perform(get("/api/product/category/list/all"))
                 .andExpect(status().isOk());
 
-        verify(productCategoryService,times(1)).getAllCategories();
+        verify(productCategoryService,times(1)).getAllCategoryList();
     }
 
     @DisplayName("카테고리 리스트 찾아오기 - 이름 포함")
@@ -118,7 +117,7 @@ public class ProductCategoryControllerTest {
                 .param("categoryName", "test productCategory"))
                 .andExpect(status().isOk());
 
-        verify(productCategoryService,times(1)).getNameContainingCategories("test productCategory");
+        verify(productCategoryService,times(1)).getNameContainingCategoryList("test productCategory");
     }
 
     @DisplayName("카테고리 리스트 찾아오기 - 하위")
@@ -129,7 +128,7 @@ public class ProductCategoryControllerTest {
                         .param("categoryName", "test parent productCategory"))
                 .andExpect(status().isOk());
 
-        verify(productCategoryService,times(1)).getSubCategories("test parent productCategory");
+        verify(productCategoryService,times(1)).getSubCategoryList("test parent productCategory");
     }
 
     @DisplayName("카테고리 업데이트 성공 테스트")

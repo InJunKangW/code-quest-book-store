@@ -1,4 +1,4 @@
-POST localhost:8004/api/admin/book/register
+POST localhost:8004/api/product/admin/book/register
 Content-Type: application/json
 
 {
@@ -6,8 +6,8 @@ Content-Type: application/json
   "publisher": "출판사",
   "author": "작가",
   "pubDate": "2024-06-20",
-  "isbn": "isbnisbn18",
-  "isbn13": "isbnisbnisbn8",
+  "isbn": "isbnisbn12",
+  "isbn13": "isbnisbnisbn2",
   "cover": "cover",
   "productName": "product",
   "packable": false,
@@ -16,18 +16,18 @@ Content-Type: application/json
   "productPriceStandard": 5000012,
   "productPriceSales": 1000012,
   "categories": [
-      "카테고리3", "뉴카테고리3"
+    "카테고리7","카테고리2"
   ],
   "tags": [
-    "tag2", "newTag2"
+    "tag3", "tag5"
   ]
 }
 
 ###
-GET localhost:8003/api/admin/book/test/test?title=사랑
+GET localhost:8004/api/product/book/1
 
 ###
-PUT localhost:8004/api/admin/book
+PUT localhost:8004/api/product/admin/book/update
 Content-Type: application/json
 
 {
@@ -42,6 +42,6 @@ Content-Type: application/json
     "카테고리3"
   ],
   "tags": [
-    "tag2"
+    "tag2", "tag1", "tag3"
   ]
 }

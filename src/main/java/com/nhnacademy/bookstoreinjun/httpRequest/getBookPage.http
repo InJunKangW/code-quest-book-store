@@ -1,15 +1,2 @@
-GET localhost:8004/api/books
-Content-Type: application/json
-
-{
-  "desc": false,
-  "sort": "wrong"
-}
-
 ###
-GET localhost:8004/api/product/admin/book?title=이해
-Content-Type: application/json
-
-{
-
-}
+GET localhost:8004/api/product/books/tagFilter?tagName=tag1,tag4&isAnd=false&desc=false

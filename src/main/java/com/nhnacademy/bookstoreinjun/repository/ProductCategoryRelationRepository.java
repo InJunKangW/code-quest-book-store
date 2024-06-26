@@ -27,4 +27,5 @@ public interface ProductCategoryRelationRepository extends JpaRepository<Product
      * @param productCategory 찾아낼 기준이 되는 productCategory.
      */
     List<ProductCategoryRelation> findByProductCategory(ProductCategory productCategory);
+
 }
