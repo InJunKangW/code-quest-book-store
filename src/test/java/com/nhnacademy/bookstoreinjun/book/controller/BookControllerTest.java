@@ -118,7 +118,9 @@ public class BookControllerTest {
                 .productPriceStandard(1)
                 .productPriceSales(1)
                 .packable(false)
-                .categories(Arrays.asList("test category1","test category2"))
+                .categories(
+                        Arrays.asList()
+                )
                 .tags(Arrays.asList("test tag1","test tag2"))
                 .build();
 

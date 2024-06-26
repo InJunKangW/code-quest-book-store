@@ -1,24 +1,22 @@
-POST localhost:8004/api/admin/category/register
+POST localhost:8004/api/product/admin/category/register
 Content-Type: application/json
 
 {
-  "categoryName": "카테고리3"
+  "categoryName": "카테고리5"
 }
 
 ###
-GET localhost:8004/api/admin/category/test
-Content-Type: application/json
-
-{
- "page": 1,
-  "sort": "wrong"
-}
+GET localhost:8004/api/product/categories/sub?categoryName=카테고리3
 
 ###
-PUT localhost:8004/api/admin/category
+GET localhost:8004/api/product/categories/all
+
+
+###
+PUT localhost:8004/api/product/admin/category/update
 Content-Type: application/json
 
 {
   "currentCategoryName": "카테고리3",
-  "newCategoryName": "뉴카테고리3"
+  "newCategoryName": "뉴카테고리"
 }

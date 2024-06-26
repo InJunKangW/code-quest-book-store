@@ -16,11 +16,11 @@ public interface TagService {
 
     TagUpdateResponseDto updateTag(TagUpdateRequestDto tagUpdateRequestDto);
 
-    List<TagGetResponseDto> getAllTags();
+    List<TagGetResponseDto> getAllTagList();
 
     Page<TagGetResponseDto> getAllTagPage(PageRequestDto pageRequestDto);
 
-    List<TagGetResponseDto> getNameContainingTags(String tagName);
+    List<TagGetResponseDto> getNameContainingTagList(String tagName);
 
     Page<TagGetResponseDto> getNameContainingTagPage(PageRequestDto pageRequestDto, String tagName);
 }

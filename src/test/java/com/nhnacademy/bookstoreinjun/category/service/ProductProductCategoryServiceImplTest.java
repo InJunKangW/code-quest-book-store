@@ -161,7 +161,7 @@ public class ProductProductCategoryServiceImplTest {
 
     @DisplayName("카테고리 리스트 조회 테스트 - 모든 카테고리")
     @Test
-    public void getAllCategoriesTest(){
+    public void getAllCategoryListTest(){
         when(productCategoryRepository.findAll()).thenReturn(
                 Arrays.asList(
                         ProductCategory.builder()
@@ -171,7 +171,7 @@ public class ProductProductCategoryServiceImplTest {
                                 .categoryName(TEST_CATEGORY_NAME + 2)
                                 .build()
                 ));
-        List<CategoryGetResponseDto> dto = categoryService.getAllCategories();
+        List<CategoryGetResponseDto> dto = categoryService.getAllCategoryList();
         assertNotNull(dto);
         assertEquals(dto.size(), 2);
         verify(productCategoryRepository, times(1)).findAll();
@@ -188,7 +188,7 @@ public class ProductProductCategoryServiceImplTest {
                 ProductCategory.builder()
                         .categoryName(TEST_CATEGORY_NAME + 2)
                         .build()));
-        List<CategoryGetResponseDto> dto = categoryService.getNameContainingCategories("test");
+        List<CategoryGetResponseDto> dto = categoryService.getNameContainingCategoryList("test");
         assertNotNull(dto);
         assertEquals(dto.size(), 2);
         verify(productCategoryRepository, times(1)).findAllByCategoryNameContaining("test");
@@ -197,7 +197,7 @@ public class ProductProductCategoryServiceImplTest {
 
     @DisplayName("특정 카테고리의 하위 카테고리 리스트 조회 성공 테스트")
     @Test
-    public void getSubCategoriesTestFailureByNotFoundCategoryName(){
+    public void getSubCategoryListTestFailureByNotFoundCategoryName(){
         ProductCategory testCategory = new ProductCategory();
         when(productCategoryRepository.findByCategoryName("test")).thenReturn(testCategory);
 
@@ -210,7 +210,7 @@ public class ProductProductCategoryServiceImplTest {
                                 .categoryName(TEST_CATEGORY_NAME + 2)
                                 .build()));
 
-        List<CategoryGetResponseDto> dto = categoryService.getSubCategories("test");
+        List<CategoryGetResponseDto> dto = categoryService.getSubCategoryList("test");
         assertNotNull(dto);
         assertEquals(dto.size(), 2);
 
@@ -220,9 +220,9 @@ public class ProductProductCategoryServiceImplTest {
 
     @DisplayName("특정 카테고리의 하위 카테고리 리스트 조회 실패 테스트 - 존재하지 않는 상위 카테고리")
     @Test
-    public void getSubCategoriesTestSuccess(){
+    public void getSubCategoryListTestSuccess(){
         when(productCategoryRepository.findByCategoryName(TEST_PARENT_CATEGORY_NAME)).thenReturn(null);
-        assertThrows(NotFoundNameException.class, () -> categoryService.getSubCategories(TEST_PARENT_CATEGORY_NAME));
+        assertThrows(NotFoundNameException.class, () -> categoryService.getSubCategoryList(TEST_PARENT_CATEGORY_NAME));
     }
 
     @DisplayName("모든 카테고리 페이지 조회 성공 테스트")

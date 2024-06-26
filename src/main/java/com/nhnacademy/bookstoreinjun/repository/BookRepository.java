@@ -2,6 +2,7 @@ package com.nhnacademy.bookstoreinjun.repository;
 
 import com.nhnacademy.bookstoreinjun.entity.Book;
 import com.nhnacademy.bookstoreinjun.entity.Product;
+import java.util.List;
 import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,14 +33,16 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     Page<Book> findBooksByProductStateAndNameContaining(Pageable pageable, @Param("title") String title);
 
     /**
-     * @param isbn13 도서의 isbn13 (각 도서별로 고유한 코드. 이걸로 세계 모든 도서를 구분할 수 있습니다.)
+     * @param isbn 도서의 isbn10 (각 도서별로 고유한 코드. 이걸로 세계 모든 도서를 구분할 수 있습니다.)
      * @return 현재 데이터베이스에 해당 isbn13에 해당하는 도서가 존재하는 지 여부.
      */
-    boolean existsByIsbn13(String isbn13);
+    boolean existsByIsbn(String isbn);
 
     /**
      * @param product 도서가 가지는 product.
      * @return 해당 product 에 대응되는 도서. 1대 1 관계이기 때문에 리스트가 아닌 단일 객체가 반환됩니다.
      */
     Book findByProduct(Product product);
+
+
 }

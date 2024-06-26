@@ -40,7 +40,6 @@ public interface ProductCategoryRepository extends JpaRepository<ProductCategory
      * @param parent 하위 카테고리를 찾을 상위 카테고리
      * @return 해당 상위 카테고리의 모든 하위 카테고리 리스트
      */
-//    @Query("SELECT c FROM ProductCategory c WHERE c.parentProductCategory = :parent")
     List<ProductCategory> findSubCategoriesByParentProductCategory(ProductCategory parent);
 
 

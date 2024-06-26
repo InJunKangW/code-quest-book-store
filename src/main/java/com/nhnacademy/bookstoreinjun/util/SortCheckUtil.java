@@ -11,7 +11,7 @@ public class SortCheckUtil {
         throw new RuntimeException("utility class");
     }
 
-    public static InvalidSortNameException sortExceptionHandle(Pageable pageable){
+    public static InvalidSortNameException ThrowInvalidSortNameException(Pageable pageable){
         StringBuilder stringBuilder = new StringBuilder();
         Sort sorts = pageable.getSort();
         List<Sort.Order> orders = sorts.toList();

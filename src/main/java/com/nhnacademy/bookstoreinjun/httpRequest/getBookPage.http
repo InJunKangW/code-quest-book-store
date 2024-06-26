@@ -1,10 +1,2 @@
-GET localhost:8004/api/books
-Content-Type: application/json
-
-{
-  "desc": false,
-  "sort": "wrong"
-}
-
 ###
-GET localhost:8004/api/product/books/tagFilter?tagName=tag2,tag1&isAnd=trueasd
+GET localhost:8004/api/product/books/tagFilter?tagName=tag1,tag4&isAnd=false&desc=false

@@ -34,31 +34,14 @@ public class ProductController {
     @GetMapping("/page/all")
     public ResponseEntity<Page<ProductGetResponseDto>> getAllProducts(
             @Valid @ModelAttribute PageRequestDto pageRequestDto
-
-//            @RequestParam(name = "page", required = false) Integer page,
-//            @RequestParam(name = "desc", required = false) Boolean desc,
-//            @RequestParam(name = "sort", required = false) String sort
     ) {
-//        PageRequestDto pageRequestDto = PageRequestDto.builder().page(page).desc(desc).sort(sort).build();
         return new ResponseEntity<>(productDtoService.findAllPage(pageRequestDto), header, HttpStatus.OK);
     }
 
     @GetMapping("/page/containing")
     public ResponseEntity<Page<ProductGetResponseDto>> getAllProductsNameContaining(
             @Valid @ModelAttribute PageRequestDto pageRequestDto,
-//            @RequestParam(name = "page", required = false) Integer page,
-//            @RequestParam(name = "desc", required = false) Boolean desc,
-//            @RequestParam(name = "sort", required = false) String sort,
             @NotBlank @RequestParam(name = "productName") String productName) {
-//        PageRequestDto pageRequestDto = PageRequestDto.builder().page(page).desc(desc).sort(sort).build();
         return new ResponseEntity<>(productDtoService.findNameContainingPage(pageRequestDto, productName), header, HttpStatus.OK);
-    }
-
-    @GetMapping("/test")
-    public ResponseEntity<Set<Product>> test(
-            @RequestParam("tags") Set<String> tags,
-            @RequestParam("condition") Boolean conditionIsAnd){
-        if (conditionIsAnd == null){conditionIsAnd = false;}
-        return new ResponseEntity<>(productDtoService.findAllByTags(tags, conditionIsAnd), header, HttpStatus.OK);
     }
 }

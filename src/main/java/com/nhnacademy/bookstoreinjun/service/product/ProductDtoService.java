@@ -10,6 +10,4 @@ import org.springframework.data.domain.Page;
 public interface ProductDtoService {
     Page<ProductGetResponseDto> findAllPage(PageRequestDto pageRequestDto);
     Page<ProductGetResponseDto> findNameContainingPage(PageRequestDto pageRequestDto, String productName);
-    Set<Product> findAllByCategories(Set<String> categories, Boolean conditionIsAnd);
-    Set<Product> findAllByTags(Set<String> tags, Boolean conditionIsAnd);
 }

@@ -33,43 +33,45 @@ import org.springframework.web.bind.annotation.RestController;
 public class CategoryController {
     private final ProductCategoryService productCategoryService;
 
+
     private final HttpHeaders header = new HttpHeaders() {{
         setContentType(MediaType.APPLICATION_JSON);
     }};
 
+
+    @PostMapping("/admin/category/register")
+    public ResponseEntity<CategoryRegisterResponseDto> createCategory(@Valid @RequestBody CategoryRegisterRequestDto categoryRegisterRequestDto) {
+        return new ResponseEntity<>(productCategoryService.saveCategory(categoryRegisterRequestDto), header, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/admin/category/update")
+    public ResponseEntity<CategoryUpdateResponseDto> updateCategory(@Valid @RequestBody CategoryUpdateRequestDto categoryUpdateRequestDto) {
+        return new ResponseEntity<>(productCategoryService.updateCategory(categoryUpdateRequestDto), header, HttpStatus.OK);
+    }
+
     @GetMapping("/category/list/all")
     public ResponseEntity<List<CategoryGetResponseDto>> getAllCategories() {
         log.info("Called list all");
-        return new ResponseEntity<>(productCategoryService.getAllCategories(), header, HttpStatus.OK);
+        return new ResponseEntity<>(productCategoryService.getAllCategoryList(), header, HttpStatus.OK);
     }
 
 
     @GetMapping("/category/list/containing")
     public ResponseEntity<List<CategoryGetResponseDto>> getNameContainingCategories(
             @RequestParam("categoryName") String categoryName){
-        return new ResponseEntity<>(productCategoryService.getNameContainingCategories(categoryName), header, HttpStatus.OK);
+        return new ResponseEntity<>(productCategoryService.getNameContainingCategoryList(categoryName), header, HttpStatus.OK);
     }
 
     @GetMapping("/category/list/sub")
     public ResponseEntity<List<CategoryGetResponseDto>> getSubCategories(
             @RequestParam("categoryName") String categoryName){
-        return new ResponseEntity<>(productCategoryService.getSubCategories(categoryName), header, HttpStatus.OK);
+        return new ResponseEntity<>(productCategoryService.getSubCategoryList(categoryName), header, HttpStatus.OK);
     }
 
-    @PostMapping("/admin/category/register")
-    public ResponseEntity<CategoryRegisterResponseDto> createCategory(@RequestBody CategoryRegisterRequestDto categoryRegisterRequestDto) {
-        return new ResponseEntity<>(productCategoryService.saveCategory(categoryRegisterRequestDto), header, HttpStatus.CREATED);
-    }
-
-    @PutMapping("/admin/category/update")
-    public ResponseEntity<CategoryUpdateResponseDto> updateCategory(@RequestBody CategoryUpdateRequestDto categoryUpdateRequestDto) {
-        return new ResponseEntity<>(productCategoryService.updateCategory(categoryUpdateRequestDto), header, HttpStatus.OK);
-    }
 
     @GetMapping("/categories/all")
     public ResponseEntity<Page<CategoryGetResponseDto>> getAllCategories(
-            @ModelAttribute PageRequestDto pageRequestDto
-    ) {
+            @Valid @ModelAttribute PageRequestDto pageRequestDto) {
         return new ResponseEntity<>(productCategoryService.getAllCategoryPage(pageRequestDto), header, HttpStatus.OK);
     }
 
@@ -77,6 +79,7 @@ public class CategoryController {
     public ResponseEntity<Page<CategoryGetResponseDto>> getNameContainingCategories(
             @Valid @ModelAttribute PageRequestDto pageRequestDto,
             @NotBlank @RequestParam("categoryName") String categoryName) {
+        log.info("Called list containing");
         return new ResponseEntity<>(productCategoryService.getNameContainingCategoryPage(pageRequestDto, categoryName), header, HttpStatus.OK);
     }
 

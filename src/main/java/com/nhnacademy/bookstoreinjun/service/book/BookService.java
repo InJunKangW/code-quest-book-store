@@ -7,28 +7,11 @@ import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductRegisterResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductUpdateResponseDto;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
-import jakarta.validation.Valid;
 import java.util.Set;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
 
 public interface BookService {
-    /**
-     * 특정 도서 id에 해당하는 도서의 정보를 반환합니다.
-     * @param bookId 확인할 도서 id
-     * @return 해당 도서 id에 해당하는 도서의 정보
-     */
-    BookProductGetResponseDto getBookByBookId(Long bookId);
-
-    /**
-     * 페이징 요청에 따른 도서의 페이지를 반환합니다.
-     * @param pageRequestDto 페이징 요청 (int page (페이지 넘버), int size (페이지 당 사이즈), String sort (정렬할 조건), boolean desc (오름차순/내림차순 여부))
-     * @return 해당 요청에 따라 반환되는 도서 페이지
-     * @throws PageOutOfRangeException 요청의 page 가, total page 를 초과할 때 발생합니다.
-     * @throws InvalidDataAccessApiUsageException 요청의 sort 가, book 을 정렬하기에 부적절한 경우 발생합니다.
-     */
-    Page<BookProductGetResponseDto> getBookPage(PageRequestDto pageRequestDto);
-
 
 
     /**
@@ -72,7 +55,25 @@ public interface BookService {
      */
     ProductUpdateResponseDto updateBook(BookProductUpdateRequestDto bookProductUpdateRequestDto);
 
-    Page<BookProductGetResponseDto> getBookPageNameContaining(PageRequestDto pageRequestDto, String title);
+    /**
+     * 특정 도서 id에 해당하는 도서의 정보를 반환합니다.
+     * @param bookId 확인할 도서 id
+     * @return 해당 도서 id에 해당하는 도서의 정보
+     */
+    BookProductGetResponseDto getBookByBookId(Long bookId);
+
+    /**
+     * 페이징 요청에 따른 도서의 페이지를 반환합니다.
+     * @param pageRequestDto 페이징 요청 (int page (페이지 넘버), int size (페이지 당 사이즈), String sort (정렬할 조건), boolean desc (오름차순/내림차순 여부))
+     * @return 해당 요청에 따라 반환되는 도서 페이지
+     * @throws PageOutOfRangeException 요청의 page 가, total page 를 초과할 때 발생합니다.
+     * @throws InvalidDataAccessApiUsageException 요청의 sort 가, book 을 정렬하기에 부적절한 경우 발생합니다.
+     */
+    Page<BookProductGetResponseDto> getBookPage(PageRequestDto pageRequestDto);
+
+
+
+    Page<BookProductGetResponseDto> getNameContainingBookPage(PageRequestDto pageRequestDto, String title);
 
     Page<BookProductGetResponseDto> getBookPageFilterByCategories(PageRequestDto pageRequestDto, Set<String> categories, Boolean conditionIsAnd);
 
