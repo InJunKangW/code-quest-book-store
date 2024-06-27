@@ -1,10 +1,10 @@
 package com.nhnacademy.bookstoreinjun.config;
 
+import com.nhnacademy.bookstoreinjun.filter.IdHeaderFilter;
+import com.nhnacademy.bookstoreinjun.filter.RoleHeaderFilter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -16,24 +16,26 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 public class SecurityConfig {
+
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
+        String GET = "GET";
+        String POST = "POST";
+        String DELETE = "DELETE";
+        String PUT = "PUT";
+        String ADMIN = "ROLE_ADMIN";
+
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .addFilterBefore(new IdHeaderFilter("/api/product/client/**",POST), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new RoleHeaderFilter("/api/product/admin/**",GET, ADMIN), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new RoleHeaderFilter("/api/product/admin/**",POST, ADMIN), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new RoleHeaderFilter("/api/product/admin/**",PUT, ADMIN), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(req ->
-                        req.requestMatchers("/h2-console/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/admin/**")
-                                .permitAll()
-//                                .hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.POST, "/api/admin/**")
-                                .permitAll()
-//                                .hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.PUT, "/api/admin/**")
-                                .permitAll()
-//                                .hasRole("ADMIN")
-                                .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
-                                .anyRequest().permitAll()
+                                req.anyRequest().permitAll()
                 )
+
                 .headers(h -> h.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
 //                .addFilterBefore(new EmailHeaderFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class);
 

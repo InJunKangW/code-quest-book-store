@@ -2,6 +2,7 @@ package com.nhnacademy.bookstoreinjun.service.product;
 
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductGetResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeResponseDto;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductLike;
@@ -18,6 +19,7 @@ import com.nhnacademy.bookstoreinjun.repository.TagRepository;
 import com.nhnacademy.bookstoreinjun.util.MakePageableUtil;
 import com.nhnacademy.bookstoreinjun.util.SortCheckUtil;
 import jakarta.validation.Valid;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -83,10 +85,16 @@ public class ProductDtoServiceImpl implements ProductDtoService {
         }
     }
 
-    public ProductLikeResponseDto saveProductLike(Long clientId, Long productId){
+    public ProductLikeResponseDto saveProductLike(Long clientId, ProductLikeRequestDto productLikeRequestDto){
         if (clientId ==- 1){
             throw new XUserIdNotFoundException();
         }
+        Long requestClientId= productLikeRequestDto.clientId();
+        if (!Objects.equals(requestClientId, clientId)){
+            throw new XUserIdNotFoundException();
+        }
+
+        Long productId = productLikeRequestDto.productId();
         Optional<Product> optionalProduct = productRepository.findById(productId);
         if(optionalProduct.isPresent()){
             Product product = optionalProduct.get();
