@@ -24,18 +24,27 @@ import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
 import com.nhnacademy.bookstoreinjun.service.productCategory.ProductCategoryServiceImpl;
+import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtil;
+import com.nhnacademy.bookstoreinjun.util.MakePageableUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.data.util.TypeInformation;
 
@@ -47,6 +56,10 @@ public class ProductProductCategoryServiceImplTest {
 
     @Mock
     private ProductCategoryRepository productCategoryRepository;
+
+    @Mock
+    private FindAllSubCategoriesUtil findAllSubCategoriesUtil;
+
 
     private final String TEST_CATEGORY_NAME = "Test ProductCategory";
 
@@ -309,7 +322,9 @@ public class ProductProductCategoryServiceImplTest {
     @Test
     public void getSubCategoryPageTestSuccess(){
         PageRequestDto pageRequestDto = PageRequestDto.builder().build();
-        when(productCategoryRepository.findAllByParentProductCategory(any(Pageable.class), any(ProductCategory.class))).thenReturn(new PageImpl<>(Arrays.asList(
+
+
+        when(findAllSubCategoriesUtil.getAllSubcategorySet(TEST_CATEGORY_NAME)).thenReturn(new LinkedHashSet<>(Arrays.asList(
                 ProductCategory.builder()
                         .categoryName(TEST_CATEGORY_NAME)
                         .build(),
@@ -318,21 +333,21 @@ public class ProductProductCategoryServiceImplTest {
                         .build()
         )));
 
-        when(productCategoryRepository.findByCategoryName(TEST_CATEGORY_NAME)).thenReturn(new ProductCategory());
 
         Page<CategoryGetResponseDto> dto = categoryService.getSubCategoryPage(pageRequestDto, TEST_CATEGORY_NAME);
 
         assertNotNull(dto);
 
-        assertEquals(dto.getTotalElements(), 2);
+        assertEquals(2, dto.getTotalElements());
     }
 
-    @DisplayName("특정 카테고리의 하위 카테고리 페이지 조회 실패 테스트 - 존재하지 않는 상위 카테고리")
+    @DisplayName("특정 카테고리의 하위 카테고리 페이지 조회 실패 테스트 - 존재하지 않는 상위 카테고리 - 이거 여기서 하지말고 유틸 테스트로 이동해야 할듯")
     @Test
     public void getSubCategoryPageTestFailureByNotExistingParentCategory(){
         PageRequestDto pageRequestDto = PageRequestDto.builder().build();
 
-        when(productCategoryRepository.findByCategoryName(TEST_CATEGORY_NAME)).thenReturn(null);
+        when(findAllSubCategoriesUtil.getAllSubcategorySet(TEST_CATEGORY_NAME)).thenThrow(new NotFoundNameException("category", TEST_CATEGORY_NAME));
+
 
         assertThrows(NotFoundNameException.class, () -> categoryService.getSubCategoryPage(pageRequestDto, TEST_CATEGORY_NAME));
     }
@@ -340,11 +355,19 @@ public class ProductProductCategoryServiceImplTest {
     @DisplayName("특정 카테고리의 하위 카테고리 페이지 조회 실패 테스트 - 잘못된 정렬 조건")
     @Test
     public void getSubCategoryPageTestFailureByWrongSort(){
-        PageRequestDto pageRequestDto = PageRequestDto.builder().build();
+        PageRequestDto pageRequestDto = PageRequestDto.builder().page(1).sort("wrong").build();
 
-        when(productCategoryRepository.findByCategoryName(TEST_CATEGORY_NAME)).thenReturn(new ProductCategory());
+        when(findAllSubCategoriesUtil.getAllSubcategorySet(TEST_CATEGORY_NAME)).thenReturn(new LinkedHashSet<>(Arrays.asList(
+                ProductCategory.builder()
+                        .categoryName(TEST_CATEGORY_NAME)
+                        .build(),
+                ProductCategory.builder()
+                        .categoryName(TEST_CATEGORY_NAME)
+                        .build()
+        )));
 
-        when(productCategoryRepository.findAllByParentProductCategory(any(Pageable.class), any(ProductCategory.class))).thenThrow(new PropertyReferenceException("wrong", TypeInformation.COLLECTION, new ArrayList<>()));
+//        when(MakePageableUtil.makePageable(eq(pageRequestDto), any(Integer.class), any(String.class)))
+//                .thenReturn(PageRequest.of(1, 1, Sort.by(Sort.Direction.ASC, "wrong")));
 
         assertThrows(InvalidSortNameException.class, () -> categoryService.getSubCategoryPage(pageRequestDto, TEST_CATEGORY_NAME));
     }

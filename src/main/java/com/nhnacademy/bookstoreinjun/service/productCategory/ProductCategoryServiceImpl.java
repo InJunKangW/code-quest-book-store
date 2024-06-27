@@ -149,9 +149,8 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
 
     public List<CategoryGetResponseDto> getSubCategoryList(String categoryName) {
-        Set<ProductCategory> categorySet = new LinkedHashSet<>();
-        findAllSubCategoriesUtil.findAllSubcategories(categoryName, categorySet);
 
+        Set<ProductCategory> categorySet = findAllSubCategoriesUtil.getAllSubcategorySet(categoryName);
         List<ProductCategory> categoryList = categorySet.stream().toList();
 
         return categoryList
@@ -161,10 +160,9 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     public Page<CategoryGetResponseDto> getSubCategoryPage(@Valid PageRequestDto pageRequestDto, String categoryName) {
-        Set<ProductCategory> categorySet = new LinkedHashSet<>();
-        findAllSubCategoriesUtil.findAllSubcategories(categoryName, categorySet);
-
+        Set<ProductCategory> categorySet = findAllSubCategoriesUtil.getAllSubcategorySet(categoryName);
         List<ProductCategory> categoryList = categorySet.stream().toList();
+
         Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
         try{
             Page<ProductCategory> productCategoryPage = new PageImpl<>(categoryList, pageable, categoryList.size());

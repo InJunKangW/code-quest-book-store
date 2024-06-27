@@ -13,6 +13,7 @@ import com.nhnacademy.bookstoreinjun.entity.ProductCategoryRelation;
 import com.nhnacademy.bookstoreinjun.entity.ProductTag;
 import com.nhnacademy.bookstoreinjun.entity.Tag;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
+import com.nhnacademy.bookstoreinjun.exception.InvalidSortNameException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
@@ -35,6 +36,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.query.sqm.PathElementException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -190,14 +192,21 @@ public class BookServiceImpl implements BookService {
 
     public Page<BookProductGetResponseDto> getBookPageFilterByCategories(PageRequestDto pageRequestDto, Set<String> categories, Boolean conditionIsAnd) {
         Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, 5, "product.productRegisterDate");
-        List<Book> bookListFilterByTags = querydslRepository.findBooksByCategoryFilter(categories, conditionIsAnd);
-        return makeBookPage(bookListFilterByTags, pageable);
+        List<Book> bookListFilterByCategories = querydslRepository.findBooksByCategoryFilter(categories, conditionIsAnd);
+        return makeBookPage(bookListFilterByCategories, pageable);
     }
 
     public Page<BookProductGetResponseDto> getBookPageFilterByTags(PageRequestDto pageRequestDto, Set<String> tags, Boolean conditionIsAnd) {
         Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, 5, "product.productRegisterDate");
-        List<Book> bookListFilterByTags = querydslRepository.findBooksByTagFilter(tags, conditionIsAnd);
-        return makeBookPage(bookListFilterByTags, pageable);
+        int requestPage = pageable.getPageNumber() + 1;
+
+        try{
+            Page<Book> bookListFilterByTags = querydslRepository.findBooksByTagFilter(tags, conditionIsAnd, pageable);
+            return makeValidBookPage(bookListFilterByTags, requestPage);
+        }catch (PathElementException e){
+            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
+        }
+//        return makeBookPage(bookListFilterByTags, pageable);
     }
 
 

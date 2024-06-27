@@ -1,2 +1,2 @@
 ###
-GET localhost:8004/api/product/books/tagFilter?tagName=tag1,tag4&isAnd=false&desc=false
+GET localhost:8004/api/product/books/tagFilter?tagName=tag2&isAnd=true&desc=false&size=2

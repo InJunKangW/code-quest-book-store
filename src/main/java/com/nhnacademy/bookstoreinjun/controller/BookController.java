@@ -48,7 +48,7 @@ public class BookController {
 
     private final BookService bookService;
 
-    private final MessageSource messageSource;
+//    private final MessageSource messageSource;
 
     private final HttpHeaders header = new HttpHeaders() {{
         setContentType(MediaType.APPLICATION_JSON);

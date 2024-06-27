@@ -2,11 +2,11 @@ POST localhost:8004/api/product/admin/tag/register
 Content-Type: application/json
 
 {
-  "tagName": "tag4"
+  "tagName": "tag6"
 }
 
 ###
-GET localhost:8004/api/admin/tag/tags/containing?tagName=1
+GET localhost:8004/api/product/tags/containing?tagName=1&sort=asdasd
 Content-Type: application/json
 
 {

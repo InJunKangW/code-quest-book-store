@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-@Repository
 public interface PackagingRepository extends JpaRepository<Packaging, Long> {
     Optional<Packaging> findByPackageName(String packageName);
     Optional<Packaging> findByProduct_ProductId(Long productId);
