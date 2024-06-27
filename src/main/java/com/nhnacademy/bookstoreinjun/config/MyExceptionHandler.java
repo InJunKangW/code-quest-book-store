@@ -9,6 +9,8 @@ import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.exception.NullProductException;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
+import com.nhnacademy.bookstoreinjun.exception.XUserIdNotFoundException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -65,5 +67,15 @@ public class MyExceptionHandler {
     @ExceptionHandler({InconsistentEntityException.class, NullProductException.class})
     public ResponseEntity<ErrorResponseDto> exceptionHandler(Exception ex) {
         return getErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(XUserIdNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> exceptionHandler(XUserIdNotFoundException ex) {
+        return getErrorResponse(ex, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
+    public ResponseEntity<ErrorResponseDto> exceptionHandler(SQLIntegrityConstraintViolationException ex) {
+        return getErrorResponse(ex, HttpStatus.BAD_REQUEST);
     }
 }

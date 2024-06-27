@@ -108,6 +108,7 @@ public class BookServiceImpl implements BookService {
                 .pubDate(book.getPubDate())
                 .isbn(book.getIsbn())
                 .isbn13(book.getIsbn13())
+                .productId(book.getProduct().getProductId())
                 .cover(book.getProduct().getProductThumbnailUrl())
                 .productName(book.getProduct().getProductName())
                 .packable(book.getProduct().isProductPackable())
@@ -269,6 +270,4 @@ public class BookServiceImpl implements BookService {
             return new ProductUpdateResponseDto(LocalDateTime.now());
         }
     }
-
-
 }
