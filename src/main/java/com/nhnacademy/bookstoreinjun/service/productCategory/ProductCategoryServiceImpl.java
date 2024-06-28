@@ -15,19 +15,24 @@ import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtil;
 import com.nhnacademy.bookstoreinjun.util.MakePageableUtil;
 import com.nhnacademy.bookstoreinjun.util.SortCheckUtil;
 import jakarta.validation.Valid;
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -119,13 +124,10 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     public Page<CategoryGetResponseDto> getAllCategoryPage(PageRequestDto pageRequestDto) {
         Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+        SortCheckUtil.pageSortCheck(ProductCategory.class, pageable);
 
-        try{
-            Page<ProductCategory> productCategoryPage = productCategoryRepository.findAll(pageable);
-            return makeCategoryGetResponseDtoPage(pageable, productCategoryPage);
-        }catch (PropertyReferenceException e) {
-           throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
-        }
+        Page<ProductCategory> productCategoryPage = productCategoryRepository.findAll(pageable);
+        return makeCategoryGetResponseDtoPage(pageable, productCategoryPage);
     }
 
 
@@ -139,12 +141,10 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     public Page<CategoryGetResponseDto> getNameContainingCategoryPage(PageRequestDto pageRequestDto, String categoryName) {
         Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
-        try{
-            Page<ProductCategory> productCategoryPage = productCategoryRepository.findAllByCategoryNameContaining(pageable, categoryName);
-            return makeCategoryGetResponseDtoPage(pageable, productCategoryPage);
-        }catch (PropertyReferenceException e) {
-            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
-        }
+        SortCheckUtil.pageSortCheck(ProductCategory.class, pageable);
+
+        Page<ProductCategory> productCategoryPage = productCategoryRepository.findAllByCategoryNameContaining(pageable, categoryName);
+        return makeCategoryGetResponseDtoPage(pageable, productCategoryPage);
     }
 
 
@@ -160,15 +160,13 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     public Page<CategoryGetResponseDto> getSubCategoryPage(@Valid PageRequestDto pageRequestDto, String categoryName) {
+        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+        SortCheckUtil.pageSortCheck(ProductCategory.class, pageable);
+
         Set<ProductCategory> categorySet = findAllSubCategoriesUtil.getAllSubcategorySet(categoryName);
         List<ProductCategory> categoryList = categorySet.stream().toList();
 
-        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
-        try{
-            Page<ProductCategory> productCategoryPage = new PageImpl<>(categoryList, pageable, categoryList.size());
-            return makeCategoryGetResponseDtoPage(pageable, productCategoryPage);
-        }catch (PropertyReferenceException e) {
-            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
-        }
+        Page<ProductCategory> productCategoryPage = new PageImpl<>(categoryList, pageable, categoryList.size());
+        return makeCategoryGetResponseDtoPage(pageable, productCategoryPage);
     }
 }

@@ -5,6 +5,7 @@ import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.entity.Book;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
+import com.nhnacademy.bookstoreinjun.entity.ProductTag;
 import com.nhnacademy.bookstoreinjun.entity.QBook;
 import com.nhnacademy.bookstoreinjun.exception.InvalidSortNameException;
 import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtil;
@@ -65,6 +66,7 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
         BooleanBuilder whereBuilder = new BooleanBuilder();
         whereBuilder.and(product.productState.eq(0));
 
+
         if (conditionIsAnd) {
             for (String tagName : tags) {
                 whereBuilder.and(tag.tagName.eq(tagName));
@@ -84,7 +86,6 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
-
 
         long totalPages = query.fetchCount();
 

@@ -22,6 +22,8 @@ import com.nhnacademy.bookstoreinjun.exception.InvalidSortNameException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
+import com.nhnacademy.bookstoreinjun.repository.BookQuerydslRepository;
+import com.nhnacademy.bookstoreinjun.repository.BookQuerydslRepositoryImpl;
 import com.nhnacademy.bookstoreinjun.repository.BookRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
@@ -70,6 +72,9 @@ public class BookServiceTest {
 
     @Mock
     private ProductTagService productTagService;
+
+    @Mock
+    private BookQuerydslRepository bookQuerydslRepository;
 
     @Mock
     private ProductCheckUtil productCheckUtil;
@@ -297,16 +302,16 @@ public class BookServiceTest {
                 .sort("wrong sort")
                 .build();
 
-        int page = Objects.requireNonNullElse(dto.page(),1);
-        int size = Objects.requireNonNullElse(dto.size(),5);
-        boolean desc = Objects.requireNonNullElse(dto.desc(), true);
-        String sort =  Objects.requireNonNullElse(dto.sort(), "product.productRegisterDate");
+//        int page = Objects.requireNonNullElse(dto.page(),1);
+//        int size = Objects.requireNonNullElse(dto.size(),5);
+//        boolean desc = Objects.requireNonNullElse(dto.desc(), true);
+//        String sort =  Objects.requireNonNullElse(dto.sort(), "product.productRegisterDate");
+//
+//
+//        Pageable pageable = PageRequest.of(page -1, size,
+//                Sort.by(desc ? Sort.Direction.DESC : Sort.Direction.ASC, sort));
 
-
-        Pageable pageable = PageRequest.of(page -1, size,
-                Sort.by(desc ? Sort.Direction.DESC : Sort.Direction.ASC, sort));
-
-        when(bookRepository.findBooksByProductState(pageable)).thenThrow(InvalidDataAccessApiUsageException.class);
+        when(bookRepository.findBooksByProductState(any())).thenThrow(InvalidDataAccessApiUsageException.class);
         assertThrows(InvalidSortNameException.class, () -> bookService.getBookPage(dto));
     }
 }

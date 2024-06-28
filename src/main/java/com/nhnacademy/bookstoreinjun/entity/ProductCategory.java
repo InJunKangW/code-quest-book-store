@@ -26,7 +26,7 @@ public class ProductCategory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long productCategoryId;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, name = "categoryName")
     private String categoryName;
 
     @ManyToOne

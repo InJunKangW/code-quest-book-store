@@ -28,8 +28,8 @@ public class RoleHeaderFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.info("role filter start, real path: {} required path: {}, method : {}, realMethod: {}", requiredPath, request.getRequestURI(), requiredMethod, request.getMethod());
         if (pathMatcher.match(requiredPath, request.getRequestURI()) && request.getMethod().equalsIgnoreCase(requiredMethod)) {
+            log.info("role filter start, real path: {} required path: {}, method : {}, realMethod: {}", requiredPath, request.getRequestURI(), requiredMethod, request.getMethod());
             try {
                 Long.valueOf(request.getHeader("X-User-Id"));
             } catch ( NumberFormatException e ) {

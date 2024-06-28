@@ -357,18 +357,6 @@ public class ProductProductCategoryServiceImplTest {
     public void getSubCategoryPageTestFailureByWrongSort(){
         PageRequestDto pageRequestDto = PageRequestDto.builder().page(1).sort("wrong").build();
 
-        when(findAllSubCategoriesUtil.getAllSubcategorySet(TEST_CATEGORY_NAME)).thenReturn(new LinkedHashSet<>(Arrays.asList(
-                ProductCategory.builder()
-                        .categoryName(TEST_CATEGORY_NAME)
-                        .build(),
-                ProductCategory.builder()
-                        .categoryName(TEST_CATEGORY_NAME)
-                        .build()
-        )));
-
-//        when(MakePageableUtil.makePageable(eq(pageRequestDto), any(Integer.class), any(String.class)))
-//                .thenReturn(PageRequest.of(1, 1, Sort.by(Sort.Direction.ASC, "wrong")));
-
         assertThrows(InvalidSortNameException.class, () -> categoryService.getSubCategoryPage(pageRequestDto, TEST_CATEGORY_NAME));
     }
 }

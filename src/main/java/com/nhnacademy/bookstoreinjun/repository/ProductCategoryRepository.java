@@ -2,6 +2,7 @@ package com.nhnacademy.bookstoreinjun.repository;
 
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import java.util.List;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -40,7 +41,4 @@ public interface ProductCategoryRepository extends JpaRepository<ProductCategory
      * @return 해당 상위 카테고리의 모든 하위 카테고리 리스트
      */
     List<ProductCategory> findSubCategoriesByParentProductCategory(ProductCategory parent);
-
-
-    Page<ProductCategory> findAllByParentProductCategory(Pageable pageable, ProductCategory parent);
 }
