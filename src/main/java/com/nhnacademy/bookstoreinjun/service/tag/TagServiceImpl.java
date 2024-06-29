@@ -33,8 +33,22 @@ public class TagServiceImpl implements TagService {
 
     private final int DEFAULT_PAGE_SIZE = 10;
 
-    private final String DEFAULT_SORT = "TagId";
+    private final String DEFAULT_SORT = "tagId";
 
+    private TagGetResponseDto makeTagGetResponseDtoFromTag(Tag tag) {
+        return TagGetResponseDto.builder()
+                .tagName(tag.getTagName())
+                .build();
+    }
+
+    public TagGetResponseDto getTagDtoByTagName(String tagName) {
+        Tag tag = tagRepository.findByTagName(tagName);
+        if (tag == null) {
+            throw new NotFoundNameException(TYPE, tagName);
+        }else{
+            return makeTagGetResponseDtoFromTag(tag);
+        }
+    }
 
     private Page<TagGetResponseDto> makeTagGetResponseDtoPage(Pageable pageable, Page<Tag> tagPage) {
         int total = tagPage.getTotalPages();
@@ -45,13 +59,6 @@ public class TagServiceImpl implements TagService {
         }
         return tagPage.map(this::makeTagGetResponseDtoFromTag);
     }
-
-    private TagGetResponseDto makeTagGetResponseDtoFromTag(Tag tag) {
-        return TagGetResponseDto.builder()
-                .tagName(tag.getTagName())
-                .build();
-    }
-
 
 
     public TagRegisterResponseDto saveTag(TagRegisterRequestDto tagRegisterRequestDto) {
@@ -89,15 +96,6 @@ public class TagServiceImpl implements TagService {
         }
     }
 
-    public List<TagGetResponseDto> getAllTagList() {
-        return tagRepository.findAll().stream()
-                .map(this::makeTagGetResponseDtoFromTag)
-//                        tag -> TagGetResponseDto.builder()
-//                        .tagName(tag.getTagName())
-//                        .build())
-                .toList();
-    }
-
 
     public Page<TagGetResponseDto> getAllTagPage(PageRequestDto pageRequestDto) {
         Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
@@ -110,14 +108,6 @@ public class TagServiceImpl implements TagService {
     }
 
 
-    public List<TagGetResponseDto> getNameContainingTagList(String tagName) {
-        return tagRepository.findAllByTagNameContaining(tagName).stream()
-                .map(tag -> TagGetResponseDto.builder()
-                        .tagName(tag.getTagName())
-                        .build())
-                .toList();
-    }
-
     public Page<TagGetResponseDto> getNameContainingTagPage(PageRequestDto pageRequestDto, String tagName) {
         Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
         try {
@@ -128,12 +118,4 @@ public class TagServiceImpl implements TagService {
         }
     }
 
-    public TagGetResponseDto getTagDtoByTagName(String tagName) {
-        Tag tag = tagRepository.findByTagName(tagName);
-        if (tag == null) {
-            throw new NotFoundNameException(TYPE, tagName);
-        }else{
-            return makeTagGetResponseDtoFromTag(tag);
-        }
-    }
 }

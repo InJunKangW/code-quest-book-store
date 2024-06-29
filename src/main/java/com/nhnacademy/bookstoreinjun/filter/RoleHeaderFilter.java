@@ -40,7 +40,7 @@ public class RoleHeaderFilter extends OncePerRequestFilter {
             String role = request.getHeader("X-User-Role");
             log.info("role filter end, role: {}", role);
             if (role == null || role.isEmpty() || !role.equals(requiredRole)) {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Role header is missing or invalid");
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Role header is missing or invalid");
                 return;
             }
         }

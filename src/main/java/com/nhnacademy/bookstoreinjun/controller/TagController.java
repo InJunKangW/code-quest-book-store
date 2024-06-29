@@ -53,10 +53,6 @@ public class TagController {
         return new ResponseEntity<>(tagService.getTagDtoByTagName(tagName), header, HttpStatus.OK);
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<List<TagGetResponseDto>> getAllTags() {
-        return new ResponseEntity<>(tagService.getAllTagList(), header, HttpStatus.OK);
-    }
 
     @GetMapping("/tags/all")
     public ResponseEntity<Page<TagGetResponseDto>> getAllTags(
@@ -64,11 +60,6 @@ public class TagController {
         return new ResponseEntity<>(tagService.getAllTagPage(pageRequestDto), header, HttpStatus.OK);
     }
 
-    @GetMapping("/list/containing")
-    public ResponseEntity<List<TagGetResponseDto>> getTagByTagName(
-            @NotBlank @RequestParam("tagName") String tagName) {
-        return new ResponseEntity<>(tagService.getNameContainingTagList(tagName), header, HttpStatus.OK);
-    }
 
     @GetMapping("/tags/containing")
     public ResponseEntity<Page<TagGetResponseDto>> getNameContainingTagPage(

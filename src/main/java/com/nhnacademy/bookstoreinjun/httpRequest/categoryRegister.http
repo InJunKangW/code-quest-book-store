@@ -2,8 +2,7 @@ POST localhost:8004/api/product/admin/category/register
 Content-Type: application/json
 
 {
-  "categoryName": "카테345678",
-  "parentCategoryName": "카테고리2"
+  "categoryName": "카테고리6"
 }
 
 ###

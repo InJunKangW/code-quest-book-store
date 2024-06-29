@@ -171,73 +171,6 @@ public class ProductProductCategoryServiceImplTest {
         verify(productCategoryRepository, times(1)).findByCategoryName(TEST_CATEGORY_NAME);
     }
 
-
-    @DisplayName("카테고리 리스트 조회 테스트 - 모든 카테고리")
-    @Test
-    public void getAllCategoryListTest(){
-        when(productCategoryRepository.findAll()).thenReturn(
-                Arrays.asList(
-                        ProductCategory.builder()
-                                .categoryName(TEST_CATEGORY_NAME + 1)
-                                .build(),
-                        ProductCategory.builder()
-                                .categoryName(TEST_CATEGORY_NAME + 2)
-                                .build()
-                ));
-        List<CategoryGetResponseDto> dto = categoryService.getAllCategoryList();
-        assertNotNull(dto);
-        assertEquals(dto.size(), 2);
-        verify(productCategoryRepository, times(1)).findAll();
-    }
-
-    @DisplayName("카테고리 리스트 조회 테스트 - 특정 이름 포함")
-    @Test
-    public void getCategoriesContaining(){
-        when(productCategoryRepository.findAllByCategoryNameContaining("test")).thenReturn(
-                Arrays.asList(
-                ProductCategory.builder()
-                        .categoryName(TEST_CATEGORY_NAME + 1)
-                        .build(),
-                ProductCategory.builder()
-                        .categoryName(TEST_CATEGORY_NAME + 2)
-                        .build()));
-        List<CategoryGetResponseDto> dto = categoryService.getNameContainingCategoryList("test");
-        assertNotNull(dto);
-        assertEquals(dto.size(), 2);
-        verify(productCategoryRepository, times(1)).findAllByCategoryNameContaining("test");
-    }
-
-
-    @DisplayName("특정 카테고리의 하위 카테고리 리스트 조회 성공 테스트")
-    @Test
-    public void getSubCategoryListTestFailureByNotFoundCategoryName(){
-        ProductCategory testCategory = new ProductCategory();
-        when(productCategoryRepository.findByCategoryName("test")).thenReturn(testCategory);
-
-        when(productCategoryRepository.findSubCategoriesByParentProductCategory(testCategory)).thenReturn(
-                Arrays.asList(
-                        ProductCategory.builder()
-                                .categoryName(TEST_CATEGORY_NAME + 1)
-                                .build(),
-                        ProductCategory.builder()
-                                .categoryName(TEST_CATEGORY_NAME + 2)
-                                .build()));
-
-        List<CategoryGetResponseDto> dto = categoryService.getSubCategoryList("test");
-        assertNotNull(dto);
-        assertEquals(dto.size(), 2);
-
-        verify(productCategoryRepository, times(1)).findByCategoryName("test");
-        verify(productCategoryRepository, times(1)).findSubCategoriesByParentProductCategory(testCategory);
-    }
-
-    @DisplayName("특정 카테고리의 하위 카테고리 리스트 조회 실패 테스트 - 존재하지 않는 상위 카테고리")
-    @Test
-    public void getSubCategoryListTestSuccess(){
-        when(productCategoryRepository.findByCategoryName(TEST_PARENT_CATEGORY_NAME)).thenReturn(null);
-        assertThrows(NotFoundNameException.class, () -> categoryService.getSubCategoryList(TEST_PARENT_CATEGORY_NAME));
-    }
-
     @DisplayName("모든 카테고리 페이지 조회 성공 테스트")
     @Test
     public void getAllCategoryPageTestSuccess(){
@@ -262,9 +195,8 @@ public class ProductProductCategoryServiceImplTest {
     @DisplayName("모든 카테고리 페이지 조회 실패 테스트 - 잘못된 정렬 조건")
     @Test
     public void getAllCategoryPageTestFailureByWrongSort(){
-        PageRequestDto pageRequestDto = PageRequestDto.builder().build();
+        PageRequestDto pageRequestDto = PageRequestDto.builder().sort("wrong").build();
 
-        when(productCategoryRepository.findAll(any(Pageable.class))).thenThrow(new PropertyReferenceException("wrong", TypeInformation.COLLECTION, new ArrayList<>()));
 
         assertThrows(InvalidSortNameException.class, () -> categoryService.getAllCategoryPage(pageRequestDto));
     }
@@ -311,9 +243,7 @@ public class ProductProductCategoryServiceImplTest {
     @DisplayName("특정 이름이 포함된 카테고리의 페이지 조회 실패 테스트 - 잘못된 정렬 조건")
     @Test
     public void getNameContainingCategoryPageTestFailureByWrongSort(){
-        PageRequestDto pageRequestDto = PageRequestDto.builder().build();
-
-        when(productCategoryRepository.findAllByCategoryNameContaining(any(Pageable.class), eq(TEST_CATEGORY_NAME))).thenThrow(new PropertyReferenceException("wrong", TypeInformation.COLLECTION, new ArrayList<>()));
+        PageRequestDto pageRequestDto = PageRequestDto.builder().sort("wrong").build();
 
         assertThrows(InvalidSortNameException.class, () -> categoryService.getNameContainingCategoryPage(pageRequestDto, TEST_CATEGORY_NAME));
     }

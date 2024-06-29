@@ -114,14 +114,6 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         }
     }
 
-    public List<CategoryGetResponseDto> getAllCategoryList() {
-        return productCategoryRepository.findAll()
-                .stream()
-                .map(this::makeCategoryGetResponseDtoFromProductCategory)
-                .toList();
-    }
-
-
     public Page<CategoryGetResponseDto> getAllCategoryPage(PageRequestDto pageRequestDto) {
         Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
         SortCheckUtil.pageSortCheck(ProductCategory.class, pageable);
@@ -131,32 +123,12 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
 
-    public List<CategoryGetResponseDto> getNameContainingCategoryList(String categoryName) {
-        return productCategoryRepository.findAllByCategoryNameContaining(categoryName)
-                .stream()
-                .map(this::makeCategoryGetResponseDtoFromProductCategory)
-                .toList();
-    }
-
-
     public Page<CategoryGetResponseDto> getNameContainingCategoryPage(PageRequestDto pageRequestDto, String categoryName) {
         Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
         SortCheckUtil.pageSortCheck(ProductCategory.class, pageable);
 
         Page<ProductCategory> productCategoryPage = productCategoryRepository.findAllByCategoryNameContaining(pageable, categoryName);
         return makeCategoryGetResponseDtoPage(pageable, productCategoryPage);
-    }
-
-
-    public List<CategoryGetResponseDto> getSubCategoryList(String categoryName) {
-
-        Set<ProductCategory> categorySet = findAllSubCategoriesUtil.getAllSubcategorySet(categoryName);
-        List<ProductCategory> categoryList = categorySet.stream().toList();
-
-        return categoryList
-                .stream()
-                .map(this::makeCategoryGetResponseDtoFromProductCategory)
-                .toList();
     }
 
     public Page<CategoryGetResponseDto> getSubCategoryPage(@Valid PageRequestDto pageRequestDto, String categoryName) {

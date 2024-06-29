@@ -148,22 +148,6 @@ public class TagServiceTest {
     }
 
 
-    @Test
-    public void getAllTagListTest(){
-        when(tagRepository.findAll()).thenReturn(
-                Arrays.asList(
-                    Tag.builder()
-                            .tagName(TEST_TAG_NAME + 1)
-                            .build(),
-                    Tag.builder().tagName(TEST_TAG_NAME +2)
-                            .build()
-                ));
-
-        List<TagGetResponseDto> dto = tagService.getAllTagList();
-        assertNotNull(dto);
-        assertEquals(dto.size(),2);
-        verify(tagRepository, times(1)).findAll();
-    }
 
     @Test
     public void getAllTagPageTestSuccess(){
@@ -267,22 +251,4 @@ public class TagServiceTest {
 
         assertThrows(PageOutOfRangeException.class, () -> tagService.getNameContainingTagPage(pageRequestDto, "test"));
     }
-
-
-    @Test
-    public void getNameContainingTags(){
-        when(tagRepository.findAllByTagNameContaining("test")).thenReturn(
-                Arrays.asList(
-                        Tag.builder()
-                                .tagName(TEST_TAG_NAME + 1)
-                                .build(),
-                        Tag.builder().tagName(TEST_TAG_NAME +2)
-                                .build()
-                ));
-
-        List<TagGetResponseDto> dto = tagService.getNameContainingTagList("test");
-        assertNotNull(dto);
-        assertEquals(dto.size(),2);
-    }
-
 }

@@ -16,15 +16,9 @@ public interface ProductCategoryService {
 
     CategoryGetResponseDto getCategoryDtoByName(String categoryName);
 
-    List<CategoryGetResponseDto> getAllCategoryList();
-
     Page<CategoryGetResponseDto> getAllCategoryPage(PageRequestDto pageRequestDto);
 
-    List<CategoryGetResponseDto> getNameContainingCategoryList(String categoryName);
-
     Page<CategoryGetResponseDto> getNameContainingCategoryPage(PageRequestDto pageRequestDto, String categoryName);
-
-    List<CategoryGetResponseDto> getSubCategoryList(String categoryName);
 
     Page<CategoryGetResponseDto> getSubCategoryPage(PageRequestDto pageRequestDto, String categoryName);
 }

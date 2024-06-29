@@ -48,7 +48,6 @@ public class BookController {
 
     private final BookService bookService;
 
-//    private final MessageSource messageSource;
 
     private final HttpHeaders header = new HttpHeaders() {{
         setContentType(MediaType.APPLICATION_JSON);
@@ -75,7 +74,7 @@ public class BookController {
     }
 
 
-    @GetMapping("/admin/book")
+    @GetMapping("/book")
     public ResponseEntity<Page<AladinBookResponseDto>> getBooks(
             @Valid @ModelAttribute PageRequestDto pageRequestDto,
             @RequestParam("title") String title) {
@@ -110,14 +109,22 @@ public class BookController {
         return new ResponseEntity<>(bookService.getBookPageFilterByCategories(pageRequestDto, categoryNameSet, conditionIsAnd), header, HttpStatus.OK);
     }
 
+//    @GetMapping("/books/tagFilter")
+//    public ResponseEntity<Page<BookProductGetResponseDto>> getBookPageFilterByTag(
+//            @Valid @ModelAttribute PageRequestDto pageRequestDto,
+//            @RequestParam("tagName") Set<String> tagNameSet,
+//            @RequestParam(value = "isAnd", required = false, defaultValue = "true") Boolean conditionIsAnd
+//    ){
+//        return new ResponseEntity<>(bookService.getBookPageFilterByTags(pageRequestDto, tagNameSet, conditionIsAnd), header, HttpStatus.OK);
+//    }
+
     @GetMapping("/books/tagFilter")
-    public ResponseEntity<Page<BookProductGetResponseDto>> getBookPageFilterByTag(
+    public ResponseEntity<Page<BookProductGetResponseDto>> getFilteredBookPage(
             @Valid @ModelAttribute PageRequestDto pageRequestDto,
-            @RequestParam("tagName") Set<String> tagNameSet,
+            @RequestParam(value = "tagName", required = false) Set<String> tagNameSet,
+            @RequestParam(value = "categoryName", required = false) Set<String> categoryNameSet,
             @RequestParam(value = "isAnd", required = false, defaultValue = "true") Boolean conditionIsAnd
     ){
-        return new ResponseEntity<>(bookService.getBookPageFilterByTags(pageRequestDto, tagNameSet, conditionIsAnd), header, HttpStatus.OK);
+        return new ResponseEntity<>(bookService.getBookPageFilterByTags(pageRequestDto, categoryNameSet, tagNameSet, conditionIsAnd), header, HttpStatus.OK);
     }
-
-
 }

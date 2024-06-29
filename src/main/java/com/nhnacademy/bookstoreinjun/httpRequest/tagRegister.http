@@ -2,7 +2,7 @@ POST localhost:8004/api/product/admin/tag/register
 Content-Type: application/json
 
 {
-  "tagName": "tag6"
+  "tagName": "tag1"
 }
 
 ###
