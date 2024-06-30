@@ -45,11 +45,16 @@ public class AladinServiceImpl implements AladinService {
 
             log.info("getAladdinBookPage done");
             int start = (int) pageable.getOffset();
-            int end = Math.min((start + pageable.getPageSize()), aladinBookResponseDtoList.size());
-            List<AladinBookResponseDto> pagedBookList = aladinBookResponseDtoList.subList(start, end);
+
+            if (aladinBookResponseDtoList != null) {
+                int end = Math.min((start + pageable.getPageSize()), aladinBookResponseDtoList.size());
+                List<AladinBookResponseDto> pagedBookList = aladinBookResponseDtoList.subList(start, end);
 
 
-            return new PageImpl<>(pagedBookList, pageable, aladinBookResponseDtoList.size());
+                return new PageImpl<>(pagedBookList, pageable, aladinBookResponseDtoList.size());
+            }else{
+                return null;
+            }
         }catch (JsonProcessingException e){
             throw new AladinJsonProcessingException(title);
         }

@@ -2,14 +2,18 @@ POST localhost:8004/api/product/admin/category/register
 Content-Type: application/json
 
 {
-  "categoryName": "카테고리5"
+  "categoryName": "카테고리6"
 }
 
 ###
-GET localhost:8004/api/product/categories/sub?categoryName=카테고리3
+GET localhost:8004/api/product/categories/sub?categoryName=카테고리5&sort=wrongsad
 
 ###
-GET localhost:8004/api/product/categories/all
+GET localhost:8004/api/product/categories/all?sort=parentProductCateasdgory&desc=false
+
+###
+GET localhost:8004/api/product/categories/containing?categoryName=2&sort=parentProductCategory
+
 
 
 ###

@@ -13,13 +13,16 @@ import com.nhnacademy.bookstoreinjun.entity.ProductCategoryRelation;
 import com.nhnacademy.bookstoreinjun.entity.ProductTag;
 import com.nhnacademy.bookstoreinjun.entity.Tag;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
+import com.nhnacademy.bookstoreinjun.exception.InvalidSortNameException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
 import com.nhnacademy.bookstoreinjun.repository.BookQuerydslRepository;
 import com.nhnacademy.bookstoreinjun.repository.BookRepository;
+import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRelationRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
+import com.nhnacademy.bookstoreinjun.repository.ProductTagRepository;
 import com.nhnacademy.bookstoreinjun.repository.TagRepository;
 import com.nhnacademy.bookstoreinjun.service.product.ProductDtoService;
 import com.nhnacademy.bookstoreinjun.service.productCategoryRelation.ProductCategoryRelationService;
@@ -35,6 +38,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.query.sqm.PathElementException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -65,6 +69,8 @@ public class BookServiceImpl implements BookService {
     private final ProductCheckUtil productCheckUtil;
 
     private final String TYPE = "book";
+    private final ProductTagRepository productTagRepository;
+    private final ProductCategoryRelationRepository productCategoryRelationRepository;
 
     private void saveProductCategoryRelation(List<String> categories, Product product){
         for (String categoryName : categories) {
@@ -100,6 +106,10 @@ public class BookServiceImpl implements BookService {
     }
 
     private BookProductGetResponseDto makeBookProductGetResponseDtoFromBook(Book book){
+//        for (Tag tag : book.getProduct().getProductTags().stream().map(ProductTag::getTag).collect(Collectors.toList())){
+//            log.warn("tags : {}", tag.getTagName());
+//        }
+        log.info("Make book product get responseDto from Book");
         return BookProductGetResponseDto.builder()
                 .bookId(book.getBookId())
                 .title(book.getTitle())
@@ -119,14 +129,17 @@ public class BookServiceImpl implements BookService {
                 .productPriceStandard(book.getProduct().getProductPriceStandard())
                 .productPriceSales(book.getProduct().getProductPriceSales())
                 .productInventory(book.getProduct().getProductInventory())
-                .categories(book.getProduct().getProductCategoryRelations().stream()
-                        .map(ProductCategoryRelation ::getProductCategory)
-                        .map(ProductCategory ::getCategoryName)
-                        .collect(Collectors.toList()))
-                .tags(book.getProduct().getProductTags().stream()
-                        .map(ProductTag ::getTag)
-                        .map(Tag::getTagName)
-                        .collect(Collectors.toList()))
+                .categories(querydslRepository.getAllProductCategory(book.getProduct()))
+//                        book.getProduct().getProductCategoryRelations().stream()
+//                        .map(ProductCategoryRelation :: getProductCategory)
+//                        .map(ProductCategory :: getCategoryName)
+//                        .collect(Collectors.toList()))
+                .tags(querydslRepository.getAllTag(book.getProduct()))
+//                        book.getProduct().getProductTags().stream()
+//                        .map(ProductTag ::getTag)
+//                        .map(Tag::getTagName)
+//                        .collect(Collectors.toList()))
+
                 .build();
     }
 
@@ -190,15 +203,40 @@ public class BookServiceImpl implements BookService {
 
     public Page<BookProductGetResponseDto> getBookPageFilterByCategories(PageRequestDto pageRequestDto, Set<String> categories, Boolean conditionIsAnd) {
         Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, 5, "product.productRegisterDate");
-        List<Book> bookListFilterByTags = querydslRepository.findBooksByCategoryFilter(categories, conditionIsAnd);
-        return makeBookPage(bookListFilterByTags, pageable);
+        List<Book> bookListFilterByCategories = querydslRepository.findBooksByCategoryFilter(categories, conditionIsAnd);
+        return makeBookPage(bookListFilterByCategories, pageable);
     }
 
-    public Page<BookProductGetResponseDto> getBookPageFilterByTags(PageRequestDto pageRequestDto, Set<String> tags, Boolean conditionIsAnd) {
+    public Page<BookProductGetResponseDto> getBookPageFilterByTags(PageRequestDto pageRequestDto, Set<String> categories, Set<String> tags, Boolean conditionIsAnd) {
         Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, 5, "product.productRegisterDate");
-        List<Book> bookListFilterByTags = querydslRepository.findBooksByTagFilter(tags, conditionIsAnd);
-        return makeBookPage(bookListFilterByTags, pageable);
-    }
+        int requestPage = pageable.getPageNumber() + 1;
+
+        try{
+            Page<BookProductGetResponseDto> bookListFilterByTags = querydslRepository.findBooksByTagFilter(categories, tags, conditionIsAnd, pageable);
+            return bookListFilterByTags;
+//            if (categories == null || categories.isEmpty()){
+//                log.info("category is empty!");
+//                Page<Book> asdasdsada = bookRepository.asd2(pageable, tags, tags.size());
+//                return asdasdsada.map(this::makeBookProductGetResponseDtoFromBook);
+//
+//            }
+////            Page<Book> asdasdsada = bookRepository.asd(pageable, tags, categories);
+//            Page<Book> asdasdsada = bookRepository.asd2(pageable, tags, tags.size());
+////            int total = bookListFilterByTags.getTotalPages();
+//
+////            if (total != 0 && total < requestPage){
+////                throw new PageOutOfRangeException(total, requestPage);
+////            }
+//            return asdasdsada.map(this::makeBookProductGetResponseDtoFromBook);
+        }catch (PathElementException e){
+            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
+        }catch(Exception e){
+            log.error("error in service!!! message : {}", e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+        }
+
 
 
     public ProductRegisterResponseDto saveBook(BookProductRegisterRequestDto bookProductRegisterRequestDto) {

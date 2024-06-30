@@ -99,38 +99,6 @@ public class ProductCategoryControllerTest {
         verify(productCategoryService,times(1)).saveCategory(any(CategoryRegisterRequestDto.class));
     }
 
-    @DisplayName("카테고리 리스트 찾아오기 - 모두")
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    public void getAllCategoriesTest() throws Exception {
-        mockMvc.perform(get("/api/product/category/list/all"))
-                .andExpect(status().isOk());
-
-        verify(productCategoryService,times(1)).getAllCategoryList();
-    }
-
-    @DisplayName("카테고리 리스트 찾아오기 - 이름 포함")
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    public void getAllContainingCategoriesTest() throws Exception {
-        mockMvc.perform(get("/api/product/category/list/containing")
-                .param("categoryName", "test productCategory"))
-                .andExpect(status().isOk());
-
-        verify(productCategoryService,times(1)).getNameContainingCategoryList("test productCategory");
-    }
-
-    @DisplayName("카테고리 리스트 찾아오기 - 하위")
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    public void getAllSubCategoriesTest() throws Exception {
-        mockMvc.perform(get("/api/product/category/list/sub")
-                        .param("categoryName", "test parent productCategory"))
-                .andExpect(status().isOk());
-
-        verify(productCategoryService,times(1)).getSubCategoryList("test parent productCategory");
-    }
-
     @DisplayName("카테고리 업데이트 성공 테스트")
     @Test
     @WithMockUser(roles = "ADMIN")

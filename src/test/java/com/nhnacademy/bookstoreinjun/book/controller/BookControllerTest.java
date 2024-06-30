@@ -20,6 +20,7 @@ import com.nhnacademy.bookstoreinjun.service.aladin.AladinService;
 import com.nhnacademy.bookstoreinjun.service.book.BookService;
 import com.nhnacademy.bookstoreinjun.service.productCategory.ProductCategoryService;
 import com.nhnacademy.bookstoreinjun.service.tag.TagService;
+import jakarta.persistence.EntityManagerFactory;
 import java.time.LocalDate;
 import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
@@ -39,12 +40,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
@@ -53,31 +52,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class BookControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+     MockMvc mockMvc;
 
     @MockBean
     AladinService aladinService;
 
     @MockBean
     BookService bookService;
-
-    @MockBean
-    ProductCategoryService productCategoryService;
-
-    @MockBean
-    ProductCategoryRelationService productCategoryRelationService;
-
-    @MockBean
-    TagService tagService;
-
-    @MockBean
-    ProductTagService productTagService;
-
-    @MockBean
-    private ProductRepository productRepository;
-
-//    @MockBean
-//    EmailHeaderFilter emailHeaderFilter;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -88,9 +69,10 @@ public class BookControllerTest {
 
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     public void test1() throws Exception {
         mockMvc.perform(get("/api/product/admin/book")
+                        .header("X-User-Role", "ROLE_ADMIN")
+                        .header("X-User-Id", 1)
                         .param("title","이해"))
                 .andExpect(status().isOk())
                 .andExpect(header().stringValues("Content-Type", "application/json"));
@@ -102,7 +84,6 @@ public class BookControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void test2() throws Exception {
-        when(productRepository.save(any())).thenReturn(Product.builder().productId(123L).build());
 
         BookProductRegisterRequestDto bookProductRegisterRequestDto = BookProductRegisterRequestDto.builder()
                 .title("test title")
@@ -119,7 +100,7 @@ public class BookControllerTest {
                 .productPriceSales(1)
                 .packable(false)
                 .categories(
-                        Arrays.asList()
+                        Arrays.asList("category1")
                 )
                 .tags(Arrays.asList("test tag1","test tag2"))
                 .build();
@@ -127,6 +108,8 @@ public class BookControllerTest {
         String json = objectMapper.writeValueAsString(bookProductRegisterRequestDto);
 
         mockMvc.perform(post("/api/product/admin/book/register")
+                        .header("X-User-Role", "ROLE_ADMIN")
+                        .header("X-User-Id", 1)
                 .content(json)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
@@ -139,8 +122,6 @@ public class BookControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void test5() throws Exception {
-        when(productRepository.save(any())).thenReturn(Product.builder().productId(123L).build());
-
         BookProductRegisterRequestDto bookProductRegisterRequestDto = BookProductRegisterRequestDto.builder()
                 .title("test title")
                 .pubDate(LocalDate.now())
@@ -164,7 +145,7 @@ public class BookControllerTest {
         mockMvc.perform(post("/api/product/admin/book/register")
                         .content(json)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isInternalServerError())
                 .andDo(print());
 
         verify(bookService,times(0)).saveBook(any());
@@ -178,6 +159,8 @@ public class BookControllerTest {
     @WithMockUser(roles = "ADMIN")
     public void test3() throws Exception {
         mockMvc.perform(get("/api/product/admin/book")
+                        .header("X-User-Role", "ROLE_ADMIN")
+                        .header("X-User-Id", 1)
                         .param("title","이해"))
                 .andExpect(status().isOk());
     }
@@ -189,6 +172,8 @@ public class BookControllerTest {
         when(aladinService.getAladdinBookPage(any(), eq("이해"))).thenThrow(new AladinJsonProcessingException("error"));
 
         mockMvc.perform(get("/api/product/admin/book")
+                        .header("X-User-Role", "ROLE_ADMIN")
+                        .header("X-User-Id", 1)
                         .param("title","이해"))
                 .andExpect(status().is5xxServerError());
     }

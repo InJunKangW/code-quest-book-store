@@ -11,7 +11,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-@Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
 
 //    public Book findByIsbn13(String isbn13);
@@ -45,4 +44,9 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     Book findByProduct(Product product);
 
 
+    @Query("select b from Book b join b.product p join p.productTags pt join p.productCategoryRelations pcr join pt.tag t join pcr.productCategory pc where t.tagName in :tags and pc.categoryName in:categories")
+    Page<Book> asd(Pageable pageable, @Param("tags") Set<String> tags,  @Param("categories") Set<String> categories);
+
+    @Query("select distinct b from Book b join b.product p join p.productTags pt  join pt.tag t  where t.tagName in :tags group by b.bookId having count(b) = :count ")
+    Page<Book> asd2(Pageable pageable, @Param("tags") Set<String> tags, @Param("count") int count);
 }

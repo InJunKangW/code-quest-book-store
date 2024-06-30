@@ -49,25 +49,6 @@ public class CategoryController {
         return new ResponseEntity<>(productCategoryService.updateCategory(categoryUpdateRequestDto), header, HttpStatus.OK);
     }
 
-    @GetMapping("/category/list/all")
-    public ResponseEntity<List<CategoryGetResponseDto>> getAllCategories() {
-        log.info("Called list all");
-        return new ResponseEntity<>(productCategoryService.getAllCategoryList(), header, HttpStatus.OK);
-    }
-
-
-    @GetMapping("/category/list/containing")
-    public ResponseEntity<List<CategoryGetResponseDto>> getNameContainingCategories(
-            @RequestParam("categoryName") String categoryName){
-        return new ResponseEntity<>(productCategoryService.getNameContainingCategoryList(categoryName), header, HttpStatus.OK);
-    }
-
-    @GetMapping("/category/list/sub")
-    public ResponseEntity<List<CategoryGetResponseDto>> getSubCategories(
-            @RequestParam("categoryName") String categoryName){
-        return new ResponseEntity<>(productCategoryService.getSubCategoryList(categoryName), header, HttpStatus.OK);
-    }
-
 
     @GetMapping("/categories/all")
     public ResponseEntity<Page<CategoryGetResponseDto>> getAllCategories(

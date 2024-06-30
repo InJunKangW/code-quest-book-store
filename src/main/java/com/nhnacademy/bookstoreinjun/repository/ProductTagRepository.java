@@ -8,7 +8,6 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
 public interface ProductTagRepository extends JpaRepository<ProductTag, Long> {
     /**
      * 특정 product 에 달린 모든 태그를 찾아내기 위해 사용합니다.
