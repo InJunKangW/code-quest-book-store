@@ -276,9 +276,8 @@ public class BookServiceTest {
 
         when(bookRepository.findById(1L)).thenReturn(Optional.of(testBook));
 
-//        when(productCategoryRelationService.getProductCategoryRelationsByProduct(testProduct)).thenReturn(testProductCategories);
-//
-//        when(productTagService.getTagsByProduct(testProduct)).thenReturn(testTags);
+        when(bookQuerydslRepository.getAllProductCategoryName(testProduct)).thenReturn(Arrays.asList("test category1", "test category2"));
+        when(bookQuerydslRepository.getAllTagName(testProduct)).thenReturn(Arrays.asList("test tag1", "test tag2", "test tag3"));
 
         BookProductGetResponseDto dto = bookService.getBookByBookId(1L);
 

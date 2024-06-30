@@ -12,15 +12,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 public interface BookRepository extends JpaRepository<Book, Long> {
-
-//    public Book findByIsbn13(String isbn13);
-//
-//    public Book findByBookId(Long bookId);
-//
-//    public Page<Book> findByTitleContaining(String title, Pageable pageable);
-//
-//    public Page<Book> findByAuthorContaining(String author, Pageable pageable);
-//
     /**
      * @param pageable 웹에서 사용자가 전달할 pageable 인자.
      * @return productState = 0인 (현재 판매 중인) 도서의 페이지.
@@ -42,11 +33,4 @@ public interface BookRepository extends JpaRepository<Book, Long> {
      * @return 해당 product 에 대응되는 도서. 1대 1 관계이기 때문에 리스트가 아닌 단일 객체가 반환됩니다.
      */
     Book findByProduct(Product product);
-
-
-    @Query("select b from Book b join b.product p join p.productTags pt join p.productCategoryRelations pcr join pt.tag t join pcr.productCategory pc where t.tagName in :tags and pc.categoryName in:categories")
-    Page<Book> asd(Pageable pageable, @Param("tags") Set<String> tags,  @Param("categories") Set<String> categories);
-
-    @Query("select distinct b from Book b join b.product p join p.productTags pt  join pt.tag t  where t.tagName in :tags group by b.bookId having count(b) = :count ")
-    Page<Book> asd2(Pageable pageable, @Param("tags") Set<String> tags, @Param("count") int count);
 }

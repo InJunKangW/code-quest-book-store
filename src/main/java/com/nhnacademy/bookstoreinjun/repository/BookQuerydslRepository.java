@@ -11,9 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface BookQuerydslRepository {
-    Page<BookProductGetResponseDto> findBooksByTagFilter(Set<String> categories, Set<String> tags, Boolean conditionIsAnd, Pageable pageable);
-    List<Book> findBooksByCategoryFilter(Set<String> categories, Boolean conditionIsAnd);
-//    List<ProductTag> getAllProductTag(Book book);
-List<String> getAllTag(Product realProduct);
-    List<String> getAllProductCategory(Product realProduct);
+    Page<BookProductGetResponseDto> findBooksByTagFilter(Set<String> tags, Boolean conditionIsAnd, Pageable pageable);
+    Page<BookProductGetResponseDto> findBooksByCategoryFilter(Set<String> categories, Boolean conditionIsAnd, Pageable pageable);
+    List<String> getAllTagName(Product realProduct);
+    List<String> getAllProductCategoryName(Product realProduct);
 }

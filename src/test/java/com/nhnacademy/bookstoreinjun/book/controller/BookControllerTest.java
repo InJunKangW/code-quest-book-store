@@ -70,7 +70,7 @@ public class BookControllerTest {
 
     @Test
     public void test1() throws Exception {
-        mockMvc.perform(get("/api/product/admin/book")
+        mockMvc.perform(get("/api/product/book")
                         .header("X-User-Role", "ROLE_ADMIN")
                         .header("X-User-Id", 1)
                         .param("title","이해"))
@@ -158,7 +158,7 @@ public class BookControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void test3() throws Exception {
-        mockMvc.perform(get("/api/product/admin/book")
+        mockMvc.perform(get("/api/product/book")
                         .header("X-User-Role", "ROLE_ADMIN")
                         .header("X-User-Id", 1)
                         .param("title","이해"))
@@ -171,7 +171,7 @@ public class BookControllerTest {
     public void test4() throws Exception {
         when(aladinService.getAladdinBookPage(any(), eq("이해"))).thenThrow(new AladinJsonProcessingException("error"));
 
-        mockMvc.perform(get("/api/product/admin/book")
+        mockMvc.perform(get("/api/product/book")
                         .header("X-User-Role", "ROLE_ADMIN")
                         .header("X-User-Id", 1)
                         .param("title","이해"))

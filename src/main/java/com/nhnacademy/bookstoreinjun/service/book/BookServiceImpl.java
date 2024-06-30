@@ -72,6 +72,10 @@ public class BookServiceImpl implements BookService {
     private final ProductTagRepository productTagRepository;
     private final ProductCategoryRelationRepository productCategoryRelationRepository;
 
+    private final int DEFAULT_PAGE_SIZE = 5;
+    private final String DEFAULT_SORT = "product.productRegisterDate";
+
+
     private void saveProductCategoryRelation(List<String> categories, Product product){
         for (String categoryName : categories) {
             ProductCategory productCategory = productCategoryRepository.findByCategoryName(categoryName);
@@ -106,10 +110,6 @@ public class BookServiceImpl implements BookService {
     }
 
     private BookProductGetResponseDto makeBookProductGetResponseDtoFromBook(Book book){
-//        for (Tag tag : book.getProduct().getProductTags().stream().map(ProductTag::getTag).collect(Collectors.toList())){
-//            log.warn("tags : {}", tag.getTagName());
-//        }
-        log.info("Make book product get responseDto from Book");
         return BookProductGetResponseDto.builder()
                 .bookId(book.getBookId())
                 .title(book.getTitle())
@@ -129,30 +129,11 @@ public class BookServiceImpl implements BookService {
                 .productPriceStandard(book.getProduct().getProductPriceStandard())
                 .productPriceSales(book.getProduct().getProductPriceSales())
                 .productInventory(book.getProduct().getProductInventory())
-                .categories(querydslRepository.getAllProductCategory(book.getProduct()))
-//                        book.getProduct().getProductCategoryRelations().stream()
-//                        .map(ProductCategoryRelation :: getProductCategory)
-//                        .map(ProductCategory :: getCategoryName)
-//                        .collect(Collectors.toList()))
-                .tags(querydslRepository.getAllTag(book.getProduct()))
-//                        book.getProduct().getProductTags().stream()
-//                        .map(ProductTag ::getTag)
-//                        .map(Tag::getTagName)
-//                        .collect(Collectors.toList()))
-
+                .categories(querydslRepository.getAllProductCategoryName(book.getProduct()))
+                .tags(querydslRepository.getAllTagName(book.getProduct()))
                 .build();
     }
 
-
-    private Page<BookProductGetResponseDto> makeBookPage(List<Book> bookList, Pageable pageable) {
-        int maxPage = pageable.getPageNumber() + 1;
-        try{
-            Page<Book> bookPage = new PageImpl<>(bookList, pageable, bookList.size());
-            return makeValidBookPage(bookPage, maxPage);
-        }catch (InvalidDataAccessApiUsageException e) {
-            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
-        }
-    }
 
     private Page<BookProductGetResponseDto> makeValidBookPage(Page<Book> bookPage, int requestPage){
         int total = bookPage.getTotalPages();
@@ -176,9 +157,8 @@ public class BookServiceImpl implements BookService {
         }
     }
 
-
     public Page<BookProductGetResponseDto> getBookPage(PageRequestDto pageRequestDto) {
-        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, 5, "product.productRegisterDate");
+        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
 
         int requestPage = pageable.getPageNumber() + 1;
         try{
@@ -190,7 +170,7 @@ public class BookServiceImpl implements BookService {
     }
 
     public Page<BookProductGetResponseDto> getNameContainingBookPage(PageRequestDto pageRequestDto, String title) {
-        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, 5, "product.productRegisterDate");
+        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
         int requestPage = pageable.getPageNumber() + 1;
         try{
             Page<Book> bookPage = bookRepository.findBooksByProductStateAndNameContaining(pageable, title);
@@ -201,43 +181,38 @@ public class BookServiceImpl implements BookService {
     }
 
 
-    public Page<BookProductGetResponseDto> getBookPageFilterByCategories(PageRequestDto pageRequestDto, Set<String> categories, Boolean conditionIsAnd) {
-        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, 5, "product.productRegisterDate");
-        List<Book> bookListFilterByCategories = querydslRepository.findBooksByCategoryFilter(categories, conditionIsAnd);
-        return makeBookPage(bookListFilterByCategories, pageable);
-    }
-
-    public Page<BookProductGetResponseDto> getBookPageFilterByTags(PageRequestDto pageRequestDto, Set<String> categories, Set<String> tags, Boolean conditionIsAnd) {
-        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, 5, "product.productRegisterDate");
+    public Page<BookProductGetResponseDto> getBookPageFilterByTags(PageRequestDto pageRequestDto, Set<String> tags, Boolean conditionIsAnd) {
+        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
         int requestPage = pageable.getPageNumber() + 1;
 
         try{
-            Page<BookProductGetResponseDto> bookListFilterByTags = querydslRepository.findBooksByTagFilter(categories, tags, conditionIsAnd, pageable);
-            return bookListFilterByTags;
-//            if (categories == null || categories.isEmpty()){
-//                log.info("category is empty!");
-//                Page<Book> asdasdsada = bookRepository.asd2(pageable, tags, tags.size());
-//                return asdasdsada.map(this::makeBookProductGetResponseDtoFromBook);
-//
-//            }
-////            Page<Book> asdasdsada = bookRepository.asd(pageable, tags, categories);
-//            Page<Book> asdasdsada = bookRepository.asd2(pageable, tags, tags.size());
-////            int total = bookListFilterByTags.getTotalPages();
-//
-////            if (total != 0 && total < requestPage){
-////                throw new PageOutOfRangeException(total, requestPage);
-////            }
-//            return asdasdsada.map(this::makeBookProductGetResponseDtoFromBook);
-        }catch (PathElementException e){
+            Page<BookProductGetResponseDto> bookPageFilterByTags = querydslRepository.findBooksByTagFilter(tags, conditionIsAnd, pageable);
+            int total = bookPageFilterByTags.getTotalPages();
+            if (total != 0 && total < requestPage){
+                throw new PageOutOfRangeException(total, requestPage);
+            }
+            return bookPageFilterByTags;
+        }catch (InvalidDataAccessApiUsageException e){
             throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
-        }catch(Exception e){
-            log.error("error in service!!! message : {}", e.getMessage());
-            e.printStackTrace();
         }
-        return null;
+    }
+
+    public Page<BookProductGetResponseDto> getBookPageFilterByCategories(PageRequestDto pageRequestDto, Set<String> categories, Boolean conditionIsAnd) {
+        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+        int requestPage = pageable.getPageNumber() + 1;
+
+        try {
+            Page<BookProductGetResponseDto> result = querydslRepository.findBooksByCategoryFilter(categories, conditionIsAnd, pageable);
+            int total = result.getTotalPages();
+
+            if (total != 0 && total < requestPage){
+                throw new PageOutOfRangeException(total, requestPage);
+            }
+            return result;
+        }catch (InvalidDataAccessApiUsageException e){
+            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
         }
-
-
+    }
 
     public ProductRegisterResponseDto saveBook(BookProductRegisterRequestDto bookProductRegisterRequestDto) {
         log.error("product name : {}", bookProductRegisterRequestDto.productName());
