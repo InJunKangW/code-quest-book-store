@@ -14,7 +14,6 @@ import com.nhnacademy.bookstoreinjun.repository.TagRepository;
 import com.nhnacademy.bookstoreinjun.util.MakePageableUtil;
 import com.nhnacademy.bookstoreinjun.util.SortCheckUtil;
 import java.time.LocalDateTime;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class TagServiceImpl implements TagService {
     private final TagRepository tagRepository;
 
-
     private final String TYPE = "tag";
 
     private final int DEFAULT_PAGE_SIZE = 10;
@@ -39,15 +37,6 @@ public class TagServiceImpl implements TagService {
         return TagGetResponseDto.builder()
                 .tagName(tag.getTagName())
                 .build();
-    }
-
-    public TagGetResponseDto getTagDtoByTagName(String tagName) {
-        Tag tag = tagRepository.findByTagName(tagName);
-        if (tag == null) {
-            throw new NotFoundNameException(TYPE, tagName);
-        }else{
-            return makeTagGetResponseDtoFromTag(tag);
-        }
     }
 
     private Page<TagGetResponseDto> makeTagGetResponseDtoPage(Pageable pageable, Page<Tag> tagPage) {

@@ -7,8 +7,6 @@ import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRelationRepository;
 import com.nhnacademy.bookstoreinjun.util.ProductCheckUtil;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,16 +37,5 @@ public class ProductCategoryRelationServiceImpl implements ProductCategoryRelati
     public void clearProductCategoryRelationsByProduct(Product product) {
         productCheckUtil.checkProduct(product);
         productCategoryRelationRepository.deleteByProduct(product);
-    }
-
-    public List<ProductCategory> getProductCategoryRelationsByProduct(Product product) {
-        productCheckUtil.checkProduct(product);
-
-        List<ProductCategory> result = new ArrayList<>();
-        List<ProductCategoryRelation> productCategoryRelations= productCategoryRelationRepository.findByProduct(product);
-        for (ProductCategoryRelation productCategoryRelation : productCategoryRelations){
-            result.add(productCategoryRelation.getProductCategory());
-        }
-        return result;
     }
 }

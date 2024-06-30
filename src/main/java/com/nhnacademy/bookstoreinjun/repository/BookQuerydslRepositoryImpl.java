@@ -5,7 +5,7 @@ import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.QBook;
 import com.nhnacademy.bookstoreinjun.entity.QProduct;
 import com.nhnacademy.bookstoreinjun.entity.QProductCategory;
-import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtil;
+import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtilImpl;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
@@ -38,22 +38,13 @@ import static com.querydsl.jpa.JPAExpressions.select;
 @Transactional(readOnly = true)
 public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implements BookQuerydslRepository {
 
-    private final FindAllSubCategoriesUtil findAllSubCategoriesUtil;
-
-    private final ProductTagRepository productTagRepository;
-
     private final QProduct p = new QProduct("product");
 
     private final  QBook b = new QBook("book");
 
-
-    public BookQuerydslRepositoryImpl(FindAllSubCategoriesUtil findAllSubCategoriesUtil,
-                                      ProductTagRepository productTagRepository) {
+    public BookQuerydslRepositoryImpl() {
         super(Product.class);
-        this.findAllSubCategoriesUtil = findAllSubCategoriesUtil;
-        this.productTagRepository= productTagRepository;
     }
-
 
     private JPQLQuery<Tuple> baseQuery(){
         return from(b)
@@ -77,7 +68,7 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
         String property = order.getProperty();
         Order orderDirect = order.isDescending()? Order.DESC : Order.ASC;
 
-        return new OrderSpecifier<>(orderDirect, Expressions.stringTemplate(entity + property));
+        return new OrderSpecifier<>(orderDirect, Expressions.stringTemplate(entity + "." + property));
     }
 
     private BookProductGetResponseDto makeBookProductGetResponseDto(Tuple tuple) {
@@ -120,8 +111,7 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
 
         List<BookProductGetResponseDto> result = new ArrayList<>();
         for (Tuple tuple : tupleList) {
-            BookProductGetResponseDto  bookProductGetResponseDto= makeBookProductGetResponseDto(tuple);
-            result.add(bookProductGetResponseDto);
+            result.add(makeBookProductGetResponseDto(tuple));
         }
 
         long totalPages = countQuery.fetchOne();
@@ -131,8 +121,7 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
 
     @Override
     public Page<BookProductGetResponseDto> findBooksByTagFilter(Set<String> tags, Boolean conditionIsAnd, Pageable pageable) {
-        OrderSpecifier<?> orderSpecifier = makeOrderSpecifier(pageable, "book.");
-
+        OrderSpecifier<?> orderSpecifier = makeOrderSpecifier(pageable, "book");
 
         BooleanBuilder whereBuilder = new BooleanBuilder();
         whereBuilder.and(product.productState.eq(0));
@@ -153,7 +142,7 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
     }
 
     public Page<BookProductGetResponseDto> findBooksByCategoryFilter(Set<String> categories, Boolean conditionIsAnd, Pageable pageable) {
-        OrderSpecifier<?> orderSpecifier = makeOrderSpecifier(pageable, "book.");
+        OrderSpecifier<?> orderSpecifier = makeOrderSpecifier(pageable, "book");
 
         BooleanBuilder whereBuilder = new BooleanBuilder();
         whereBuilder.and(product.productState.eq(0));

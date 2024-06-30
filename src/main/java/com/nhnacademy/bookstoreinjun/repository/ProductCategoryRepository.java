@@ -27,18 +27,16 @@ public interface ProductCategoryRepository extends JpaRepository<ProductCategory
 
     /**
      * 특정 카테고리명을 포함하는 모든 카테고리 리스트를 반환합니다.
+     * @param pageable 페이징 처리를 위한 인자
      * @param categoryName 포함 여부를 확인할 카테고리명
      * @return 해당 카테고리명을 포함하는 모든 카테고리의 리스트
      */
-    List<ProductCategory> findAllByCategoryNameContaining(String categoryName);
-
-
     Page<ProductCategory> findAllByCategoryNameContaining(Pageable pageable, String categoryName);
 
     /**
-     * 특정 카테고리의 모든 하위 카테고리 리스트를 반환합니다.
+     * 특정 카테고리의 1단계 하위 카테고리 리스트를 반환합니다.
      * @param parent 하위 카테고리를 찾을 상위 카테고리
-     * @return 해당 상위 카테고리의 모든 하위 카테고리 리스트
+     * @return 해당 상위 카테고리의 1단계 하위 카테고리 리스트
      */
     List<ProductCategory> findSubCategoriesByParentProductCategory(ProductCategory parent);
 }

@@ -5,6 +5,7 @@ import com.nhnacademy.bookstoreinjun.exception.InconsistentEntityException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.NullProductException;
 import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -17,10 +18,13 @@ public class ProductCheckUtil {
     public void checkProduct(Product product){
         if (product == null || product.getProductId() == null) {
             throw new NullProductException();
-        } else if (!productRepository.existsByProductId(product.getProductId())) {
-            throw new NotFoundIdException("product", product.getProductId());
-        } else if (!product.equals(productRepository.findByProductId(product.getProductId()))) {
-            throw new InconsistentEntityException("product");
+        } else{
+            Optional<Product> optionalProduct = productRepository.findById(product.getProductId());
+            if (optionalProduct.isEmpty()) {
+                throw new NotFoundIdException("product", product.getProductId());
+            } else if (!product.equals(optionalProduct.get())) {
+                throw new InconsistentEntityException("product");
+            }
         }
     }
 }

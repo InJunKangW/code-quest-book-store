@@ -7,8 +7,6 @@ import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.repository.ProductTagRepository;
 import com.nhnacademy.bookstoreinjun.repository.TagRepository;
 import com.nhnacademy.bookstoreinjun.util.ProductCheckUtil;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,15 +37,5 @@ public class ProductTagServiceImpl implements ProductTagService {
     public void clearTagsByProduct(Product product) {
         productCheckUtil.checkProduct(product);
         productTagRepository.deleteByProduct(product);
-    }
-
-    public List<Tag> getTagsByProduct(Product product) {
-        productCheckUtil.checkProduct(product);
-        List<Tag> result = new ArrayList<>();
-        List<ProductTag> productTagRelations= productTagRepository.findByProduct(product);
-        for (ProductTag productTag : productTagRelations){
-            result.add(productTag.getTag());
-        }
-        return result;
     }
 }

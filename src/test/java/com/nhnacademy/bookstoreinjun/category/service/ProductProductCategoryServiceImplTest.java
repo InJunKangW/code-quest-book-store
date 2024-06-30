@@ -24,29 +24,18 @@ import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
 import com.nhnacademy.bookstoreinjun.service.productCategory.ProductCategoryServiceImpl;
-import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtil;
-import com.nhnacademy.bookstoreinjun.util.MakePageableUtil;
-import java.util.ArrayList;
+import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtilImpl;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mapping.PropertyReferenceException;
-import org.springframework.data.util.TypeInformation;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductProductCategoryServiceImplTest {
@@ -58,7 +47,7 @@ public class ProductProductCategoryServiceImplTest {
     private ProductCategoryRepository productCategoryRepository;
 
     @Mock
-    private FindAllSubCategoriesUtil findAllSubCategoriesUtil;
+    private FindAllSubCategoriesUtilImpl findAllSubCategoriesUtil;
 
 
     private final String TEST_CATEGORY_NAME = "Test ProductCategory";

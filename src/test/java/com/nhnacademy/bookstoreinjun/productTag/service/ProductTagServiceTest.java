@@ -1,6 +1,5 @@
 package com.nhnacademy.bookstoreinjun.productTag.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -15,8 +14,6 @@ import com.nhnacademy.bookstoreinjun.repository.ProductTagRepository;
 import com.nhnacademy.bookstoreinjun.repository.TagRepository;
 import com.nhnacademy.bookstoreinjun.service.productTag.ProductTagServiceImpl;
 import com.nhnacademy.bookstoreinjun.util.ProductCheckUtil;
-import java.util.Arrays;
-import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -83,22 +80,4 @@ public class ProductTagServiceTest {
         verify(productTagRepository,times(1)).deleteByProduct(product);
     }
 
-    @DisplayName("상품에 달린 태그 리스트 조회")
-    @Test
-    public void getTagsByProductTestSuccess(){
-        Product product = new Product();
-
-        when(productTagRepository.findByProduct(product)).thenReturn(Arrays.asList(
-                ProductTag.builder()
-                        .product(product)
-                        .build(),
-                ProductTag.builder()
-                        .product(product)
-                        .build()
-        ));
-        List<Tag> tagList = productTagServiceImpl.getTagsByProduct(product);
-
-        verify(productTagRepository,times(1)).findByProduct(product);
-        assertEquals(2, tagList.size());
-    }
 }
