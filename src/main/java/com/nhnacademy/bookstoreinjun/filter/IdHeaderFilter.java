@@ -15,7 +15,7 @@ public class IdHeaderFilter extends OncePerRequestFilter {
     private final String requiredMethod;
     private final AntPathMatcher pathMatcher;
 
-    public IdHeaderFilter(String requiredPath, String requiredMethod) {
+    public IdHeaderFilter(String requiredPath,  String requiredMethod) {
         this.requiredPath = requiredPath;
         this.requiredMethod = requiredMethod;
         this.pathMatcher = new AntPathMatcher();
@@ -28,6 +28,7 @@ public class IdHeaderFilter extends OncePerRequestFilter {
             try {
                 Long.valueOf(request.getHeader("X-User-Id"));
             } catch ( NumberFormatException e ) {
+                log.warn("not authorized");
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "id header is missing or invalid");
                 return;
             }

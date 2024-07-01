@@ -8,8 +8,7 @@ import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductGetResponseDto;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
-import com.nhnacademy.bookstoreinjun.service.product.ProductDtoServiceImpl;
-import java.util.ArrayList;
+import com.nhnacademy.bookstoreinjun.service.product.ProductServiceImpl;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,14 +20,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductDtoServiceTest {
     @InjectMocks
-    private ProductDtoServiceImpl productService;
+    private ProductServiceImpl productService;
 
     @Mock
     private ProductRepository productRepository;

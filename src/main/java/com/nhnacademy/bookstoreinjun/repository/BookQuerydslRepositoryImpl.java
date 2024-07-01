@@ -5,7 +5,6 @@ import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.QBook;
 import com.nhnacademy.bookstoreinjun.entity.QProduct;
 import com.nhnacademy.bookstoreinjun.entity.QProductCategory;
-import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtilImpl;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
@@ -96,14 +95,16 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
                 .build();
     }
 
-    private Page<BookProductGetResponseDto> makePage(JPQLQuery<Tuple> query, JPQLQuery<Long> countQuery , Pageable pageable, Boolean conditionIsAnd, int filterSize){
+    private void makeFilter(JPQLQuery<Tuple> query, JPQLQuery<Long> countQuery ,Boolean conditionIsAnd, int filterSize){
         if(conditionIsAnd){
             query.groupBy(b.bookId)
                     .having(count.eq((long)filterSize));
             countQuery.groupBy(b.bookId)
                     .having(count.eq((long)filterSize));
         }
+    }
 
+    private Page<BookProductGetResponseDto> makePage(JPQLQuery<Tuple> query, JPQLQuery<Long> countQuery , Pageable pageable){
         List<Tuple> tupleList = query
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -118,6 +119,57 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
         return new PageImpl<>(result, pageable, totalPages);
     }
 
+
+    @Transactional
+    @Override
+    public BookProductGetResponseDto findBookByBookId(Long bookId) {
+        JPQLQuery<Tuple> query = baseQuery()
+                .where(b.bookId.eq(bookId));
+
+        update(p)
+                .set(p.productViewCount, p.productViewCount.add(1))
+                .where(p.productId.eq(
+                        from(b)
+                                .select(b.product.productId)
+                                .where(b.bookId.eq(bookId))))
+                .execute();
+
+        return makeBookProductGetResponseDto(query.fetchOne());
+    }
+
+    @Override
+    public Page<BookProductGetResponseDto> findAllBookPage(Pageable pageable, int productState){
+        OrderSpecifier<?> orderSpecifier = makeOrderSpecifier(pageable, "book");
+        BooleanBuilder whereBuilder = new BooleanBuilder();
+        whereBuilder.and(product.productState.eq(productState));
+
+        JPQLQuery<Tuple> query = baseQuery()
+                .where(whereBuilder)
+                .orderBy(orderSpecifier);
+
+        JPQLQuery<Long> countQuery = countQuery()
+                .where(whereBuilder);
+
+        return makePage(query, countQuery, pageable);
+    }
+
+    @Override
+    public Page<BookProductGetResponseDto> findNameContainingBookPage(Pageable pageable, String title, int productState){
+        OrderSpecifier<?> orderSpecifier = makeOrderSpecifier(pageable, "book");
+        BooleanBuilder whereBuilder = new BooleanBuilder();
+        whereBuilder.and(product.productState.eq(productState));
+        whereBuilder.and(b.title.containsIgnoreCase(title));
+
+        JPQLQuery<Tuple> query = baseQuery()
+                .where(whereBuilder)
+                .orderBy(orderSpecifier);
+
+        JPQLQuery<Long> countQuery = countQuery()
+                .where(whereBuilder);
+
+        return makePage(query, countQuery, pageable);
+
+    }
 
     @Override
     public Page<BookProductGetResponseDto> findBooksByTagFilter(Set<String> tags, Boolean conditionIsAnd, Pageable pageable) {
@@ -138,7 +190,9 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
                 .innerJoin(productTag.tag, tag)
                 .where(whereBuilder);
 
-        return makePage(query, countQuery, pageable, conditionIsAnd, tags.size());
+        makeFilter(query, countQuery, conditionIsAnd, tags.size());
+
+        return makePage(query, countQuery, pageable);
     }
 
     public Page<BookProductGetResponseDto> findBooksByCategoryFilter(Set<String> categories, Boolean conditionIsAnd, Pageable pageable) {
@@ -159,7 +213,9 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
                 .innerJoin(productCategoryRelation.productCategory, productCategory)
                 .where(whereBuilder);
 
-        return makePage(query, countQuery, pageable, conditionIsAnd, categories.size());
+        makeFilter(query, countQuery, conditionIsAnd, categories.size());
+
+        return makePage(query, countQuery, pageable);
     }
 
     public List<String> getAllTagName(Product realProduct){

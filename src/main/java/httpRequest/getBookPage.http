@@ -1,9 +1,14 @@
 ###
-GET localhost:8004/api/product/books
+GET localhost:8004/api/product/book/1
+
+###
+GET localhost:8004/api/product/books/containing?title=제
 
 ###
 GET localhost:8004/api/product/books/tagFilter?tagName=tag2,tag4&isAnd=false&page=1
 
+###
+GET localhost:8004/api/product/books
 
 ###
 GET localhost:8004/api/product/books/categoryFilter?categoryName=카테고리2,카테고리3&isAnd=true&page=1

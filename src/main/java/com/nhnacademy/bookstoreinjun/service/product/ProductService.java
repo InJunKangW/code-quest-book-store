@@ -6,7 +6,7 @@ import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeResponseDto;
 import org.springframework.data.domain.Page;
 
-public interface ProductDtoService {
+public interface ProductService {
     /**
      * 모든 상품의 Dto 페이지를 반환합니다.
      * Dto 는 다음 필드를 갖습니다.

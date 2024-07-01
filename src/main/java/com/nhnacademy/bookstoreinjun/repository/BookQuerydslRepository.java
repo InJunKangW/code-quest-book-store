@@ -11,6 +11,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface BookQuerydslRepository {
+    BookProductGetResponseDto findBookByBookId(Long bookId);
+    Page<BookProductGetResponseDto> findAllBookPage(Pageable pageable, int productState);
+
+    Page<BookProductGetResponseDto> findNameContainingBookPage(Pageable pageable, String title, int productState);
     /**
      * 판매 중인 도서 상품 중 특정 태그를 갖는 도서의 페이지를 반환합니다.
      * @param tags 필터링할 태그명의 set 입니다.

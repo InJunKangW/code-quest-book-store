@@ -11,7 +11,7 @@ import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
 import com.nhnacademy.bookstoreinjun.repository.TagRepository;
-import com.nhnacademy.bookstoreinjun.util.MakePageableUtil;
+import com.nhnacademy.bookstoreinjun.util.PageableUtil;
 import com.nhnacademy.bookstoreinjun.util.SortCheckUtil;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
@@ -87,9 +87,12 @@ public class TagServiceImpl implements TagService {
 
 
     public Page<TagGetResponseDto> getAllTagPage(PageRequestDto pageRequestDto) {
-        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+        Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
         try {
             Page<Tag> tagPage = tagRepository.findAll(pageable);
+
+            PageableUtil.pageNumCheck(tagPage, pageable);
+
             return makeTagGetResponseDtoPage(pageable, tagPage);
         }catch (PropertyReferenceException e) {
             throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
@@ -98,9 +101,12 @@ public class TagServiceImpl implements TagService {
 
 
     public Page<TagGetResponseDto> getNameContainingTagPage(PageRequestDto pageRequestDto, String tagName) {
-        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+        Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
         try {
             Page<Tag> tagPage = tagRepository.findAllByTagNameContaining(pageable, tagName);
+
+            PageableUtil.pageNumCheck(tagPage, pageable);
+
             return makeTagGetResponseDtoPage(pageable, tagPage);
         }catch (PropertyReferenceException e) {
             throw SortCheckUtil.ThrowInvalidSortNameException(pageable);

@@ -29,6 +29,8 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(new IdHeaderFilter("/api/product/client/**",POST), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new IdHeaderFilter("/api/product/client/**",PUT), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new IdHeaderFilter("/api/product/client/**",DELETE), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new RoleHeaderFilter("/api/product/admin/**",GET, ADMIN), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new RoleHeaderFilter("/api/product/admin/**",POST, ADMIN), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new RoleHeaderFilter("/api/product/admin/**",PUT, ADMIN), UsernamePasswordAuthenticationFilter.class)
@@ -37,7 +39,6 @@ public class SecurityConfig {
                 )
 
                 .headers(h -> h.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
-//                .addFilterBefore(new EmailHeaderFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

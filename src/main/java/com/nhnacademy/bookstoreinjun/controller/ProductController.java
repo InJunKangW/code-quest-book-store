@@ -5,13 +5,9 @@ import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeResponseDto;
-import com.nhnacademy.bookstoreinjun.entity.Product;
-import com.nhnacademy.bookstoreinjun.service.product.ProductDtoService;
+import com.nhnacademy.bookstoreinjun.service.product.ProductService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import java.util.List;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.data.domain.Page;
@@ -21,7 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -35,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductController {
     private static final String ID_HEADER = "X-User-Id";
 
-    private final ProductDtoService productDtoService;
+    private final ProductService productService;
 
     private final HttpHeaders header = new HttpHeaders() {{
         setContentType(MediaType.APPLICATION_JSON);
@@ -45,21 +40,21 @@ public class ProductController {
     public ResponseEntity<Page<ProductGetResponseDto>> getAllProducts(
             @Valid @ModelAttribute PageRequestDto pageRequestDto
     ) {
-        return new ResponseEntity<>(productDtoService.findAllPage(pageRequestDto), header, HttpStatus.OK);
+        return new ResponseEntity<>(productService.findAllPage(pageRequestDto), header, HttpStatus.OK);
     }
 
     @GetMapping("/admin/page/containing")
     public ResponseEntity<Page<ProductGetResponseDto>> getAllProductsNameContaining(
             @Valid @ModelAttribute PageRequestDto pageRequestDto,
             @NotBlank @RequestParam(name = "productName") String productName) {
-        return new ResponseEntity<>(productDtoService.findNameContainingPage(pageRequestDto, productName), header, HttpStatus.OK);
+        return new ResponseEntity<>(productService.findNameContainingPage(pageRequestDto, productName), header, HttpStatus.OK);
     }
 
-    @PostMapping("/client/{productId}/like")
+    @PostMapping("/client/like")
     public ResponseEntity<ProductLikeResponseDto> saveBookProductLike(
             @RequestHeader HttpHeaders httpHeaders,
             @RequestBody @Valid ProductLikeRequestDto productLikeRequestDto
     ){
-        return new ResponseEntity<>(productDtoService.saveProductLike(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), productLikeRequestDto), header, HttpStatus.OK);
+        return new ResponseEntity<>(productService.saveProductLike(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), productLikeRequestDto), header, HttpStatus.OK);
     }
 }
