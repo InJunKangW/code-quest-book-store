@@ -6,10 +6,6 @@ import jakarta.validation.constraints.NotNull;
 public record CartRequestDto(
         @NotNull
         @Min(1)
-        Long clientId,
-
-        @NotNull
-        @Min(1)
         Long productId,
 
         @NotNull

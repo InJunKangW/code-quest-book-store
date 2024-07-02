@@ -26,6 +26,8 @@ public class IdHeaderFilter extends OncePerRequestFilter {
         log.info("header filter start");
         if (pathMatcher.match(requiredPath, request.getRequestURI()) && request.getMethod().equalsIgnoreCase(requiredMethod)) {
             try {
+                log.info("header filter start");
+                log.info("x user id : {}", request.getHeader("X-User-Id"));
                 Long.valueOf(request.getHeader("X-User-Id"));
             } catch ( NumberFormatException e ) {
                 log.warn("not authorized");

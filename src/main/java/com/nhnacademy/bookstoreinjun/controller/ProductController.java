@@ -50,6 +50,8 @@ public class ProductController {
         return new ResponseEntity<>(productService.findNameContainingPage(pageRequestDto, productName), header, HttpStatus.OK);
     }
 
+
+
     @PostMapping("/client/like")
     public ResponseEntity<ProductLikeResponseDto> saveBookProductLike(
             @RequestHeader HttpHeaders httpHeaders,

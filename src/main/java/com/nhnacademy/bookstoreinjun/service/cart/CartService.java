@@ -8,7 +8,8 @@ import java.util.List;
 public interface CartService {
     SaveCartResponseDto addCartItem(Long clientIdOfHeader, CartRequestDto cartRequestDto);
     SaveCartResponseDto setCartItemQuantity(Long clientIdOfHeader, CartRequestDto cartRequestDto);
-    List<CartGetResponseDto> getCart(Long clientIdOfHeader, Long clientId);
-    void deleteCartItem(Long clientIdOfHeader, Long clientId, Long productId);
-    void clearAllCart(Long clientIdOfHeader, Long clientId);
+    List<CartGetResponseDto> getCart(Long clientIdOfHeader);
+    List<CartGetResponseDto> getGuestCart(List<CartRequestDto> cartRequestDtoList);
+    void deleteCartItem(Long clientIdOfHeader, Long productId);
+    void clearAllCart(Long clientIdOfHeader);
 }

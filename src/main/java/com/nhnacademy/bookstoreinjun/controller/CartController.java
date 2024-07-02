@@ -35,12 +35,18 @@ public class CartController {
         setContentType(MediaType.APPLICATION_JSON);
     }};
 
-    @GetMapping("/client/{clientId}/cart")
+    @GetMapping("/client/cart")
     public ResponseEntity<List<CartGetResponseDto>> getCartList(
-            @RequestHeader HttpHeaders httpHeaders,
-            @PathVariable Long clientId) {
-        return new ResponseEntity<>(cartService.getCart(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), clientId), header, HttpStatus.OK);
+            @RequestHeader HttpHeaders httpHeaders) {
+        return new ResponseEntity<>(cartService.getCart(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L)), header, HttpStatus.OK);
     }
+
+    @PostMapping("/guest/cart")
+    public ResponseEntity<List<CartGetResponseDto>> getCartList(
+            @RequestBody List<@Valid CartRequestDto> cartRequestDtoList) {
+        return new ResponseEntity<>(cartService.getGuestCart(cartRequestDtoList), header, HttpStatus.OK);
+    }
+
 
     @PostMapping("/client/cart/add")
     public ResponseEntity<SaveCartResponseDto> saveCartItem(
@@ -57,21 +63,19 @@ public class CartController {
         return new ResponseEntity<>(cartService.setCartItemQuantity(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), cartRequestDto), header, HttpStatus.OK);
     }
 
-    @DeleteMapping("/client/{clientId}/cart/items/{productId}")
+    @DeleteMapping("/client/cart/items/{productId}")
     public ResponseEntity<Void> deleteCartItem(
             @RequestHeader HttpHeaders httpHeaders,
-            @PathVariable Long clientId,
             @PathVariable Long productId){
-        cartService.deleteCartItem(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), clientId, productId);
+        cartService.deleteCartItem(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), productId);
         return new ResponseEntity<>(null, header, HttpStatus.OK);
     }
 
-    @DeleteMapping("/client/{clientId}/cart/all")
+    @DeleteMapping("/client/cart/all")
     public ResponseEntity<Void> clearAllCart(
-            @RequestHeader HttpHeaders httpHeaders,
-            @PathVariable Long clientId
+            @RequestHeader HttpHeaders httpHeaders
     ){
-        cartService.clearAllCart(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), clientId);
+        cartService.clearAllCart(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L));
         return new ResponseEntity<>(null, header, HttpStatus.OK);
     }
 

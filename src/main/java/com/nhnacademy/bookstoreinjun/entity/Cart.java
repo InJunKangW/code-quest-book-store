@@ -36,12 +36,4 @@ public class Cart {
     @NotNull
     @Min(1)
     private Long quantity;
-
-    public void addProduct() {
-        quantity++;
-    }
-
-    public void setProductQuantity(Long quantity) {
-        this.quantity = quantity;
-    }
 }

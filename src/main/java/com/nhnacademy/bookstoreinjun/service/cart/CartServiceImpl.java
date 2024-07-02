@@ -8,6 +8,7 @@ import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.XUserIdNotFoundException;
 import com.nhnacademy.bookstoreinjun.repository.CartRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,17 +25,16 @@ public class CartServiceImpl implements CartService {
 
     private final ProductRepository productRepository;
 
-
     private Product getProduct(Long clientIdOfHeader, CartRequestDto cartRequestDto) {
         if (clientIdOfHeader == -1){
-            throw new XUserIdNotFoundException();
-        }else if (!clientIdOfHeader.equals(cartRequestDto.clientId())){
             throw new XUserIdNotFoundException();
         }
         Long productId = cartRequestDto.productId();
         return productRepository.findById(productId).orElseThrow(() -> new NotFoundIdException("product", productId));
     }
 
+
+    @Override
     public SaveCartResponseDto addCartItem(Long clientIdOfHeader, CartRequestDto cartRequestDto) {
         Product product = getProduct(clientIdOfHeader, cartRequestDto);
         long productInventory = product.getProductInventory();
@@ -44,33 +44,24 @@ public class CartServiceImpl implements CartService {
 
         Long requestQuantity = cartRequestDto.quantity();
         if (cart == null){
-            log.info("it s new cart");
-            if (productInventory < requestQuantity){
-                requestQuantity = productInventory;
-            }
+            requestQuantity = Math.min(requestQuantity, productInventory);
             cartRepository.save(Cart.builder()
-                    .clientId(cartRequestDto.clientId())
+                    .clientId(clientIdOfHeader)
                     .product(product)
                     .quantity(requestQuantity)
                     .build());
         }else {
-            log.info("cart exist!, current quantity is {}, id : {}", cart.getQuantity(), cart.getCartId());
-            requestQuantity= cart.getQuantity() + requestQuantity;
-            if (productInventory < requestQuantity){
-                requestQuantity = productInventory;
-            }
+            requestQuantity = Math.min(cart.getQuantity() + requestQuantity, productInventory);
             cart.setQuantity(requestQuantity);
             cartRepository.save(cart);
         }
-
-        //필요한 거.. 재고 이상 담기 방지. - 인 요청도 가능 (1개씩 빼기 (0으론 못만들게). 몇개 추가 말고 몇개 지정 기능 추가.. 숫자가 바뀌고 적용 버튼 누르면 set이 설정되게 하면 - 요청은 필요 없지 않을까
         return new SaveCartResponseDto();
     }
 
+    @Override
     public SaveCartResponseDto setCartItemQuantity(Long clientIdOfHeader, CartRequestDto cartRequestDto) {
         Product product = getProduct(clientIdOfHeader, cartRequestDto);
         long productInventory = product.getProductInventory();
-
 
         Long productId = cartRequestDto.productId();
         Cart cart = cartRepository.findByClientIdAndProduct_ProductId(clientIdOfHeader, productId);
@@ -78,41 +69,53 @@ public class CartServiceImpl implements CartService {
         if (cart == null){
             throw new NotFoundIdException("cart product", productId);
         } else{
-            Long requestQuantity = cartRequestDto.quantity();
-            if (productInventory < requestQuantity){
-                requestQuantity = productInventory;
-            }
+            Long requestQuantity = Math.min(cartRequestDto.quantity(), productInventory);
             cart.setQuantity(requestQuantity);
             cartRepository.save(cart);
             return new SaveCartResponseDto();
         }
     }
 
-
-
-    public void deleteCartItem(Long clientIdOfHeader, Long clientId, Long productId) {
+    @Override
+    public void deleteCartItem(Long clientIdOfHeader, Long productId) {
         if (clientIdOfHeader == -1){
-            throw new XUserIdNotFoundException();
-        }else if (!clientIdOfHeader.equals(clientId)){
             throw new XUserIdNotFoundException();
         }
         Cart cart = cartRepository.findByClientIdAndProduct_ProductId(clientIdOfHeader, productId);
         if (cart == null){
-            throw new NotFoundIdException("cart product", clientIdOfHeader);
+            throw new NotFoundIdException("cart product", productId);
         }
         cartRepository.delete(cart);
     }
 
-    public List<CartGetResponseDto> getCart(Long clientIdOfHeader, Long clientId) {
+    @Override
+    public List<CartGetResponseDto> getCart(Long clientIdOfHeader) {
         if (clientIdOfHeader == -1){
-            throw new XUserIdNotFoundException();
-        }else if (!clientIdOfHeader.equals(clientId)){
             throw new XUserIdNotFoundException();
         }
         List<Cart> cartList = cartRepository.findAllByClientId(clientIdOfHeader);
         return cartList.stream()
                 .map(this::getCartResponseDto)
                 .toList();
+    }
+
+    @Override
+    public List<CartGetResponseDto> getGuestCart(List<CartRequestDto> cartRequestDtoList) {
+        List<CartGetResponseDto> responseDtoList = new ArrayList<>();
+        for (CartRequestDto cartRequestDto : cartRequestDtoList) {
+            Product product = productRepository.findById(cartRequestDto.productId()).orElseThrow(() -> new NotFoundIdException("product", cartRequestDto.productId()));
+            CartGetResponseDto cartGetResponseDto = CartGetResponseDto.builder()
+                   .productId(product.getProductId())
+                   .productName(product.getProductName())
+                   .productPriceStandard(product.getProductPriceStandard())
+                   .productPriceSales(product.getProductPriceSales())
+                   .productQuantityOfCart(cartRequestDto.quantity())
+                   .productInventory(product.getProductInventory())
+                   .productThumbnailImage(product.getProductThumbnailUrl())
+                   .build();
+            responseDtoList.add(cartGetResponseDto);
+       }
+    return responseDtoList;
     }
 
     private CartGetResponseDto getCartResponseDto(Cart cart) {
@@ -122,17 +125,16 @@ public class CartServiceImpl implements CartService {
                 .productName(product.getProductName())
                 .productPriceStandard(product.getProductPriceStandard())
                 .productPriceSales(product.getProductPriceSales())
-                .productQuantity(cart.getQuantity())
+                .productQuantityOfCart(cart.getQuantity())
+                .productInventory(product.getProductInventory())
                 .productThumbnailImage(product.getProductThumbnailUrl())
                 .build();
     }
 
-    public void clearAllCart(Long clientIdOfHeader, Long clientId) {
+    public void clearAllCart(Long clientIdOfHeader) {
         if (clientIdOfHeader == -1){
             throw new XUserIdNotFoundException();
-        }else if (!clientIdOfHeader.equals(clientId)){
-            throw new XUserIdNotFoundException();
         }
-        cartRepository.deleteByClientId(clientId);
+        cartRepository.deleteByClientId(clientIdOfHeader);
     }
 }
