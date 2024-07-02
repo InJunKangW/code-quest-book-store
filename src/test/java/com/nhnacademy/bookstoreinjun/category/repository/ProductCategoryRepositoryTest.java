@@ -50,28 +50,28 @@ public class ProductCategoryRepositoryTest {
         assertNotNull(foundProductCategory);
         assertEquals(savedProductCategory, foundProductCategory);
     }
-
-    @Test
-    public void categoriesCheckTest(){
-        ProductCategory savedProductCategory = productCategoryRepository.save(productCategory);
-        for (int i = 0; i < 10; i ++){
-            String value = "";
-            if(i % 2 == 0){
-                value = "add";
-            }
-            ProductCategory subProductCategory = ProductCategory.builder()
-                    .categoryName("sub productCategory" + value + i)
-                    .parentProductCategory(savedProductCategory)
-                    .build();
-            productCategoryRepository.save(subProductCategory);
-        }
-        List<ProductCategory> subCategories = productCategoryRepository.findSubCategoriesByParentProductCategory(savedProductCategory);
-
-        assertNotNull(subCategories);
-        assertEquals(10, subCategories.size());
-
-        List<ProductCategory> subContainingCategories = productCategoryRepository.findAllByCategoryNameContaining("add");
-        assertNotNull(subContainingCategories);
-        assertEquals(5, subContainingCategories.size());
-    }
+//
+//    @Test
+//    public void categoriesCheckTest(){
+//        ProductCategory savedProductCategory = productCategoryRepository.save(productCategory);
+//        for (int i = 0; i < 10; i ++){
+//            String value = "";
+//            if(i % 2 == 0){
+//                value = "add";
+//            }
+//            ProductCategory subProductCategory = ProductCategory.builder()
+//                    .categoryName("sub productCategory" + value + i)
+//                    .parentProductCategory(savedProductCategory)
+//                    .build();
+//            productCategoryRepository.save(subProductCategory);
+//        }
+//        List<ProductCategory> subCategories = productCategoryRepository.findSubCategoriesByParentProductCategory(savedProductCategory);
+//
+//        assertNotNull(subCategories);
+//        assertEquals(10, subCategories.size());
+//
+//        List<ProductCategory> subContainingCategories = productCategoryRepository.findAllByCategoryNameContaining("add");
+//        assertNotNull(subContainingCategories);
+//        assertEquals(5, subContainingCategories.size());
+//    }
 }

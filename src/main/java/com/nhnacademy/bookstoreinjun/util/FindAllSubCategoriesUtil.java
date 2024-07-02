@@ -1,36 +1,15 @@
 package com.nhnacademy.bookstoreinjun.util;
 
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
-import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
-import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 
-@Component
-@RequiredArgsConstructor
-public class FindAllSubCategoriesUtil {
-    private final ProductCategoryRepository productCategoryRepository;
-
-    private void findAllSubcategories(String parentName, Set<ProductCategory> categoryNames) {
-        ProductCategory parentCategory = productCategoryRepository.findByCategoryName(parentName);
-        if (parentCategory == null) {
-            throw new NotFoundNameException("category", parentName);
-        }else {
-            categoryNames.add(parentCategory);
-            List<ProductCategory> subcategories = productCategoryRepository.findSubCategoriesByParentProductCategory(parentCategory);
-            for (ProductCategory subcategory : subcategories) {
-                findAllSubcategories(subcategory.getCategoryName(), categoryNames);
-            }
-        }
-    }
-
-    public Set<ProductCategory> getAllSubcategorySet(String parentName) {
-        Set<ProductCategory> subCategorySet = new LinkedHashSet<>();
-        findAllSubcategories(parentName, subCategorySet);
-        return subCategorySet;
-    }
+public interface FindAllSubCategoriesUtil {
+    /**
+     * 해당 카테고리명의 카테고리의 모든 하위 카테고리 set 을 반환합니다.
+     * @param parentName 하위 카테고리를 찾을 카테고리의 카테고리명
+     * @return 해당 카테고리명의 카테고리의 모든 하위 카테고리 set
+     * @throws NotFoundNameException parentName 에 해당하는 카테고리가 데이터베이스에 존재하지 않을 경우 발생합니다
+     */
+    Set<ProductCategory> getAllSubcategorySet(String parentName);
 }

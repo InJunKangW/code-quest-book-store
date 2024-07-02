@@ -30,5 +30,11 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
      */
     List<Tag> findAllByTagNameContaining(String tagName);
 
+    /**
+     * 특정 태그명을 포함하는 태그의 페이지를 반환합니다.
+     * @param pageable 요청된 페이지
+     * @param tagName 포함 여부를 확인할 태그명
+     * @return 해당 태그명을 포함하는 모든 태그의 리스트
+     */
     Page<Tag> findAllByTagNameContaining(Pageable pageable, String tagName);
 }

@@ -48,11 +48,6 @@ public class TagController {
         return new ResponseEntity<>(tagService.updateTag(tagUpdateRequestDto), header, HttpStatus.OK);
     }
 
-    @GetMapping
-    public ResponseEntity<TagGetResponseDto> getTag(@NotBlank @RequestParam ("tagName") String tagName) {
-        return new ResponseEntity<>(tagService.getTagDtoByTagName(tagName), header, HttpStatus.OK);
-    }
-
 
     @GetMapping("/tags/all")
     public ResponseEntity<Page<TagGetResponseDto>> getAllTags(

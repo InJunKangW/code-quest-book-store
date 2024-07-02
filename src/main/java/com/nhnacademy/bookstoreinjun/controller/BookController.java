@@ -11,7 +11,6 @@ import com.nhnacademy.bookstoreinjun.dto.product.ProductUpdateResponseDto;
 import com.nhnacademy.bookstoreinjun.exception.AladinJsonProcessingException;
 import com.nhnacademy.bookstoreinjun.service.aladin.AladinService;
 import com.nhnacademy.bookstoreinjun.service.book.BookService;
-//import com.nhnacademy.bookstoreinjun.validator.ProductCategoryRegisterAndUpdateRequestDtoValidator;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import java.util.Set;
@@ -80,12 +79,13 @@ public class BookController {
         return new ResponseEntity<>(aladinService.getAladdinBookPage(pageRequestDto, title), header, HttpStatus.OK);
     }
 
-
     @GetMapping("/books")
     public ResponseEntity<Page<BookProductGetResponseDto>> getAllBookPage(
            @Valid @ModelAttribute PageRequestDto pageRequestDto){
         return new ResponseEntity<>(bookService.getBookPage(pageRequestDto), header, HttpStatus.OK);
     }
+
+
 
     @GetMapping("/books/containing")
     public ResponseEntity<Page<BookProductGetResponseDto>> getAladinBookPage(
@@ -93,6 +93,7 @@ public class BookController {
             @RequestParam("title") String title){
         return new ResponseEntity<>(bookService.getNameContainingBookPage(pageRequestDto, title), header, HttpStatus.OK);
     }
+
 
     @GetMapping("/book/{bookId}")
     public ResponseEntity<BookProductGetResponseDto> getSingleBookInfo(
@@ -109,22 +110,12 @@ public class BookController {
         return new ResponseEntity<>(bookService.getBookPageFilterByCategories(pageRequestDto, categoryNameSet, conditionIsAnd), header, HttpStatus.OK);
     }
 
-//    @GetMapping("/books/tagFilter")
-//    public ResponseEntity<Page<BookProductGetResponseDto>> getBookPageFilterByTag(
-//            @Valid @ModelAttribute PageRequestDto pageRequestDto,
-//            @RequestParam("tagName") Set<String> tagNameSet,
-//            @RequestParam(value = "isAnd", required = false, defaultValue = "true") Boolean conditionIsAnd
-//    ){
-//        return new ResponseEntity<>(bookService.getBookPageFilterByTags(pageRequestDto, tagNameSet, conditionIsAnd), header, HttpStatus.OK);
-//    }
 
     @GetMapping("/books/tagFilter")
     public ResponseEntity<Page<BookProductGetResponseDto>> getFilteredBookPage(
             @Valid @ModelAttribute PageRequestDto pageRequestDto,
-            @RequestParam(value = "tagName", required = false) Set<String> tagNameSet,
-            @RequestParam(value = "categoryName", required = false) Set<String> categoryNameSet,
+            @RequestParam("tagName") Set<String> tagNameSet,
             @RequestParam(value = "isAnd", required = false, defaultValue = "true") Boolean conditionIsAnd
-    ){
-        return new ResponseEntity<>(bookService.getBookPageFilterByTags(pageRequestDto, categoryNameSet, tagNameSet, conditionIsAnd), header, HttpStatus.OK);
+    ){return new ResponseEntity<>(bookService.getBookPageFilterByTags(pageRequestDto, tagNameSet, conditionIsAnd), header, HttpStatus.OK);
     }
 }

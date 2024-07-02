@@ -21,11 +21,4 @@ public interface ProductTagRepository extends JpaRepository<ProductTag, Long> {
      * @param product 찾아낼 기준이 되는 product
      */
     void deleteByProduct(Product product);
-
-    /**
-     * 특정 tag 를 가지는 모든 상품을 찾아내기 위해 사용합니다.
-     * @param tag 찾아낼 기준이 되는 tag
-     */
-    List<ProductTag> findByTag(Tag tag);
-
 }

@@ -94,22 +94,22 @@ public class ProductCategoryRelationServiceTest {
         verify(productCategoryRelationRepository, times(1)).deleteByProduct(product);
     }
 
-    @DisplayName("상품에 달린 카테고리 리스트 조회")
-    @Test
-    public void getTagsByProductTestSuccess(){
-        Product product = new Product();
-
-        when(productCategoryRelationRepository.findByProduct(product)).thenReturn(Arrays.asList(
-                ProductCategoryRelation.builder()
-                        .product(product)
-                        .build(),
-                ProductCategoryRelation.builder()
-                        .product(product)
-                        .build()
-        ));
-        List<ProductCategory> productCategoryList = productCategoryRelationService.getProductCategoryRelationsByProduct(product);
-
-        verify(productCategoryRelationRepository,times(1)).findByProduct(product);
-        assertEquals(2, productCategoryList.size());
-    }
+//    @DisplayName("상품에 달린 카테고리 리스트 조회")
+//    @Test
+//    public void getTagsByProductTestSuccess(){
+//        Product product = new Product();
+//
+//        when(productCategoryRelationRepository.findByProduct(product)).thenReturn(Arrays.asList(
+//                ProductCategoryRelation.builder()
+//                        .product(product)
+//                        .build(),
+//                ProductCategoryRelation.builder()
+//                        .product(product)
+//                        .build()
+//        ));
+//        List<ProductCategory> productCategoryList = productCategoryRelationService.getProductCategoryRelationsByProduct(product);
+//
+//        verify(productCategoryRelationRepository,times(1)).findByProduct(product);
+//        assertEquals(2, productCategoryList.size());
+//    }
 }

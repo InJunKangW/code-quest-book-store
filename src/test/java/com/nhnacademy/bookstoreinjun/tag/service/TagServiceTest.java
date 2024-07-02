@@ -128,26 +128,7 @@ public class TagServiceTest {
 
         assertThrows(DuplicateException.class, () -> tagService.updateTag(tagUpdateRequestDto));
     }
-
-    @Test
-    public void getTagDtoByTagNameTestSuccess(){
-        when(tagRepository.findByTagName(TEST_TAG_NAME)).thenReturn(new Tag());
-
-        TagGetResponseDto response = tagService.getTagDtoByTagName(TEST_TAG_NAME);
-
-        assertNotNull(response);
-
-        verify(tagRepository, times(1)).findByTagName(TEST_TAG_NAME);
-    }
-
-    @Test
-    public void getTagDtoByTagNameTestFailure(){
-        when(tagRepository.findByTagName(TEST_TAG_NAME)).thenReturn(null);
-
-        assertThrows(NotFoundNameException.class, () -> tagService.getTagDtoByTagName(TEST_TAG_NAME));
-    }
-
-
+    
 
     @Test
     public void getAllTagPageTestSuccess(){

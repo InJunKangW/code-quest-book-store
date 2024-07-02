@@ -12,6 +12,13 @@ public class MakePageableUtil {
         throw new IllegalStateException("Utility class");
     }
 
+    /**
+     * pageRequestDto 에 따른 Pageable 을 반환합니다.
+     * @param pageRequestDto 페이징 요청 (Integer page (페이지 넘버), Integer size (페이지 당 사이즈), String sort (정렬할 조건), Boolean desc (오름차순/내림차순 여부))
+     * @param defaultSize size 가 null 일 경우에 적용될 기본 페이지 사이즈
+     * @param defaultSort sort 가 null 일 경우에 적용될 기본 정렬 조건
+     * @return Pageable 객체
+     */
     public static Pageable makePageable(PageRequestDto pageRequestDto, int defaultSize, String defaultSort) {
         int page = Objects.requireNonNullElse(pageRequestDto.page(),1);
         int size = Objects.requireNonNullElse(pageRequestDto.size(),defaultSize);

@@ -227,58 +227,12 @@ public class BookServiceTest {
         testProduct.setProductCategoryRelations(new ArrayList<>());
         testProduct.setProductTags(new ArrayList<>());
 
-        List<ProductCategoryRelation> testProductCategories = Arrays.asList(
-                ProductCategoryRelation.builder()
-                        .product(testProduct)
-                        .productCategory(
-                                ProductCategory.builder()
-                                        .categoryName("test category1")
-                                        .build()
-                        ).build(),
-                ProductCategoryRelation.builder()
-                        .product(testProduct)
-                        .productCategory(
-                                ProductCategory.builder()
-                                        .categoryName("test category2")
-                                        .build()
-                        ).build()
-        );
-
-        testProduct.setProductCategoryRelations(testProductCategories);
-
-        List<ProductTag> testProductTags = Arrays.asList(
-                ProductTag.builder()
-                        .product(testProduct)
-                        .tag(
-                                Tag.builder()
-                                        .tagName("test tag1")
-                                        .build()
-                        ).build(),
-                ProductTag.builder()
-                        .product(testProduct)
-                        .tag(
-                                Tag.builder()
-                                        .tagName("test tag2")
-                                        .build()
-                        ).build(),
-                ProductTag.builder()
-                        .product(testProduct)
-                        .tag(
-                                Tag.builder()
-                                        .tagName("test tag3")
-                                        .build()
-                        ).build()
-        );
-
-        testProduct.setProductTags(testProductTags);
-
         testBook.setProduct(testProduct);
 
         when(bookRepository.findById(1L)).thenReturn(Optional.of(testBook));
 
-//        when(productCategoryRelationService.getProductCategoryRelationsByProduct(testProduct)).thenReturn(testProductCategories);
-//
-//        when(productTagService.getTagsByProduct(testProduct)).thenReturn(testTags);
+        when(bookQuerydslRepository.getAllProductCategoryName(testProduct)).thenReturn(Arrays.asList("test category1", "test category2"));
+        when(bookQuerydslRepository.getAllTagName(testProduct)).thenReturn(Arrays.asList("test tag1", "test tag2", "test tag3"));
 
         BookProductGetResponseDto dto = bookService.getBookByBookId(1L);
 

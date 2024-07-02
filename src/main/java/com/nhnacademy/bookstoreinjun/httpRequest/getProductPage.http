@@ -1,9 +1,10 @@
 ### 모든 상품의 페이지를 가져옵니다.
 GET localhost:8004/api/product/admin/page/all
 X-User-Id: 1
+X-User-Role: ROLE_ADMIN
 
 ### 특정 이름이 포함된 상품 페이지를 반환합니다. productName은 필수입니다.
-GET localhost:8004/api/product/admin/page/containing?productName=
+GET localhost:8004/api/product/admin/page/containing?productName=1
 X-User-Id: 1
 X-User-Role: ROLE_ADMIN
 
