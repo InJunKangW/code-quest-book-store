@@ -96,16 +96,11 @@ public interface BookService {
     Page<BookProductGetResponseDto> getBookPageFilterByTags(PageRequestDto pageRequestDto, Set<String> tags, Boolean conditionIsAnd);
 
     /**
-     * 판매 중인 도서 상품 중 특정 카테고리를 갖는 도서의 페이지를 반환합니다.
-     * @param pageRequestDto 페이징 요청 (int page (페이지 넘버), int size (페이지 당 사이즈), String sort (정렬할 조건), boolean desc (오름차순/내림차순 여부))
-     * @param categories 필터링할 카테고리명의 set
-     * @param conditionIsAnd 결과로 나올 도서가 지정된 카테고리를 모두 가지고 있어야 하는 지 아니면 카테고리 중 하나라도 가지고 있으면 되는 지를 결정합니다.
-     *                       true 면 모두 가지고 있어야 하고, null 이거나 false 라면 하나만 가지고 있어도 됩니다.
+     * @param pageRequestDto 페이징 요청 (int page (페이지 넘버), int size (페이지 당 사이즈), String sort (정렬할 조건), boolean desc (오름차순/내림차순 여부))*
+     * @param categoryName 필터링할 카테고리명
      * @return 카테고리명으로 필터링된 도서 상품 페이지
-     * @throws PageOutOfRangeException 요청의 page 가, total page 를 초과할 때 발생합니다.
-     * @throws InvalidSortNameException 요청의 sort 가, book 을 정렬하기에 부적절한 경우 발생합니다.
      */
-    Page<BookProductGetResponseDto> getBookPageFilterByCategories(PageRequestDto pageRequestDto, Set<String> categories, Boolean conditionIsAnd);
+    Page<BookProductGetResponseDto> getBookPageFilterByCategory(PageRequestDto pageRequestDto, String categoryName);
 
 
 }

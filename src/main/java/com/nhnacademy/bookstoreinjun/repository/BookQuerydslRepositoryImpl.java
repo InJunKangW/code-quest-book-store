@@ -2,9 +2,12 @@ package com.nhnacademy.bookstoreinjun.repository;
 
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductGetResponseDto;
 import com.nhnacademy.bookstoreinjun.entity.Product;
+import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.entity.QBook;
 import com.nhnacademy.bookstoreinjun.entity.QProduct;
 import com.nhnacademy.bookstoreinjun.entity.QProductCategory;
+import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtil;
+import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtilImpl;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
@@ -14,6 +17,7 @@ import com.querydsl.jpa.JPQLQuery;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -42,8 +46,11 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
 
     private final  QBook b = new QBook("book");
 
-    public BookQuerydslRepositoryImpl() {
+    private final FindAllSubCategoriesUtil findAllSubCategoriesUtil;
+
+    public BookQuerydslRepositoryImpl(FindAllSubCategoriesUtilImpl findAllSubCategoriesUtil) {
         super(Product.class);
+        this.findAllSubCategoriesUtil = findAllSubCategoriesUtil;
     }
 
     private JPQLQuery<Tuple> baseQuery(){
@@ -91,8 +98,8 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
                 .productPriceStandard(tuple.get(p.productPriceStandard))
                 .productPriceSales(tuple.get(p.productPriceSales))
                 .productInventory(tuple.get(p.productInventory))
-                .categories(getAllProductCategoryName(tuple.get(b.product)))
-                .tags(getAllTagName(tuple.get(b.product)))
+                .categories(Set.copyOf(getAllProductCategoryName(tuple.get(b.product))))
+                .tags(Set.copyOf(getAllTagName(tuple.get(b.product))))
                 .build();
     }
 
@@ -196,12 +203,16 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
         return makePage(query, countQuery, pageable);
     }
 
-    public Page<BookProductGetResponseDto> findBooksByCategoryFilter(Set<String> categories, Boolean conditionIsAnd, Pageable pageable) {
+    public Page<BookProductGetResponseDto> findBooksByCategoryFilter(String categoryName, Pageable pageable) {
         OrderSpecifier<?> orderSpecifier = makeOrderSpecifier(pageable, "book");
+
+        Set<String> categoryNameSet = findAllSubCategoriesUtil.getAllSubcategorySet(categoryName).stream()
+                .map(ProductCategory::getCategoryName)
+                .collect(Collectors.toSet());
 
         BooleanBuilder whereBuilder = new BooleanBuilder();
         whereBuilder.and(product.productState.eq(0));
-        whereBuilder.and(productCategory.categoryName.in(categories));
+        whereBuilder.and(productCategory.categoryName.in(categoryNameSet));
 
         JPQLQuery<Tuple> query = baseQuery()
                 .innerJoin(p.productCategoryRelations, productCategoryRelation)
@@ -213,8 +224,6 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
                 .innerJoin(p.productCategoryRelations, productCategoryRelation)
                 .innerJoin(productCategoryRelation.productCategory, productCategory)
                 .where(whereBuilder);
-
-        makeFilter(query, countQuery, conditionIsAnd, categories.size());
 
         return makePage(query, countQuery, pageable);
     }

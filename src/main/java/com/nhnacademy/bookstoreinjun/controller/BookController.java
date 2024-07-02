@@ -102,9 +102,8 @@ public class BookController {
     @GetMapping("/books/categoryFilter")
     public ResponseEntity<Page<BookProductGetResponseDto>> getBookPageFilterByCategory(
             @Valid @ModelAttribute PageRequestDto pageRequestDto,
-            @RequestParam("categoryName") Set<String> categoryNameSet,
-            @RequestParam(value = "isAnd", required = false, defaultValue = "true") Boolean conditionIsAnd){
-        return new ResponseEntity<>(bookService.getBookPageFilterByCategories(pageRequestDto, categoryNameSet, conditionIsAnd), header, HttpStatus.OK);
+            @RequestParam("category") String categoryName){
+        return new ResponseEntity<>(bookService.getBookPageFilterByCategory(pageRequestDto, categoryName), header, HttpStatus.OK);
     }
 
 

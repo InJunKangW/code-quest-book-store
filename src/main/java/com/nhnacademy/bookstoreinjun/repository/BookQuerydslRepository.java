@@ -34,7 +34,7 @@ public interface BookQuerydslRepository {
      * @param pageable 요청한 페이지. offset 과 limit, 정렬조건, 오름차순/내림차순을 결정합니다.
      * @return 카테고리명으로 필터링된 도서 상품 페이지
      */
-    Page<BookProductGetResponseDto> findBooksByCategoryFilter(Set<String> categories, Boolean conditionIsAnd, Pageable pageable);
+    Page<BookProductGetResponseDto> findBooksByCategoryFilter(String categoryName, Pageable pageable);
 
 
     /**
