@@ -28,8 +28,9 @@ public record BookProductUpdateRequestDto (
 
         @NotNull(message = "{must.have.category}")
         @Size(min = 1, message = "{must.have.category}")
-        @Size(max =10, message = "{too.much.category}")
+        @Size(max = 10, message = "{too.much.category}")
         Set<String> categories,
+
         Set<String> tags
 )
 {

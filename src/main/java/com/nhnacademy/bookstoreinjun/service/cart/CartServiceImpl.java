@@ -6,6 +6,7 @@ import com.nhnacademy.bookstoreinjun.entity.Cart;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.XUserIdNotFoundException;
+import com.nhnacademy.bookstoreinjun.repository.BookQuerydslRepository;
 import com.nhnacademy.bookstoreinjun.repository.CartRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
 import java.util.ArrayList;
@@ -25,6 +26,8 @@ public class CartServiceImpl implements CartService {
 
     private final ProductRepository productRepository;
 
+    private final BookQuerydslRepository querydslRepository;
+
     private Product getProduct(Long clientIdOfHeader, CartRequestDto cartRequestDto) {
         if (clientIdOfHeader == -1){
             throw new XUserIdNotFoundException();
@@ -33,33 +36,54 @@ public class CartServiceImpl implements CartService {
         return productRepository.findById(productId).orElseThrow(() -> new NotFoundIdException("product", productId));
     }
 
+    @Override
+    public List<CartRequestDto> restoreClientCartList(Long clientIdOfHeader) {
+        if (clientIdOfHeader == -1){
+            throw new XUserIdNotFoundException();
+        }
+        log.info("Restore client cart list with id {}", clientIdOfHeader);
+        List<Cart> cartList = cartRepository.findAllByClientId(clientIdOfHeader);
+        log.info("list found. {}", cartList);
+        return cartList.stream().map(cart -> CartRequestDto.builder()
+                        .productId(cart.getProduct().getProductId())
+                        .quantity(cart.getQuantity())
+                        .build())
+                .toList();
+    }
 
     @Override
-    public SaveCartResponseDto addCartItem(Long clientIdOfHeader, CartRequestDto cartRequestDto) {
+    public SaveCartResponseDto addClientCartItem(Long clientIdOfHeader, CartRequestDto cartRequestDto) {
         Product product = getProduct(clientIdOfHeader, cartRequestDto);
         long productInventory = product.getProductInventory();
 
         Long productId = cartRequestDto.productId();
         Cart cart = cartRepository.findByClientIdAndProduct_ProductId(clientIdOfHeader, productId);
 
-        Long requestQuantity = cartRequestDto.quantity();
+        Long quantity = cartRequestDto.quantity();
         if (cart == null){
-            requestQuantity = Math.min(requestQuantity, productInventory);
+            quantity = Math.min(quantity, productInventory);
             cartRepository.save(Cart.builder()
                     .clientId(clientIdOfHeader)
                     .product(product)
-                    .quantity(requestQuantity)
+                    .quantity(quantity)
                     .build());
         }else {
-            requestQuantity = Math.min(cart.getQuantity() + requestQuantity, productInventory);
-            cart.setQuantity(requestQuantity);
+            quantity = Math.min(cart.getQuantity() + quantity, productInventory);
+            cart.setQuantity(quantity);
             cartRepository.save(cart);
         }
-        return new SaveCartResponseDto();
+        return new SaveCartResponseDto(quantity);
     }
 
     @Override
-    public SaveCartResponseDto setCartItemQuantity(Long clientIdOfHeader, CartRequestDto cartRequestDto) {
+    public SaveCartResponseDto checkCartRequestOfGuest(CartRequestDto cartRequestDto){
+        Product product = productRepository.findById(cartRequestDto.productId()).orElseThrow(() -> new NotFoundIdException("product", cartRequestDto.productId()));
+        return new SaveCartResponseDto(Math.min(cartRequestDto.quantity(), product.getProductInventory()));
+    }
+
+
+    @Override
+    public SaveCartResponseDto setClientCartItemQuantity(Long clientIdOfHeader, CartRequestDto cartRequestDto) {
         Product product = getProduct(clientIdOfHeader, cartRequestDto);
         long productInventory = product.getProductInventory();
 
@@ -69,10 +93,10 @@ public class CartServiceImpl implements CartService {
         if (cart == null){
             throw new NotFoundIdException("cart product", productId);
         } else{
-            Long requestQuantity = Math.min(cartRequestDto.quantity(), productInventory);
-            cart.setQuantity(requestQuantity);
+            Long quantity = Math.min(cartRequestDto.quantity(), productInventory);
+            cart.setQuantity(quantity);
             cartRepository.save(cart);
-            return new SaveCartResponseDto();
+            return new SaveCartResponseDto(quantity);
         }
     }
 
@@ -88,14 +112,15 @@ public class CartServiceImpl implements CartService {
         cartRepository.delete(cart);
     }
 
+
     @Override
-    public List<CartGetResponseDto> getCart(Long clientIdOfHeader) {
+    public List<CartGetResponseDto> getClientCart(Long clientIdOfHeader) {
         if (clientIdOfHeader == -1){
             throw new XUserIdNotFoundException();
         }
         List<Cart> cartList = cartRepository.findAllByClientId(clientIdOfHeader);
         return cartList.stream()
-                .map(this::getCartResponseDto)
+                .map(cart -> getCartResponseDto(cart.getProduct(), cart.getQuantity()))
                 .toList();
     }
 
@@ -104,33 +129,27 @@ public class CartServiceImpl implements CartService {
         List<CartGetResponseDto> responseDtoList = new ArrayList<>();
         for (CartRequestDto cartRequestDto : cartRequestDtoList) {
             Product product = productRepository.findById(cartRequestDto.productId()).orElseThrow(() -> new NotFoundIdException("product", cartRequestDto.productId()));
-            CartGetResponseDto cartGetResponseDto = CartGetResponseDto.builder()
-                   .productId(product.getProductId())
-                   .productName(product.getProductName())
-                   .productPriceStandard(product.getProductPriceStandard())
-                   .productPriceSales(product.getProductPriceSales())
-                   .productQuantityOfCart(cartRequestDto.quantity())
-                   .productInventory(product.getProductInventory())
-                   .productThumbnailImage(product.getProductThumbnailUrl())
-                   .build();
-            responseDtoList.add(cartGetResponseDto);
+            responseDtoList.add(getCartResponseDto(product, cartRequestDto.quantity()));
        }
     return responseDtoList;
     }
 
-    private CartGetResponseDto getCartResponseDto(Cart cart) {
-        Product product = cart.getProduct();
+
+    private CartGetResponseDto getCartResponseDto(Product product, Long productCartQuantity) {
         return CartGetResponseDto.builder()
                 .productId(product.getProductId())
                 .productName(product.getProductName())
                 .productPriceStandard(product.getProductPriceStandard())
                 .productPriceSales(product.getProductPriceSales())
-                .productQuantityOfCart(cart.getQuantity())
+                .productQuantityOfCart(productCartQuantity)
                 .productInventory(product.getProductInventory())
                 .productThumbnailImage(product.getProductThumbnailUrl())
+                .categoryMapOfIdAndName(querydslRepository.getCategoryMapOfIdAndName(product))
+                .tagMapOfIdAndName(querydslRepository.getTagMapOfIdAndName(product))
                 .build();
     }
 
+    @Override
     public void clearAllCart(Long clientIdOfHeader) {
         if (clientIdOfHeader == -1){
             throw new XUserIdNotFoundException();

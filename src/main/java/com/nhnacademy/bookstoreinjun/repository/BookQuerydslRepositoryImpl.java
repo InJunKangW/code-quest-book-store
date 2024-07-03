@@ -15,13 +15,14 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
@@ -98,8 +99,8 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
                 .productPriceStandard(tuple.get(p.productPriceStandard))
                 .productPriceSales(tuple.get(p.productPriceSales))
                 .productInventory(tuple.get(p.productInventory))
-                .categories(Set.copyOf(getAllProductCategoryName(tuple.get(b.product))))
-                .tags(Set.copyOf(getAllTagName(tuple.get(b.product))))
+                .categoryMapOfIdAndName(getCategoryMapOfIdAndName(tuple.get(b.product)))
+                .tagMapOfIdAndName(getTagMapOfIdAndName(tuple.get(b.product)))
                 .build();
     }
 
@@ -228,24 +229,38 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
         return makePage(query, countQuery, pageable);
     }
 
-    public List<String> getAllTagName(Product realProduct){
+    public Map<Long, String> getTagMapOfIdAndName(Product realProduct){
         return from(p)
-                .select(tag.tagName)
+                .select(tag.tagId, tag.tagName)
                 .distinct()
                 .innerJoin(p.productTags, productTag)
                 .innerJoin(productTag.tag, tag)
                 .where(p.eq(realProduct))
-                .fetch();
+                .fetch()
+                .stream()
+                .collect(Collectors.toMap(
+                        tuple -> tuple.get(tag.tagId),
+                        tuple -> tuple.get(tag.tagName),
+                        (existing, replacement) -> existing,
+                        LinkedHashMap::new
+                ));
     }
 
-    public List<String> getAllProductCategoryName(Product realProduct) {
+    public Map<Long, String> getCategoryMapOfIdAndName(Product realProduct) {
         QProductCategory pc = new QProductCategory("productCategory");
         return from(p)
-                .select(pc.categoryName)
+                .select(pc.productCategoryId, pc.categoryName)
                 .distinct()
                 .innerJoin(p.productCategoryRelations, productCategoryRelation)
                 .innerJoin(productCategoryRelation.productCategory, pc)
                 .where(p.eq(realProduct))
-                .fetch();
+                .fetch()
+                .stream()
+                .collect(Collectors.toMap(
+                        tuple -> tuple.get(pc.productCategoryId),
+                        tuple -> tuple.get(pc.categoryName),
+                        (existing, replacement) -> existing,
+                        LinkedHashMap::new
+                ));
     }
 }

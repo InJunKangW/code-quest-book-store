@@ -6,9 +6,11 @@ import com.nhnacademy.bookstoreinjun.dto.cart.SaveCartResponseDto;
 import java.util.List;
 
 public interface CartService {
-    SaveCartResponseDto addCartItem(Long clientIdOfHeader, CartRequestDto cartRequestDto);
-    SaveCartResponseDto setCartItemQuantity(Long clientIdOfHeader, CartRequestDto cartRequestDto);
-    List<CartGetResponseDto> getCart(Long clientIdOfHeader);
+    List<CartRequestDto> restoreClientCartList(Long clientIdOfHeader);
+    SaveCartResponseDto addClientCartItem(Long clientIdOfHeader, CartRequestDto cartRequestDto);
+    SaveCartResponseDto checkCartRequestOfGuest(CartRequestDto cartRequestDto);
+    SaveCartResponseDto setClientCartItemQuantity(Long clientIdOfHeader, CartRequestDto cartRequestDto);
+    List<CartGetResponseDto> getClientCart(Long clientIdOfHeader);
     List<CartGetResponseDto> getGuestCart(List<CartRequestDto> cartRequestDtoList);
     void deleteCartItem(Long clientIdOfHeader, Long productId);
     void clearAllCart(Long clientIdOfHeader);
