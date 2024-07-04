@@ -1,12 +1,7 @@
 package com.nhnacademy.bookstoreinjun.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.nhnacademy.bookstoreinjun.service.product.ProductDtoService;
+import com.nhnacademy.bookstoreinjun.service.product.ProductService;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -14,7 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 class ProductControllerTest {
 
     @MockBean
-    ProductDtoService productDtoService;
+    ProductService productService;
     @Test
     void name() throws InterruptedException {
 

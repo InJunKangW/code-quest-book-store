@@ -2,9 +2,11 @@ package com.nhnacademy.bookstoreinjun.repository;
 
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductGetResponseDto;
 import com.nhnacademy.bookstoreinjun.entity.Product;
+import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.entity.QBook;
 import com.nhnacademy.bookstoreinjun.entity.QProduct;
 import com.nhnacademy.bookstoreinjun.entity.QProductCategory;
+import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtil;
 import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtilImpl;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
@@ -13,8 +15,11 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -42,8 +47,11 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
 
     private final  QBook b = new QBook("book");
 
-    public BookQuerydslRepositoryImpl() {
+    private final FindAllSubCategoriesUtil findAllSubCategoriesUtil;
+
+    public BookQuerydslRepositoryImpl(FindAllSubCategoriesUtilImpl findAllSubCategoriesUtil) {
         super(Product.class);
+        this.findAllSubCategoriesUtil = findAllSubCategoriesUtil;
     }
 
     private JPQLQuery<Tuple> baseQuery(){
@@ -91,19 +99,21 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
                 .productPriceStandard(tuple.get(p.productPriceStandard))
                 .productPriceSales(tuple.get(p.productPriceSales))
                 .productInventory(tuple.get(p.productInventory))
-                .categories(getAllProductCategoryName(tuple.get(b.product)))
-                .tags(getAllTagName(tuple.get(b.product)))
+                .categoryMapOfIdAndName(getCategoryMapOfIdAndName(tuple.get(b.product)))
+                .tagMapOfIdAndName(getTagMapOfIdAndName(tuple.get(b.product)))
                 .build();
     }
 
-    private Page<BookProductGetResponseDto> makePage(JPQLQuery<Tuple> query, JPQLQuery<Long> countQuery , Pageable pageable, Boolean conditionIsAnd, int filterSize){
+    private void makeFilter(JPQLQuery<Tuple> query, JPQLQuery<Long> countQuery ,Boolean conditionIsAnd, int filterSize){
         if(conditionIsAnd){
             query.groupBy(b.bookId)
                     .having(count.eq((long)filterSize));
             countQuery.groupBy(b.bookId)
                     .having(count.eq((long)filterSize));
         }
+    }
 
+    private Page<BookProductGetResponseDto> makePage(JPQLQuery<Tuple> query, JPQLQuery<Long> countQuery , Pageable pageable){
         List<Tuple> tupleList = query
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -118,6 +128,57 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
         return new PageImpl<>(result, pageable, totalPages);
     }
 
+
+    @Transactional
+    @Override
+    public BookProductGetResponseDto findBookByBookId(Long bookId) {
+        JPQLQuery<Tuple> query = baseQuery()
+                .where(b.bookId.eq(bookId));
+
+        update(p)
+                .set(p.productViewCount, p.productViewCount.add(1))
+                .where(p.productId.eq(
+                        from(b)
+                                .select(b.product.productId)
+                                .where(b.bookId.eq(bookId))))
+                .execute();
+
+        return makeBookProductGetResponseDto(query.fetchOne());
+    }
+
+    @Override
+    public Page<BookProductGetResponseDto> findAllBookPage(Pageable pageable, int productState){
+        OrderSpecifier<?> orderSpecifier = makeOrderSpecifier(pageable, "book");
+        BooleanBuilder whereBuilder = new BooleanBuilder();
+        whereBuilder.and(product.productState.eq(productState));
+
+        JPQLQuery<Tuple> query = baseQuery()
+                .where(whereBuilder)
+                .orderBy(orderSpecifier);
+
+        JPQLQuery<Long> countQuery = countQuery()
+                .where(whereBuilder);
+
+        return makePage(query, countQuery, pageable);
+    }
+
+    @Override
+    public Page<BookProductGetResponseDto> findNameContainingBookPage(Pageable pageable, String title, int productState){
+        OrderSpecifier<?> orderSpecifier = makeOrderSpecifier(pageable, "book");
+        BooleanBuilder whereBuilder = new BooleanBuilder();
+        whereBuilder.and(product.productState.eq(productState));
+        whereBuilder.and(b.title.containsIgnoreCase(title));
+
+        JPQLQuery<Tuple> query = baseQuery()
+                .where(whereBuilder)
+                .orderBy(orderSpecifier);
+
+        JPQLQuery<Long> countQuery = countQuery()
+                .where(whereBuilder);
+
+        return makePage(query, countQuery, pageable);
+
+    }
 
     @Override
     public Page<BookProductGetResponseDto> findBooksByTagFilter(Set<String> tags, Boolean conditionIsAnd, Pageable pageable) {
@@ -138,15 +199,21 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
                 .innerJoin(productTag.tag, tag)
                 .where(whereBuilder);
 
-        return makePage(query, countQuery, pageable, conditionIsAnd, tags.size());
+        makeFilter(query, countQuery, conditionIsAnd, tags.size());
+
+        return makePage(query, countQuery, pageable);
     }
 
-    public Page<BookProductGetResponseDto> findBooksByCategoryFilter(Set<String> categories, Boolean conditionIsAnd, Pageable pageable) {
+    public Page<BookProductGetResponseDto> findBooksByCategoryFilter(String categoryName, Pageable pageable) {
         OrderSpecifier<?> orderSpecifier = makeOrderSpecifier(pageable, "book");
+
+        Set<String> categoryNameSet = findAllSubCategoriesUtil.getAllSubcategorySet(categoryName).stream()
+                .map(ProductCategory::getCategoryName)
+                .collect(Collectors.toSet());
 
         BooleanBuilder whereBuilder = new BooleanBuilder();
         whereBuilder.and(product.productState.eq(0));
-        whereBuilder.and(productCategory.categoryName.in(categories));
+        whereBuilder.and(productCategory.categoryName.in(categoryNameSet));
 
         JPQLQuery<Tuple> query = baseQuery()
                 .innerJoin(p.productCategoryRelations, productCategoryRelation)
@@ -159,27 +226,41 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
                 .innerJoin(productCategoryRelation.productCategory, productCategory)
                 .where(whereBuilder);
 
-        return makePage(query, countQuery, pageable, conditionIsAnd, categories.size());
+        return makePage(query, countQuery, pageable);
     }
 
-    public List<String> getAllTagName(Product realProduct){
+    public Map<Long, String> getTagMapOfIdAndName(Product realProduct){
         return from(p)
-                .select(tag.tagName)
+                .select(tag.tagId, tag.tagName)
                 .distinct()
                 .innerJoin(p.productTags, productTag)
                 .innerJoin(productTag.tag, tag)
                 .where(p.eq(realProduct))
-                .fetch();
+                .fetch()
+                .stream()
+                .collect(Collectors.toMap(
+                        tuple -> tuple.get(tag.tagId),
+                        tuple -> tuple.get(tag.tagName),
+                        (existing, replacement) -> existing,
+                        LinkedHashMap::new
+                ));
     }
 
-    public List<String> getAllProductCategoryName(Product realProduct) {
+    public Map<Long, String> getCategoryMapOfIdAndName(Product realProduct) {
         QProductCategory pc = new QProductCategory("productCategory");
         return from(p)
-                .select(pc.categoryName)
+                .select(pc.productCategoryId, pc.categoryName)
                 .distinct()
                 .innerJoin(p.productCategoryRelations, productCategoryRelation)
                 .innerJoin(productCategoryRelation.productCategory, pc)
                 .where(p.eq(realProduct))
-                .fetch();
+                .fetch()
+                .stream()
+                .collect(Collectors.toMap(
+                        tuple -> tuple.get(pc.productCategoryId),
+                        tuple -> tuple.get(pc.categoryName),
+                        (existing, replacement) -> existing,
+                        LinkedHashMap::new
+                ));
     }
 }

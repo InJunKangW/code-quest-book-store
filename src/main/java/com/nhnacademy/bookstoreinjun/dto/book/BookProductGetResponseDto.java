@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import org.hibernate.validator.constraints.Length;
@@ -36,7 +38,8 @@ public record BookProductGetResponseDto (
         @NotNull(message = "{must.have.category}")
         @Size(min = 1, message = "{must.have.category}")
         @Size(max =10, message = "{too.much.category}")
-        List<String> categories,
-        List<String> tags
+        Map<Long, String> categoryMapOfIdAndName,
+
+        Map<Long, String> tagMapOfIdAndName
 ){
 }

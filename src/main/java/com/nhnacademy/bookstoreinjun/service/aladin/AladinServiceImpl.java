@@ -7,7 +7,7 @@ import com.nhnacademy.bookstoreinjun.dto.book.aladin.AladinBookResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.exception.AladinJsonProcessingException;
 import com.nhnacademy.bookstoreinjun.feignclient.AladinClient;
-import com.nhnacademy.bookstoreinjun.util.MakePageableUtil;
+import com.nhnacademy.bookstoreinjun.util.PageableUtil;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +40,7 @@ public class AladinServiceImpl implements AladinService {
 
             log.info("size : {}", pageRequestDto.size());
 
-            Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, 4, "pubDate");
+            Pageable pageable = PageableUtil.makePageable(pageRequestDto, 4, "pubDate");
             log.info("page size : {}", pageable.getPageSize());
 
             log.info("getAladdinBookPage done");

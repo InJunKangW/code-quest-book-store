@@ -1,0 +1,32 @@
+POST localhost:8004/api/product/client/cart/add
+X-User-Id: 1
+Content-Type: application/json
+
+{
+  "clientId": 1,
+  "productId": 1,
+  "quantity": 10
+}
+
+###
+GET localhost:8004/api/product/client/1/cart
+X-User-Id: 1
+
+###
+PUT localhost:8004/api/product/client/cart/update
+X-User-Id: 1
+Content-Type: application/json
+
+{
+  "clientId": 1,
+  "productId": 1,
+  "quantity": 50
+}
+
+###
+DELETE localhost:8004/api/product/client/1/cart/items/1
+X-User-Id: 1
+
+###
+DELETE localhost:8004/api/product/client/1/cart/all
+X-User-Id: 1

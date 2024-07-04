@@ -1,14 +1,16 @@
 package com.nhnacademy.bookstoreinjun.util;
 
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
+import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
 import java.util.Objects;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-public class MakePageableUtil {
+public class PageableUtil {
 
-    public MakePageableUtil() {
+    public PageableUtil() {
         throw new IllegalStateException("Utility class");
     }
 
@@ -30,5 +32,13 @@ public class MakePageableUtil {
         }
 
         return PageRequest.of(page -1, size, Sort.by(desc ? Sort.Direction.DESC : Sort.Direction.ASC, sort));
+    }
+
+    public static void pageNumCheck(Page<?> page, Pageable pageable) {
+        int totalPages = page.getTotalPages();
+        int requestPage = pageable.getPageNumber() + 1;
+        if (totalPages != 0 && totalPages < requestPage){
+            throw new PageOutOfRangeException(totalPages, requestPage);
+        }
     }
 }

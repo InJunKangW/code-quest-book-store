@@ -1,7 +1,6 @@
 package com.nhnacademy.bookstoreinjun.config;
 
-import com.nhnacademy.bookstoreinjun.filter.IdHeaderFilter;
-import com.nhnacademy.bookstoreinjun.filter.RoleHeaderFilter;
+import com.nhnacademy.bookstoreinjun.filter.HeaderFilter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,16 +27,17 @@ public class SecurityConfig {
 
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .addFilterBefore(new IdHeaderFilter("/api/product/client/**",POST), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new RoleHeaderFilter("/api/product/admin/**",GET, ADMIN), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new RoleHeaderFilter("/api/product/admin/**",POST, ADMIN), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new RoleHeaderFilter("/api/product/admin/**",PUT, ADMIN), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new HeaderFilter("/api/product/client/**",POST), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new HeaderFilter("/api/product/client/**",PUT), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new HeaderFilter("/api/product/client/**",DELETE), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new HeaderFilter("/api/product/admin/**",GET, ADMIN), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new HeaderFilter("/api/product/admin/**",POST, ADMIN), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new HeaderFilter("/api/product/admin/**",PUT, ADMIN), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(req ->
                                 req.anyRequest().permitAll()
                 )
 
                 .headers(h -> h.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
-//                .addFilterBefore(new EmailHeaderFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

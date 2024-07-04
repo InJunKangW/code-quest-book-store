@@ -10,6 +10,7 @@ import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.exception.NullProductException;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
 import com.nhnacademy.bookstoreinjun.exception.XUserIdNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import java.sql.SQLIntegrityConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -28,7 +29,7 @@ public class MyExceptionHandler {
         setContentType(MediaType.APPLICATION_JSON);
     }};
 
-    private ResponseEntity<ErrorResponseDto> getErrorResponse(Exception ex,HttpStatus status) {
+    private ResponseEntity<ErrorResponseDto> getErrorResponse(Exception ex, HttpStatus status) {
         return new ResponseEntity<>(new ErrorResponseDto(ex.getMessage()), header, status);
     }
 

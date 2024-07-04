@@ -13,35 +13,26 @@ import com.nhnacademy.bookstoreinjun.entity.ProductCategoryRelation;
 import com.nhnacademy.bookstoreinjun.entity.ProductTag;
 import com.nhnacademy.bookstoreinjun.entity.Tag;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
-import com.nhnacademy.bookstoreinjun.exception.InvalidSortNameException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
-import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
 import com.nhnacademy.bookstoreinjun.repository.BookQuerydslRepository;
 import com.nhnacademy.bookstoreinjun.repository.BookRepository;
-import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRelationRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
-import com.nhnacademy.bookstoreinjun.repository.ProductTagRepository;
 import com.nhnacademy.bookstoreinjun.repository.TagRepository;
-import com.nhnacademy.bookstoreinjun.service.product.ProductDtoService;
 import com.nhnacademy.bookstoreinjun.service.productCategoryRelation.ProductCategoryRelationService;
 import com.nhnacademy.bookstoreinjun.service.productTag.ProductTagService;
-import com.nhnacademy.bookstoreinjun.util.MakePageableUtil;
+import com.nhnacademy.bookstoreinjun.util.PageableUtil;
 import com.nhnacademy.bookstoreinjun.util.ProductCheckUtil;
 import com.nhnacademy.bookstoreinjun.util.SortCheckUtil;
-import jakarta.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.query.sqm.PathElementException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,18 +60,16 @@ public class BookServiceImpl implements BookService {
     private final ProductCheckUtil productCheckUtil;
 
     private final String TYPE = "book";
-    private final ProductTagRepository productTagRepository;
-    private final ProductCategoryRelationRepository productCategoryRelationRepository;
 
     private final int DEFAULT_PAGE_SIZE = 5;
     private final String DEFAULT_SORT = "product.productRegisterDate";
 
 
-    private void saveProductCategoryRelation(List<String> categories, Product product){
+    private void saveProductCategoryRelation(Set<String> categories, Product product){
         for (String categoryName : categories) {
             ProductCategory productCategory = productCategoryRepository.findByCategoryName(categoryName);
             if (productCategory == null){
-                throw new NotFoundNameException(TYPE, categoryName);
+                throw new NotFoundNameException("category", categoryName);
             }
 
             ProductCategoryRelation productCategoryRelation = ProductCategoryRelation.builder()
@@ -92,7 +81,7 @@ public class BookServiceImpl implements BookService {
         }
     }
 
-    private void saveProductTag(List<String> tags, Product product){
+    private void saveProductTag(Set<String> tags, Product product){
         if (tags != null){
             for (String tagName : tags) {
                 Tag tag = tagRepository.findByTagName(tagName);
@@ -109,72 +98,40 @@ public class BookServiceImpl implements BookService {
         }
     }
 
-    private BookProductGetResponseDto makeBookProductGetResponseDtoFromBook(Book book){
-        return BookProductGetResponseDto.builder()
-                .bookId(book.getBookId())
-                .title(book.getTitle())
-                .publisher(book.getPublisher())
-                .author(book.getAuthor())
-                .pubDate(book.getPubDate())
-                .isbn(book.getIsbn())
-                .isbn13(book.getIsbn13())
-                .productId(book.getProduct().getProductId())
-                .cover(book.getProduct().getProductThumbnailUrl())
-                .productName(book.getProduct().getProductName())
-                .packable(book.getProduct().isProductPackable())
-                .productDescription(book.getProduct().getProductDescription())
-                .productRegisterDate(book.getProduct().getProductRegisterDate())
-                .productState(book.getProduct().getProductState())
-                .productViewCount(book.getProduct().getProductViewCount())
-                .productPriceStandard(book.getProduct().getProductPriceStandard())
-                .productPriceSales(book.getProduct().getProductPriceSales())
-                .productInventory(book.getProduct().getProductInventory())
-                .categories(querydslRepository.getAllProductCategoryName(book.getProduct()))
-                .tags(querydslRepository.getAllTagName(book.getProduct()))
-                .build();
-    }
-
-
-    private Page<BookProductGetResponseDto> makeValidBookPage(Page<Book> bookPage, int requestPage){
-        int total = bookPage.getTotalPages();
-
-        if (total != 0 && total < requestPage){
-            throw new PageOutOfRangeException(total, requestPage);
-        }
-
-        return bookPage.map(this::makeBookProductGetResponseDtoFromBook);
-    }
 
     public BookProductGetResponseDto getBookByBookId(Long bookId) {
-        Book book = bookRepository.findById(bookId).orElse(null);
-        if (book == null){
+        if (!bookRepository.existsById(bookId)) {
             throw new NotFoundIdException(TYPE, bookId);
-        }else{
-            Product product = book.getProduct();
-            productCheckUtil.checkProduct(product);
-            productRepository.addProductViewCount(product.getProductId());
-            return makeBookProductGetResponseDtoFromBook(book);
+        }
+        try {
+            return querydslRepository.findBookByBookId(bookId);
+        }catch (NullPointerException e){
+            throw new NotFoundIdException(TYPE, bookId);
         }
     }
 
     public Page<BookProductGetResponseDto> getBookPage(PageRequestDto pageRequestDto) {
-        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+        Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
 
-        int requestPage = pageable.getPageNumber() + 1;
         try{
-            Page<Book> bookPage = bookRepository.findBooksByProductState(pageable);
-            return makeValidBookPage(bookPage, requestPage);
+            Page<BookProductGetResponseDto> result = querydslRepository.findAllBookPage(pageable, 0);
+
+            PageableUtil.pageNumCheck(result, pageable);
+
+            return result;
         }catch (InvalidDataAccessApiUsageException e) {
             throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
         }
     }
 
     public Page<BookProductGetResponseDto> getNameContainingBookPage(PageRequestDto pageRequestDto, String title) {
-        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
-        int requestPage = pageable.getPageNumber() + 1;
+        Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
         try{
-            Page<Book> bookPage = bookRepository.findBooksByProductStateAndNameContaining(pageable, title);
-            return makeValidBookPage(bookPage, requestPage);
+            Page<BookProductGetResponseDto> result = querydslRepository.findNameContainingBookPage(pageable,title,0);
+
+            PageableUtil.pageNumCheck(result, pageable);
+
+            return result;
         }catch (InvalidDataAccessApiUsageException e) {
             throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
         }
@@ -182,32 +139,27 @@ public class BookServiceImpl implements BookService {
 
 
     public Page<BookProductGetResponseDto> getBookPageFilterByTags(PageRequestDto pageRequestDto, Set<String> tags, Boolean conditionIsAnd) {
-        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
-        int requestPage = pageable.getPageNumber() + 1;
+        Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
 
         try{
-            Page<BookProductGetResponseDto> bookPageFilterByTags = querydslRepository.findBooksByTagFilter(tags, conditionIsAnd, pageable);
-            int total = bookPageFilterByTags.getTotalPages();
-            if (total != 0 && total < requestPage){
-                throw new PageOutOfRangeException(total, requestPage);
-            }
-            return bookPageFilterByTags;
+            Page<BookProductGetResponseDto> result = querydslRepository.findBooksByTagFilter(tags, conditionIsAnd, pageable);
+
+            PageableUtil.pageNumCheck(result, pageable);
+
+            return result;
         }catch (InvalidDataAccessApiUsageException e){
             throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
         }
     }
 
-    public Page<BookProductGetResponseDto> getBookPageFilterByCategories(PageRequestDto pageRequestDto, Set<String> categories, Boolean conditionIsAnd) {
-        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
-        int requestPage = pageable.getPageNumber() + 1;
+    public Page<BookProductGetResponseDto> getBookPageFilterByCategory(PageRequestDto pageRequestDto, String categoryName) {
+        Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
 
         try {
-            Page<BookProductGetResponseDto> result = querydslRepository.findBooksByCategoryFilter(categories, conditionIsAnd, pageable);
-            int total = result.getTotalPages();
+            Page<BookProductGetResponseDto> result = querydslRepository.findBooksByCategoryFilter(categoryName, pageable);
 
-            if (total != 0 && total < requestPage){
-                throw new PageOutOfRangeException(total, requestPage);
-            }
+            PageableUtil.pageNumCheck(result, pageable);
+
             return result;
         }catch (InvalidDataAccessApiUsageException e){
             throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
@@ -215,7 +167,7 @@ public class BookServiceImpl implements BookService {
     }
 
     public ProductRegisterResponseDto saveBook(BookProductRegisterRequestDto bookProductRegisterRequestDto) {
-        log.error("product name : {}", bookProductRegisterRequestDto.productName());
+        log.error("product name : {}", bookProductRegisterRequestDto);
         if (bookRepository.existsByIsbn(bookProductRegisterRequestDto.isbn())){
             throw new DuplicateException(TYPE);
         }else{
@@ -232,8 +184,8 @@ public class BookServiceImpl implements BookService {
 
             productCheckUtil.checkProduct(product);
 
-            List<String> categories = bookProductRegisterRequestDto.categories();
-            List<String> tags = bookProductRegisterRequestDto.tags();
+            Set<String> categories = bookProductRegisterRequestDto.categories();
+            Set<String> tags = bookProductRegisterRequestDto.tags();
 
             saveProductCategoryRelation(categories, product);
             saveProductTag(tags, product);
@@ -255,6 +207,7 @@ public class BookServiceImpl implements BookService {
 
 
     public ProductUpdateResponseDto updateBook(BookProductUpdateRequestDto bookProductUpdateRequestDto) {
+        log.info("updated called, {}", bookProductUpdateRequestDto);
         Long bookId = bookProductUpdateRequestDto.bookId();
         Optional<Book> bookOptional = bookRepository.findById(bookId);
         if (bookOptional.isEmpty()){
@@ -271,8 +224,8 @@ public class BookServiceImpl implements BookService {
             product.setProductPackable(bookProductUpdateRequestDto.packable());
 
             Product updateProduct = productRepository.save(product);
-            List<String> categories = bookProductUpdateRequestDto.categories();
-            List<String> tags = bookProductUpdateRequestDto.tags();
+            Set<String> categories = bookProductUpdateRequestDto.categories();
+            Set<String> tags = bookProductUpdateRequestDto.tags();
 
             productCategoryRelationService.clearProductCategoryRelationsByProduct(updateProduct);
             productTagService.clearTagsByProduct(updateProduct);

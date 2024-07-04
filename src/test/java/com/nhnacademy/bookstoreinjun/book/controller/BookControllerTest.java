@@ -23,6 +23,7 @@ import com.nhnacademy.bookstoreinjun.service.tag.TagService;
 import jakarta.persistence.EntityManagerFactory;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -100,9 +101,10 @@ public class BookControllerTest {
                 .productPriceSales(1)
                 .packable(false)
                 .categories(
-                        Arrays.asList("category1")
+                        Set.copyOf(Arrays.asList("category1"))
                 )
-                .tags(Arrays.asList("test tag1","test tag2"))
+                .tags(
+                        Set.copyOf(Arrays.asList("test tag1","test tag2")))
                 .build();
 
         String json = objectMapper.writeValueAsString(bookProductRegisterRequestDto);
@@ -136,8 +138,8 @@ public class BookControllerTest {
                 .productPriceStandard(1)
                 .productPriceSales(1)
                 .packable(false)
-                .categories(Arrays.asList("test category1","test category2"))
-                .tags(Arrays.asList("test tag1","test tag2"))
+                .categories(Set.copyOf(Arrays.asList("test category1","test category2")))
+                .tags(Set.copyOf(Arrays.asList("test tag1","test tag2")))
                 .build();
 
         String json = objectMapper.writeValueAsString(bookProductRegisterRequestDto);

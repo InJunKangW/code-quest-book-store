@@ -10,9 +10,10 @@ import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
 import com.nhnacademy.bookstoreinjun.exception.XUserIdNotFoundException;
+import com.nhnacademy.bookstoreinjun.repository.CartRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductLikeRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
-import com.nhnacademy.bookstoreinjun.util.MakePageableUtil;
+import com.nhnacademy.bookstoreinjun.util.PageableUtil;
 import com.nhnacademy.bookstoreinjun.util.SortCheckUtil;
 import jakarta.validation.Valid;
 import java.util.Objects;
@@ -27,11 +28,13 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ProductDtoServiceImpl implements ProductDtoService {
+public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
 
     private final ProductLikeRepository productLikeRepository;
+
+    private final CartRepository cartRepository;
 
     private final int DEFAULT_PAGE_SIZE = 10;
 
@@ -60,7 +63,7 @@ public class ProductDtoServiceImpl implements ProductDtoService {
     }
 
     public Page<ProductGetResponseDto> findAllPage(@Valid PageRequestDto pageRequestDto) {
-        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+        Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
 
         try {
             Page<Product> productPage = productRepository.findAll(pageable);
@@ -71,7 +74,7 @@ public class ProductDtoServiceImpl implements ProductDtoService {
     }
 
     public Page<ProductGetResponseDto> findNameContainingPage(@Valid PageRequestDto pageRequestDto, String productName) {
-        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+        Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
 
         try {
             Page<Product> productPage = productRepository.findByProductNameContaining(pageable, productName);

@@ -12,8 +12,7 @@ import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
 import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtil;
-import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtilImpl;
-import com.nhnacademy.bookstoreinjun.util.MakePageableUtil;
+import com.nhnacademy.bookstoreinjun.util.PageableUtil;
 import com.nhnacademy.bookstoreinjun.util.SortCheckUtil;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
@@ -110,7 +109,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     public Page<CategoryGetResponseDto> getAllCategoryPage(PageRequestDto pageRequestDto) {
-        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+        Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
         SortCheckUtil.pageSortCheck(ProductCategory.class, pageable);
 
         Page<ProductCategory> productCategoryPage = productCategoryRepository.findAll(pageable);
@@ -119,7 +118,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
 
     public Page<CategoryGetResponseDto> getNameContainingCategoryPage(PageRequestDto pageRequestDto, String categoryName) {
-        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+        Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
         SortCheckUtil.pageSortCheck(ProductCategory.class, pageable);
 
         Page<ProductCategory> productCategoryPage = productCategoryRepository.findAllByCategoryNameContaining(pageable, categoryName);
@@ -127,7 +126,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     public Page<CategoryGetResponseDto> getSubCategoryPage(@Valid PageRequestDto pageRequestDto, String categoryName) {
-        Pageable pageable = MakePageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+        Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
         SortCheckUtil.pageSortCheck(ProductCategory.class, pageable);
 
         Set<ProductCategory> categorySet = findAllSubCategoriesUtil.getAllSubcategorySet(categoryName);
