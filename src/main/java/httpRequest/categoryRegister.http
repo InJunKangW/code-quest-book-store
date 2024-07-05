@@ -9,10 +9,13 @@ Content-Type: application/json
 GET localhost:8004/api/product/categories/sub?categoryName=카테고리5&sort=wrongsad
 
 ###
-GET localhost:8004/api/product/categories/all?sort=parentProductCateasdgory&desc=false
+GET localhost:8004/api/product/categories/all?sort=productCategoryId&desc=false
 
 ###
 GET localhost:8004/api/product/categories/containing?categoryName=2&sort=parentProductCategory
+
+###
+GET localhost:8004/api/product/categories/tree
 
 
 

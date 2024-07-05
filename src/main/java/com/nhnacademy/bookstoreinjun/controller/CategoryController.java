@@ -1,10 +1,6 @@
 package com.nhnacademy.bookstoreinjun.controller;
 
-import com.nhnacademy.bookstoreinjun.dto.category.CategoryGetResponseDto;
-import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterRequestDto;
-import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterResponseDto;
-import com.nhnacademy.bookstoreinjun.dto.category.CategoryUpdateRequestDto;
-import com.nhnacademy.bookstoreinjun.dto.category.CategoryUpdateResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.category.*;
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.service.productCategory.ProductCategoryService;
 import jakarta.validation.Valid;
@@ -70,4 +66,8 @@ public class CategoryController {
         return new ResponseEntity<>(productCategoryService.getSubCategoryPage(pageRequestDto, categoryName), header, HttpStatus.OK);
     }
 
+    @GetMapping("/categories/tree")
+    public ResponseEntity<CategoryNodeResponseDto> getCategoriesTree() {
+        return ResponseEntity.ok(productCategoryService.getCategoryTree());
+    }
 }

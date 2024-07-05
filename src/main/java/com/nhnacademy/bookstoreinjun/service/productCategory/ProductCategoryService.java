@@ -1,10 +1,6 @@
 package com.nhnacademy.bookstoreinjun.service.productCategory;
 
-import com.nhnacademy.bookstoreinjun.dto.category.CategoryGetResponseDto;
-import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterRequestDto;
-import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterResponseDto;
-import com.nhnacademy.bookstoreinjun.dto.category.CategoryUpdateRequestDto;
-import com.nhnacademy.bookstoreinjun.dto.category.CategoryUpdateResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.category.*;
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import org.springframework.data.domain.Page;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
@@ -64,4 +60,10 @@ public interface ProductCategoryService {
      * @throws InvalidSortNameException 요청의 sort 가, book 을 정렬하기에 부적절한 경우 발생합니다.
      */
     Page<CategoryGetResponseDto> getSubCategoryPage(PageRequestDto pageRequestDto, String categoryName);
+
+    /**
+     *
+     * @return
+     */
+    CategoryNodeResponseDto getCategoryTree();
 }

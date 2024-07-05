@@ -10,10 +10,10 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "develop"]
+    branches: [ "main", "develop"]
       
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
 
 jobs:
   build:
@@ -29,7 +29,7 @@ jobs:
         distribution: 'corretto'
         cache: maven
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: mvn -B package -P prod --file pom.xml
 
 
     - name: Run SonarQube
@@ -54,4 +54,4 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
         script_stop: true
-        script: "./startup.sh"
+        script: "./product_startup.sh"
