@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.nhnacademy</groupId>
-    <artifactId>bookstore-injun</artifactId>
+    <artifactId>service-product</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>bookstore-injun</name>
     <description>bookstore-injun</description>

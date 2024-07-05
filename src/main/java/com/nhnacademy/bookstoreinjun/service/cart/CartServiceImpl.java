@@ -144,8 +144,8 @@ public class CartServiceImpl implements CartService {
                 .productQuantityOfCart(productCartQuantity)
                 .productInventory(product.getProductInventory())
                 .productThumbnailImage(product.getProductThumbnailUrl())
-                .categoryMapOfIdAndName(querydslRepository.getCategoryMapOfIdAndName(product))
-                .tagMapOfIdAndName(querydslRepository.getTagMapOfIdAndName(product))
+                .categorySet(querydslRepository.getCategorySet(product))
+                .tagSet(querydslRepository.getTagSet(product))
                 .build();
     }
 

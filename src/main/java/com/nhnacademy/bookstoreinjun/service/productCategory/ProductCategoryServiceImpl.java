@@ -122,16 +122,22 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         return makeCategoryGetResponseDtoPage(pageable, productCategoryPage);
     }
 
-    public Page<CategoryGetResponseDto> getSubCategoryPage(@Valid PageRequestDto pageRequestDto, String categoryName) {
+    public Page<CategoryGetResponseDto> getSubCategoryPage(@Valid PageRequestDto pageRequestDto, Long categoryId) {
         Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
         SortCheckUtil.pageSortCheck(ProductCategory.class, pageable);
 
-        Set<ProductCategory> categorySet = findAllSubCategoriesUtil.getAllSubcategorySet(categoryName);
+        Set<ProductCategory> categorySet = findAllSubCategoriesUtil.getAllSubcategorySet(categoryId);
         List<ProductCategory> categoryList = categorySet.stream().toList();
 
         Page<ProductCategory> productCategoryPage = new PageImpl<>(categoryList, pageable, categoryList.size());
         return makeCategoryGetResponseDtoPage(pageable, productCategoryPage);
     }
+
+    public List<CategoryGetResponseDto> getAllSubCategoryList(Long parentId) {
+        Set<ProductCategory> categorySet = findAllSubCategoriesUtil.getAllSubcategorySet(parentId);
+        return categorySet.stream().map(this::makeCategoryGetResponseDtoFromProductCategory).toList();
+    }
+
 
     public CategoryNodeResponseDto getCategoryTree() {
         CategoryNodeResponseDto root = new CategoryNodeResponseDto(-1L, 0, "root", new ArrayList<>());

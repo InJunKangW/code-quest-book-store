@@ -84,4 +84,7 @@ public class Product {
 
     @OneToMany(mappedBy = "product")
     private List<ProductCategoryRelation> productCategoryRelations;
+
+    @OneToMany(mappedBy = "product")
+    private List<ProductLike> productLikes;
 }

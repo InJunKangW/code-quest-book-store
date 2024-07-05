@@ -16,6 +16,7 @@ import jakarta.validation.constraints.Min;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,6 +45,7 @@ public class BookController {
 
     private final BookService bookService;
 
+    private static final String ID_HEADER = "X-User-Id";
 
     private final HttpHeaders header = new HttpHeaders() {{
         setContentType(MediaType.APPLICATION_JSON);
@@ -78,40 +81,52 @@ public class BookController {
 
     @GetMapping("/books")
     public ResponseEntity<Page<BookProductGetResponseDto>> getAllBookPage(
+            @RequestHeader HttpHeaders httpHeaders,
            @Valid @ModelAttribute PageRequestDto pageRequestDto){
-        return new ResponseEntity<>(bookService.getBookPage(pageRequestDto), header, HttpStatus.OK);
+        return new ResponseEntity<>(bookService.getBookPage(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), pageRequestDto), header, HttpStatus.OK);
     }
-
 
 
     @GetMapping("/books/containing")
-    public ResponseEntity<Page<BookProductGetResponseDto>> getAladinBookPage(
+    public ResponseEntity<Page<BookProductGetResponseDto>> getNameContainingBookPage(
+            @RequestHeader HttpHeaders httpHeaders,
             @Valid @ModelAttribute PageRequestDto pageRequestDto,
             @RequestParam("title") String title){
-        return new ResponseEntity<>(bookService.getNameContainingBookPage(pageRequestDto, title), header, HttpStatus.OK);
+        return new ResponseEntity<>(bookService.getNameContainingBookPage(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), pageRequestDto, title), header, HttpStatus.OK);
     }
 
 
-    @GetMapping("/book/{bookId}")
+    @GetMapping("/book/{productId}")
     public ResponseEntity<BookProductGetResponseDto> getSingleBookInfo(
-            @Min(1) @PathVariable long bookId){
-        return new ResponseEntity<>(bookService.getBookByBookId(bookId), header, HttpStatus.OK);
+            @RequestHeader HttpHeaders httpHeaders,
+            @Min(1) @PathVariable long productId){
+        return new ResponseEntity<>(bookService.getBookByBookId(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), productId), header, HttpStatus.OK);
     }
 
 
-    @GetMapping("/books/categoryFilter")
+    @GetMapping("/books/category/{categoryId}")
     public ResponseEntity<Page<BookProductGetResponseDto>> getBookPageFilterByCategory(
+            @RequestHeader HttpHeaders httpHeaders,
             @Valid @ModelAttribute PageRequestDto pageRequestDto,
-            @RequestParam("category") String categoryName){
-        return new ResponseEntity<>(bookService.getBookPageFilterByCategory(pageRequestDto, categoryName), header, HttpStatus.OK);
+            @PathVariable("categoryId") Long categoryId){
+        return new ResponseEntity<>(bookService.getBookPageFilterByCategory(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), pageRequestDto, categoryId), header, HttpStatus.OK);
     }
 
 
     @GetMapping("/books/tagFilter")
     public ResponseEntity<Page<BookProductGetResponseDto>> getBookPageFilterByTag(
+            @RequestHeader HttpHeaders httpHeaders,
             @Valid @ModelAttribute PageRequestDto pageRequestDto,
             @RequestParam("tagName") Set<String> tagNameSet,
-            @RequestParam(value = "isAnd", required = false, defaultValue = "true") Boolean conditionIsAnd
-    ){return new ResponseEntity<>(bookService.getBookPageFilterByTags(pageRequestDto, tagNameSet, conditionIsAnd), header, HttpStatus.OK);
+            @RequestParam(value = "isAnd", required = false, defaultValue = "true") Boolean conditionIsAnd){
+        return new ResponseEntity<>(bookService.getBookPageFilterByTags(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), pageRequestDto, tagNameSet, conditionIsAnd), header, HttpStatus.OK);
     }
+
+    @GetMapping("/client/books/like")
+    public ResponseEntity<Page<BookProductGetResponseDto>> getLikeBookPage(
+            @RequestHeader HttpHeaders httpHeaders,
+            @Valid @ModelAttribute PageRequestDto pageRequestDto){
+        return new ResponseEntity<>(bookService.getLikeBookPage(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), pageRequestDto), header, HttpStatus.OK);
+    }
+
 }

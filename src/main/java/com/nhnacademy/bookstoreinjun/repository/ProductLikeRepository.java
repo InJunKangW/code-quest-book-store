@@ -12,4 +12,8 @@ public interface ProductLikeRepository extends JpaRepository<ProductLike, Long> 
      * @return 이미 좋아요를 눌렀는 지의 여부
      */
     boolean existsByClientIdAndProduct(Long userId, Product product);
+
+//    void deleteByClientIdAndProduct(Long userId, Product product);
+
+    ProductLike findByClientIdAndProduct(Long userId, Product product);
 }

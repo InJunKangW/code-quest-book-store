@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -57,6 +58,15 @@ public class ProductController {
             @RequestHeader HttpHeaders httpHeaders,
             @RequestBody @Valid ProductLikeRequestDto productLikeRequestDto
     ){
-        return new ResponseEntity<>(productService.saveProductLike(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), productLikeRequestDto), header, HttpStatus.OK);
+        return new ResponseEntity<>(productService.saveProductLike(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), productLikeRequestDto), header, HttpStatus.CREATED);
     }
+
+    @DeleteMapping("/client/unlike")
+    public ResponseEntity<ProductLikeResponseDto> deleteBookProductLike(
+            @RequestHeader HttpHeaders httpHeaders,
+            @RequestParam("productId") Long productId
+    ){
+        return new ResponseEntity<>(productService.deleteProductLike(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), productId), header, HttpStatus.OK);
+    }
+
 }

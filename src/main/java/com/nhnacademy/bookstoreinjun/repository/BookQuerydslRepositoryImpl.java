@@ -6,6 +6,7 @@ import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.entity.QBook;
 import com.nhnacademy.bookstoreinjun.entity.QProduct;
 import com.nhnacademy.bookstoreinjun.entity.QProductCategory;
+import com.nhnacademy.bookstoreinjun.entity.Tag;
 import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtil;
 import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtilImpl;
 import com.querydsl.core.BooleanBuilder;
@@ -34,8 +35,8 @@ import static com.nhnacademy.bookstoreinjun.entity.QProductTag.productTag;
 import static com.nhnacademy.bookstoreinjun.entity.QTag.tag;
 import static com.nhnacademy.bookstoreinjun.entity.QProductCategoryRelation.productCategoryRelation;
 import static com.nhnacademy.bookstoreinjun.entity.QProductCategory.productCategory;
+import static com.nhnacademy.bookstoreinjun.entity.QProductLike.productLike;
 import static com.querydsl.core.types.dsl.Wildcard.count;
-import static com.querydsl.jpa.JPAExpressions.select;
 
 
 @Slf4j
@@ -79,7 +80,7 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
         return new OrderSpecifier<>(orderDirect, Expressions.stringTemplate(entity + "." + property));
     }
 
-    private BookProductGetResponseDto makeBookProductGetResponseDto(Tuple tuple) {
+    private BookProductGetResponseDto makeBookProductGetResponseDto(Tuple tuple, boolean hasProductLike) {
         return BookProductGetResponseDto.builder()
                 .bookId(tuple.get(b.bookId))
                 .title(tuple.get(b.title))
@@ -99,8 +100,9 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
                 .productPriceStandard(tuple.get(p.productPriceStandard))
                 .productPriceSales(tuple.get(p.productPriceSales))
                 .productInventory(tuple.get(p.productInventory))
-                .categoryMapOfIdAndName(getCategoryMapOfIdAndName(tuple.get(b.product)))
-                .tagMapOfIdAndName(getTagMapOfIdAndName(tuple.get(b.product)))
+                .categorySet(getCategorySet(tuple.get(b.product)))
+                .tagSet(getTagSet(tuple.get(b.product)))
+                .hasLike(hasProductLike)
                 .build();
     }
 
@@ -113,7 +115,19 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
         }
     }
 
-    private Page<BookProductGetResponseDto> makePage(JPQLQuery<Tuple> query, JPQLQuery<Long> countQuery , Pageable pageable){
+    private boolean hasProductLike(Long clientId, Long productId) {
+        log.info("checking productLike client : {}. book : {}", clientId, productId);
+        if (clientId != null && clientId != 1){
+            Long count = countQuery()
+                    .innerJoin(p.productLikes, productLike)
+                    .where(p.productId.eq(productId).and(productLike.clientId.eq(clientId)))
+                    .fetchOne();
+            return count > 0;
+        }
+        return false;
+    }
+
+    private Page<BookProductGetResponseDto> makePage(JPQLQuery<Tuple> query, JPQLQuery<Long> countQuery , Pageable pageable, Long clientId){
         List<Tuple> tupleList = query
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -121,7 +135,7 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
 
         List<BookProductGetResponseDto> result = new ArrayList<>();
         for (Tuple tuple : tupleList) {
-            result.add(makeBookProductGetResponseDto(tuple));
+            result.add(makeBookProductGetResponseDto(tuple, hasProductLike(clientId, tuple.get(p.productId))));
         }
 
         long totalPages = countQuery.fetchOne();
@@ -131,26 +145,29 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
 
     @Transactional
     @Override
-    public BookProductGetResponseDto findBookByBookId(Long bookId) {
+    public BookProductGetResponseDto findBookByBookId(Long clientId, Long productId) {
         JPQLQuery<Tuple> query = baseQuery()
-                .where(b.bookId.eq(bookId));
+                .where(p.productId.eq(productId));
 
         update(p)
                 .set(p.productViewCount, p.productViewCount.add(1))
-                .where(p.productId.eq(
-                        from(b)
-                                .select(b.product.productId)
-                                .where(b.bookId.eq(bookId))))
+                .where(p.productId.eq(productId))
+//                        from(b)
+//                                .select(b.product.productId)
+//                                .where(b.bookId.eq(bookId))))
                 .execute();
 
-        return makeBookProductGetResponseDto(query.fetchOne());
+        return makeBookProductGetResponseDto(query.fetchOne(), hasProductLike(clientId, productId));
     }
 
     @Override
-    public Page<BookProductGetResponseDto> findAllBookPage(Pageable pageable, int productState){
+    public Page<BookProductGetResponseDto> findAllBookPage(Long clientId, Pageable pageable, Integer productState){
         OrderSpecifier<?> orderSpecifier = makeOrderSpecifier(pageable, "book");
         BooleanBuilder whereBuilder = new BooleanBuilder();
-        whereBuilder.and(product.productState.eq(productState));
+
+        if(productState != null){
+            whereBuilder.and(product.productState.eq(productState));
+        }
 
         JPQLQuery<Tuple> query = baseQuery()
                 .where(whereBuilder)
@@ -159,14 +176,17 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
         JPQLQuery<Long> countQuery = countQuery()
                 .where(whereBuilder);
 
-        return makePage(query, countQuery, pageable);
+        return makePage(query, countQuery, pageable, clientId);
     }
 
     @Override
-    public Page<BookProductGetResponseDto> findNameContainingBookPage(Pageable pageable, String title, int productState){
+    public Page<BookProductGetResponseDto> findNameContainingBookPage(Long clientId, Pageable pageable, String title, Integer productState){
         OrderSpecifier<?> orderSpecifier = makeOrderSpecifier(pageable, "book");
         BooleanBuilder whereBuilder = new BooleanBuilder();
-        whereBuilder.and(product.productState.eq(productState));
+
+        if(productState != null){
+            whereBuilder.and(product.productState.eq(productState));
+        }
         whereBuilder.and(b.title.containsIgnoreCase(title));
 
         JPQLQuery<Tuple> query = baseQuery()
@@ -176,16 +196,19 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
         JPQLQuery<Long> countQuery = countQuery()
                 .where(whereBuilder);
 
-        return makePage(query, countQuery, pageable);
+        return makePage(query, countQuery, pageable, clientId);
 
     }
 
     @Override
-    public Page<BookProductGetResponseDto> findBooksByTagFilter(Set<String> tags, Boolean conditionIsAnd, Pageable pageable) {
+    public Page<BookProductGetResponseDto> findBooksByTagFilter(Long clientId, Set<String> tags, Boolean conditionIsAnd, Pageable pageable, Integer productState) {
         OrderSpecifier<?> orderSpecifier = makeOrderSpecifier(pageable, "book");
 
         BooleanBuilder whereBuilder = new BooleanBuilder();
-        whereBuilder.and(product.productState.eq(0));
+        if(productState != null){
+            whereBuilder.and(product.productState.eq(productState));
+        }
+
         whereBuilder.and(tag.tagName.in(tags));
 
         JPQLQuery<Tuple> query = baseQuery()
@@ -201,18 +224,21 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
 
         makeFilter(query, countQuery, conditionIsAnd, tags.size());
 
-        return makePage(query, countQuery, pageable);
+        return makePage(query, countQuery, pageable, clientId);
     }
 
-    public Page<BookProductGetResponseDto> findBooksByCategoryFilter(String categoryName, Pageable pageable) {
+    @Override
+    public Page<BookProductGetResponseDto> findBooksByCategoryFilter(Long clientId, Long categoryId, Pageable pageable, Integer productState) {
         OrderSpecifier<?> orderSpecifier = makeOrderSpecifier(pageable, "book");
 
-        Set<String> categoryNameSet = findAllSubCategoriesUtil.getAllSubcategorySet(categoryName).stream()
+        Set<String> categoryNameSet = findAllSubCategoriesUtil.getAllSubcategorySet(categoryId).stream()
                 .map(ProductCategory::getCategoryName)
                 .collect(Collectors.toSet());
 
         BooleanBuilder whereBuilder = new BooleanBuilder();
-        whereBuilder.and(product.productState.eq(0));
+        if(productState != null){
+            whereBuilder.and(product.productState.eq(productState));
+        }
         whereBuilder.and(productCategory.categoryName.in(categoryNameSet));
 
         JPQLQuery<Tuple> query = baseQuery()
@@ -226,41 +252,49 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
                 .innerJoin(productCategoryRelation.productCategory, productCategory)
                 .where(whereBuilder);
 
-        return makePage(query, countQuery, pageable);
+        return makePage(query, countQuery, pageable, clientId);
     }
 
-    public Map<Long, String> getTagMapOfIdAndName(Product realProduct){
-        return from(p)
-                .select(tag.tagId, tag.tagName)
+    @Override
+    public Page<BookProductGetResponseDto> findLikeBooks(Long clientId, Pageable pageable, Integer productState) {
+        OrderSpecifier<?> orderSpecifier = makeOrderSpecifier(pageable, "book");
+        BooleanBuilder whereBuilder = new BooleanBuilder();
+        if(productState != null){
+            whereBuilder.and(product.productState.eq(productState));
+        }
+        whereBuilder.and(productLike.clientId.eq(clientId));
+        JPQLQuery<Tuple> query = baseQuery()
+                .innerJoin(p.productLikes, productLike)
+                .where(whereBuilder);
+
+        JPQLQuery<Long> countQuery = countQuery()
+                .innerJoin(p.productLikes, productLike)
+                .where(whereBuilder);
+
+        return makePage(query, countQuery, pageable, clientId);
+    }
+
+    @Override
+    public Set<ProductCategory> getCategorySet(Product realProduct) {
+        return Set.copyOf(
+                from(p)
+                        .select(productCategory)
+                        .distinct()
+                        .innerJoin(p.productCategoryRelations, productCategoryRelation)
+                        .innerJoin(productCategoryRelation.productCategory, productCategory)
+                        .where(p.eq(realProduct))
+                        .fetch());
+    }
+
+    @Override
+    public Set<Tag> getTagSet(Product realProduct){
+        return Set.copyOf(
+                from(p)
+                .select(tag)
                 .distinct()
                 .innerJoin(p.productTags, productTag)
                 .innerJoin(productTag.tag, tag)
                 .where(p.eq(realProduct))
-                .fetch()
-                .stream()
-                .collect(Collectors.toMap(
-                        tuple -> tuple.get(tag.tagId),
-                        tuple -> tuple.get(tag.tagName),
-                        (existing, replacement) -> existing,
-                        LinkedHashMap::new
-                ));
-    }
-
-    public Map<Long, String> getCategoryMapOfIdAndName(Product realProduct) {
-        QProductCategory pc = new QProductCategory("productCategory");
-        return from(p)
-                .select(pc.productCategoryId, pc.categoryName)
-                .distinct()
-                .innerJoin(p.productCategoryRelations, productCategoryRelation)
-                .innerJoin(productCategoryRelation.productCategory, pc)
-                .where(p.eq(realProduct))
-                .fetch()
-                .stream()
-                .collect(Collectors.toMap(
-                        tuple -> tuple.get(pc.productCategoryId),
-                        tuple -> tuple.get(pc.categoryName),
-                        (existing, replacement) -> existing,
-                        LinkedHashMap::new
-                ));
+                .fetch());
     }
 }

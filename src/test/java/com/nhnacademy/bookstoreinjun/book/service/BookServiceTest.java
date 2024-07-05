@@ -35,9 +35,7 @@ import com.nhnacademy.bookstoreinjun.util.PageableUtil;
 import com.nhnacademy.bookstoreinjun.util.ProductCheckUtil;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -245,7 +243,7 @@ public class BookServiceTest {
 
     @Test
     public void getIndividualBookTestFailure() {
-        assertThrows(NotFoundIdException.class, () -> bookService.getBookByBookId(1L));
+        assertThrows(NotFoundIdException.class, () -> bookService.getBookByBookId(1L, 1L));
     }
 
     @Test
@@ -306,11 +304,11 @@ public class BookServiceTest {
         PageRequestDto dto = PageRequestDto.builder().build();
         Pageable pageable = PageableUtil.makePageable(dto, 5, "product.productRegisterDate");
 
-        when(bookQuerydslRepository.findAllBookPage(any(), eq(0))).thenReturn(new PageImpl<>(Collections.emptyList()));
-        Page<BookProductGetResponseDto> bookPage = bookService.getBookPage(dto);
+        when(bookQuerydslRepository.findAllBookPage(eq(1L), any(), eq(0))).thenReturn(new PageImpl<>(Collections.emptyList()));
+        Page<BookProductGetResponseDto> bookPage = bookService.getBookPage(1L, dto);
 
 //        assertNotNull(bookPage);
-        verify(bookQuerydslRepository,times(1)).findAllBookPage(any(), eq(0));
+        verify(bookQuerydslRepository,times(1)).findAllBookPage(eq(1L), any(), eq(0));
 //        assertEquals(2, bookPage.getTotalElements());
     }
 
@@ -325,8 +323,8 @@ public class BookServiceTest {
                 .build();
 
 
-        when(bookQuerydslRepository.findAllBookPage(any(), eq(0))).thenReturn(new PageImpl<>(new ArrayList<>()));
-        assertThrows(PageOutOfRangeException.class, () -> bookService.getBookPage(dto));
+        when(bookQuerydslRepository.findAllBookPage(eq(1L),any(), eq(0))).thenReturn(new PageImpl<>(new ArrayList<>()));
+        assertThrows(PageOutOfRangeException.class, () -> bookService.getBookPage(1L, dto));
     }
 
     @Test
@@ -339,7 +337,7 @@ public class BookServiceTest {
                 .sort("wrong sort")
                 .build();
 
-        when(bookQuerydslRepository.findAllBookPage(any(), eq(0))).thenThrow(InvalidDataAccessApiUsageException.class);
-        assertThrows(InvalidSortNameException.class, () -> bookService.getBookPage(dto));
+        when(bookQuerydslRepository.findAllBookPage(eq(1L), any(), eq(0))).thenThrow(InvalidDataAccessApiUsageException.class);
+        assertThrows(InvalidSortNameException.class, () -> bookService.getBookPage(1L, dto));
     }
 }

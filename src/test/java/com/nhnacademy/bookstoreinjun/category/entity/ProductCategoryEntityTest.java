@@ -1,6 +1,5 @@
 package com.nhnacademy.bookstoreinjun.category.entity;
 
-import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
