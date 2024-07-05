@@ -1,10 +1,6 @@
 package com.nhnacademy.bookstoreinjun.service.productCategory;
 
-import com.nhnacademy.bookstoreinjun.dto.category.CategoryGetResponseDto;
-import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterRequestDto;
-import com.nhnacademy.bookstoreinjun.dto.category.CategoryRegisterResponseDto;
-import com.nhnacademy.bookstoreinjun.dto.category.CategoryUpdateRequestDto;
-import com.nhnacademy.bookstoreinjun.dto.category.CategoryUpdateResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.category.*;
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
@@ -16,8 +12,9 @@ import com.nhnacademy.bookstoreinjun.util.PageableUtil;
 import com.nhnacademy.bookstoreinjun.util.SortCheckUtil;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -134,5 +131,43 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
         Page<ProductCategory> productCategoryPage = new PageImpl<>(categoryList, pageable, categoryList.size());
         return makeCategoryGetResponseDtoPage(pageable, productCategoryPage);
+    }
+
+    public CategoryNodeResponseDto getCategoryTree() {
+        CategoryNodeResponseDto root = new CategoryNodeResponseDto(-1L, 0, "root", new ArrayList<>());
+        List<ProductCategory> categoryList = productCategoryRepository.findAll();
+        Map<Long, CategoryNodeResponseDto> categoryMap = categoryList.stream()
+                .collect(Collectors.toMap(
+                        ProductCategory::getProductCategoryId,
+                        i -> new CategoryNodeResponseDto(i.getProductCategoryId(), 0, i.getCategoryName(), new ArrayList<>())
+                ));
+
+        for (ProductCategory category : categoryList) {
+            CategoryNodeResponseDto node = categoryMap.get(category.getProductCategoryId());
+
+            if (category.getParentProductCategory() == null) {
+                root.getChildren().add(node);
+            } else {
+                categoryMap.get(category.getParentProductCategory().getProductCategoryId()).getChildren().add(node);
+            }
+        }
+        return BFS(root);
+    }
+
+    private CategoryNodeResponseDto BFS(CategoryNodeResponseDto root) {
+        Map.Entry<Integer, CategoryNodeResponseDto> curr;
+        Queue<Map.Entry<Integer, CategoryNodeResponseDto>> queue = new ArrayDeque<>();
+
+        queue.add(new AbstractMap.SimpleEntry<>(0, root));
+        while (!queue.isEmpty()) {
+            curr = queue.poll();
+            curr.getValue().setNodeLevel(curr.getKey());
+            Collections.sort(curr.getValue().getChildren());
+
+            for (CategoryNodeResponseDto child : curr.getValue().getChildren()) {
+                queue.add(new AbstractMap.SimpleEntry<>(curr.getKey() + 1, child));
+            }
+        }
+        return root;
     }
 }
