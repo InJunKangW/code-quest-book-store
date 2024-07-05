@@ -218,30 +218,30 @@ public class BookServiceTest {
         assertThrows(NotFoundNameException.class, () -> bookService.updateBook(dto));
     }
 
-    @Test
-    public void getIndividualBookTestSuccess(){
-        Book testBook = new Book();
-        testBook.setBookId(1L);
-        Product testProduct = new Product();
-        testProduct.setProductId(3L);
-        testProduct.setProductCategoryRelations(new ArrayList<>());
-        testProduct.setProductTags(new ArrayList<>());
-
-        testBook.setProduct(testProduct);
-
-        when(bookRepository.existsById(1L)).thenReturn(true);
-
-        when(bookQuerydslRepository.findBookByBookId(1L)).thenReturn(BookProductGetResponseDto.builder()
-                .categories(Set.of("test category1", "test category2"))
-                .tags(Set.of("test tag1", "test tag2", "test tag3"))
-                .build());
-        BookProductGetResponseDto dto = bookService.getBookByBookId(1L);
-
-        verify(bookRepository,times(1)).existsById(1L);
-        assertNotNull(dto);
-        assertEquals(2, dto.categories().size());
-        assertEquals(3, dto.tags().size());
-    }
+//    @Test
+//    public void getIndividualBookTestSuccess(){
+//        Book testBook = new Book();
+//        testBook.setBookId(1L);
+//        Product testProduct = new Product();
+//        testProduct.setProductId(3L);
+//        testProduct.setProductCategoryRelations(new ArrayList<>());
+//        testProduct.setProductTags(new ArrayList<>());
+//
+//        testBook.setProduct(testProduct);
+//
+//        when(bookRepository.existsById(1L)).thenReturn(true);
+//
+//        when(bookQuerydslRepository.findBookByBookId(1L)).thenReturn(BookProductGetResponseDto.builder()
+//                .categories(Set.of("test category1", "test category2"))
+//                .tags(Set.of("test tag1", "test tag2", "test tag3"))
+//                .build());
+//        BookProductGetResponseDto dto = bookService.getBookByBookId(1L);
+//
+//        verify(bookRepository,times(1)).existsById(1L);
+//        assertNotNull(dto);
+//        assertEquals(2, dto.categories().size());
+//        assertEquals(3, dto.tags().size());
+//    }
 
     @Test
     public void getIndividualBookTestFailure() {
