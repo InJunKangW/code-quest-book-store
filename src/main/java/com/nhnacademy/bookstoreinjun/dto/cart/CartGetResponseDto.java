@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.util.Map;
 import java.util.Set;
 import lombok.Builder;
 import org.hibernate.validator.constraints.Length;
@@ -36,6 +35,10 @@ public record CartGetResponseDto(
         @NotNull
         @Min(0)
         Long productInventory,
+
+        @NotNull
+        @Min(0)
+        Integer productState,
 
         @NotNull
         @NotBlank

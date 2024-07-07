@@ -1,11 +1,11 @@
 package com.nhnacademy.bookstoreinjun.repository;
 
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductGetResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.product.ProductUpdateResponseDto;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.entity.QBook;
 import com.nhnacademy.bookstoreinjun.entity.QProduct;
-import com.nhnacademy.bookstoreinjun.entity.QProductCategory;
 import com.nhnacademy.bookstoreinjun.entity.Tag;
 import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtil;
 import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtilImpl;
@@ -15,10 +15,9 @@ import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +41,7 @@ import static com.querydsl.core.types.dsl.Wildcard.count;
 @Slf4j
 @Repository
 @Transactional(readOnly = true)
-public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implements BookQuerydslRepository {
+public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements QuerydslRepository {
 
     private final QProduct p = new QProduct("product");
 
@@ -50,7 +49,7 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
 
     private final FindAllSubCategoriesUtil findAllSubCategoriesUtil;
 
-    public BookQuerydslRepositoryImpl(FindAllSubCategoriesUtilImpl findAllSubCategoriesUtil) {
+    public QuerydslRepositoryImpl(FindAllSubCategoriesUtilImpl findAllSubCategoriesUtil) {
         super(Product.class);
         this.findAllSubCategoriesUtil = findAllSubCategoriesUtil;
     }
@@ -152,9 +151,6 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
         update(p)
                 .set(p.productViewCount, p.productViewCount.add(1))
                 .where(p.productId.eq(productId))
-//                        from(b)
-//                                .select(b.product.productId)
-//                                .where(b.bookId.eq(bookId))))
                 .execute();
 
         return makeBookProductGetResponseDto(query.fetchOne(), hasProductLike(clientId, productId));
@@ -296,5 +292,13 @@ public class BookQuerydslRepositoryImpl extends QuerydslRepositorySupport implem
                 .innerJoin(productTag.tag, tag)
                 .where(p.eq(realProduct))
                 .fetch());
+    }
+
+    @Override
+    public long setProductState(Long productId, Integer productState) {
+        return update(p)
+                .set(p.productState, productState)
+                .where(p.productId.eq(productId))
+                .execute();
     }
 }

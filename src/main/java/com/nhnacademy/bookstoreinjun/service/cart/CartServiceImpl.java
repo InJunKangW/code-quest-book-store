@@ -6,7 +6,7 @@ import com.nhnacademy.bookstoreinjun.entity.Cart;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.XUserIdNotFoundException;
-import com.nhnacademy.bookstoreinjun.repository.BookQuerydslRepository;
+import com.nhnacademy.bookstoreinjun.repository.QuerydslRepository;
 import com.nhnacademy.bookstoreinjun.repository.CartRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public class CartServiceImpl implements CartService {
 
     private final ProductRepository productRepository;
 
-    private final BookQuerydslRepository querydslRepository;
+    private final QuerydslRepository querydslRepository;
 
     private Product getProduct(Long clientIdOfHeader, CartRequestDto cartRequestDto) {
         if (clientIdOfHeader == -1){
@@ -143,6 +143,7 @@ public class CartServiceImpl implements CartService {
                 .productPriceSales(product.getProductPriceSales())
                 .productQuantityOfCart(productCartQuantity)
                 .productInventory(product.getProductInventory())
+                .productState(product.getProductState())
                 .productThumbnailImage(product.getProductThumbnailUrl())
                 .categorySet(querydslRepository.getCategorySet(product))
                 .tagSet(querydslRepository.getTagSet(product))

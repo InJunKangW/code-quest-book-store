@@ -4,6 +4,8 @@ import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.product.ProductStateUpdateRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.product.ProductUpdateResponseDto;
 import org.springframework.data.domain.Page;
 
 public interface ProductService {
@@ -39,4 +41,6 @@ public interface ProductService {
     ProductLikeResponseDto saveProductLike(Long clientId, ProductLikeRequestDto productLikeRequestDto);
 
     ProductLikeResponseDto deleteProductLike(Long clientId, Long productId);
+
+    ProductUpdateResponseDto updateProductState(ProductStateUpdateRequestDto productStateUpdateRequestDto);
 }

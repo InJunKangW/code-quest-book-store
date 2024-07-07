@@ -4,6 +4,8 @@ import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.product.ProductStateUpdateRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.product.ProductUpdateResponseDto;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductLike;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
@@ -12,9 +14,11 @@ import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
 import com.nhnacademy.bookstoreinjun.exception.XUserIdNotFoundException;
 import com.nhnacademy.bookstoreinjun.repository.ProductLikeRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
+import com.nhnacademy.bookstoreinjun.repository.QuerydslRepository;
 import com.nhnacademy.bookstoreinjun.util.PageableUtil;
 import com.nhnacademy.bookstoreinjun.util.SortCheckUtil;
 import jakarta.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +35,8 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
 
     private final ProductLikeRepository productLikeRepository;
+
+    private final QuerydslRepository querydslRepository;
 
     private final int DEFAULT_PAGE_SIZE = 10;
 
@@ -80,6 +86,8 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+
+
     public ProductLikeResponseDto saveProductLike(Long clientIdOfHeader, ProductLikeRequestDto productLikeRequestDto){
         if (clientIdOfHeader ==- 1){
             throw new XUserIdNotFoundException();
@@ -118,5 +126,14 @@ public class ProductServiceImpl implements ProductService {
             productLikeRepository.delete(productLike);
         }
         return new ProductLikeResponseDto();
+    }
+
+    public ProductUpdateResponseDto updateProductState(ProductStateUpdateRequestDto productStateUpdateRequestDto) {
+        long result = querydslRepository.setProductState(productStateUpdateRequestDto.productId(), productStateUpdateRequestDto.productState());
+        if (result == -1){
+            throw new NotFoundIdException("product", productStateUpdateRequestDto.productId());
+        }else {
+            return new ProductUpdateResponseDto(LocalDateTime.now());
+        }
     }
 }

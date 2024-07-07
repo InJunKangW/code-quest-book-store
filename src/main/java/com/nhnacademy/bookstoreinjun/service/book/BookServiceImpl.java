@@ -15,7 +15,7 @@ import com.nhnacademy.bookstoreinjun.entity.Tag;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
-import com.nhnacademy.bookstoreinjun.repository.BookQuerydslRepository;
+import com.nhnacademy.bookstoreinjun.repository.QuerydslRepository;
 import com.nhnacademy.bookstoreinjun.repository.BookRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
@@ -44,7 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
 
-    private final BookQuerydslRepository querydslRepository;
+    private final QuerydslRepository querydslRepository;
 
     private final ProductRepository productRepository;
 
@@ -58,10 +58,10 @@ public class BookServiceImpl implements BookService {
 
     private final ProductCheckUtil productCheckUtil;
 
-    private final String TYPE = "book";
+    private static final String TYPE = "book";
 
-    private final int DEFAULT_PAGE_SIZE = 10;
-    private final String DEFAULT_SORT = "product.productRegisterDate";
+    private static final int DEFAULT_PAGE_SIZE = 10;
+    private static final String DEFAULT_SORT = "product.productRegisterDate";
 
 
     private void saveProductCategoryRelation(Set<String> categories, Product product){
@@ -98,6 +98,7 @@ public class BookServiceImpl implements BookService {
     }
 
 
+    @Override
     public BookProductGetResponseDto getBookByBookId(Long clientIdOfHeader, Long productId) {
         if(!productRepository.existsById(productId)){
             throw new NotFoundIdException(TYPE, productId);
@@ -109,11 +110,30 @@ public class BookServiceImpl implements BookService {
         }
     }
 
-    public Page<BookProductGetResponseDto> getBookPage(Long clientIdOfHeader, PageRequestDto pageRequestDto) {
+
+//    @Override
+//    public Page<BookProductGetResponseDto> getBookPage(Long clientIdOfHeader, PageRequestDto pageRequestDto) {
+//        Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+//
+//        try{
+//            Page<BookProductGetResponseDto> result = querydslRepository.findAllBookPage(clientIdOfHeader, pageable, 0);
+//
+//            PageableUtil.pageNumCheck(result, pageable);
+//
+//            return result;
+//        }catch (InvalidDataAccessApiUsageException e) {
+//            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
+//        }
+//    }
+
+
+    @Override
+    public Page<BookProductGetResponseDto> getBookPageByProductState(Long clientIdOfHeader, PageRequestDto pageRequestDto, Integer productState
+    ) {
         Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
 
         try{
-            Page<BookProductGetResponseDto> result = querydslRepository.findAllBookPage(clientIdOfHeader, pageable, 0);
+            Page<BookProductGetResponseDto> result = querydslRepository.findAllBookPage(clientIdOfHeader, pageable, productState);
 
             PageableUtil.pageNumCheck(result, pageable);
 
@@ -123,10 +143,26 @@ public class BookServiceImpl implements BookService {
         }
     }
 
-    public Page<BookProductGetResponseDto> getNameContainingBookPage(Long clientIdOfHeader, PageRequestDto pageRequestDto, String title) {
+//    @Override
+//    public Page<BookProductGetResponseDto> getNameContainingBookPage(Long clientIdOfHeader, PageRequestDto pageRequestDto, String title) {
+//        Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+//        try{
+//            Page<BookProductGetResponseDto> result = querydslRepository.findNameContainingBookPage(clientIdOfHeader, pageable, title,0);
+//
+//            PageableUtil.pageNumCheck(result, pageable);
+//
+//            return result;
+//        }catch (InvalidDataAccessApiUsageException e) {
+//            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
+//        }
+//    }
+
+    @Override
+    public Page<BookProductGetResponseDto> getNameContainingBookPageByProductState(Long clientIdOfHeader, PageRequestDto pageRequestDto, String title, Integer productState
+    ) {
         Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
         try{
-            Page<BookProductGetResponseDto> result = querydslRepository.findNameContainingBookPage(clientIdOfHeader, pageable, title,0);
+            Page<BookProductGetResponseDto> result = querydslRepository.findNameContainingBookPage(clientIdOfHeader, pageable, title,productState);
 
             PageableUtil.pageNumCheck(result, pageable);
 
@@ -137,11 +173,28 @@ public class BookServiceImpl implements BookService {
     }
 
 
-    public Page<BookProductGetResponseDto> getBookPageFilterByTags(Long clientIdOfHeader, PageRequestDto pageRequestDto, Set<String> tags, Boolean conditionIsAnd) {
+//    @Override
+//    public Page<BookProductGetResponseDto> getBookPageFilterByTags(Long clientIdOfHeader, PageRequestDto pageRequestDto, Set<String> tags, Boolean conditionIsAnd) {
+//        Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+//
+//        try{
+//            Page<BookProductGetResponseDto> result = querydslRepository.findBooksByTagFilter(clientIdOfHeader, tags, conditionIsAnd, pageable, 0);
+//
+//            PageableUtil.pageNumCheck(result, pageable);
+//
+//            return result;
+//        }catch (InvalidDataAccessApiUsageException e){
+//            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
+//        }
+//    }
+
+    @Override
+    public Page<BookProductGetResponseDto> getBookPageFilterByTagsAndProductState(Long clientIdOfHeader, PageRequestDto pageRequestDto, Set<String> tags, Boolean conditionIsAnd, Integer productState
+    ) {
         Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
 
         try{
-            Page<BookProductGetResponseDto> result = querydslRepository.findBooksByTagFilter(clientIdOfHeader, tags, conditionIsAnd, pageable, 0);
+            Page<BookProductGetResponseDto> result = querydslRepository.findBooksByTagFilter(clientIdOfHeader, tags, conditionIsAnd, pageable, productState);
 
             PageableUtil.pageNumCheck(result, pageable);
 
@@ -151,11 +204,29 @@ public class BookServiceImpl implements BookService {
         }
     }
 
-    public Page<BookProductGetResponseDto> getBookPageFilterByCategory(Long clientIdOfHeader, PageRequestDto pageRequestDto, Long categoryId) {
+
+//    @Override
+//    public Page<BookProductGetResponseDto> getBookPageFilterByCategory(Long clientIdOfHeader, PageRequestDto pageRequestDto, Long categoryId) {
+//        Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+//
+//        try {
+//            Page<BookProductGetResponseDto> result = querydslRepository.findBooksByCategoryFilter(clientIdOfHeader, categoryId, pageable, 0);
+//
+//            PageableUtil.pageNumCheck(result, pageable);
+//
+//            return result;
+//        }catch (InvalidDataAccessApiUsageException e){
+//            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
+//        }
+//    }
+
+
+    @Override
+    public Page<BookProductGetResponseDto> getBookPageFilterByCategoryAndProductState(Long clientIdOfHeader, PageRequestDto pageRequestDto, Long categoryId, Integer productState) {
         Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
 
         try {
-            Page<BookProductGetResponseDto> result = querydslRepository.findBooksByCategoryFilter(clientIdOfHeader, categoryId, pageable, 0);
+            Page<BookProductGetResponseDto> result = querydslRepository.findBooksByCategoryFilter(clientIdOfHeader, categoryId, pageable, productState);
 
             PageableUtil.pageNumCheck(result, pageable);
 
@@ -165,10 +236,11 @@ public class BookServiceImpl implements BookService {
         }
     }
 
-    public Page<BookProductGetResponseDto> getLikeBookPage(Long clientIdOfHeader, PageRequestDto pageRequestDto) {
+    @Override
+    public Page<BookProductGetResponseDto> getLikeBookPage(Long clientIdOfHeader, PageRequestDto pageRequestDto, Integer productState) {
         Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
         try {
-            Page<BookProductGetResponseDto> result = querydslRepository.findLikeBooks(clientIdOfHeader, pageable, 0);
+            Page<BookProductGetResponseDto> result = querydslRepository.findLikeBooks(clientIdOfHeader, pageable, productState);
 
             PageableUtil.pageNumCheck(result, pageable);
 
@@ -178,6 +250,7 @@ public class BookServiceImpl implements BookService {
         }
     }
 
+    @Override
     public ProductRegisterResponseDto saveBook(BookProductRegisterRequestDto bookProductRegisterRequestDto) {
         log.error("product name : {}", bookProductRegisterRequestDto);
         if (bookRepository.existsByIsbn(bookProductRegisterRequestDto.isbn())){
@@ -218,6 +291,7 @@ public class BookServiceImpl implements BookService {
     }
 
 
+    @Override
     public ProductUpdateResponseDto updateBook(BookProductUpdateRequestDto bookProductUpdateRequestDto) {
         log.info("updated called, {}", bookProductUpdateRequestDto);
         Long bookId = bookProductUpdateRequestDto.bookId();

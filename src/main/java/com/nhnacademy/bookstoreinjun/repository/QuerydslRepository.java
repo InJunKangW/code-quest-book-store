@@ -4,12 +4,11 @@ import com.nhnacademy.bookstoreinjun.dto.book.BookProductGetResponseDto;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.entity.Tag;
-import java.util.Map;
 import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface BookQuerydslRepository {
+public interface QuerydslRepository {
     BookProductGetResponseDto findBookByBookId(Long clientId, Long bookId);
     Page<BookProductGetResponseDto> findAllBookPage(Long clientId, Pageable pageable, Integer productState);
 
@@ -51,4 +50,6 @@ public interface BookQuerydslRepository {
     Set<ProductCategory> getCategorySet(Product realProduct);
 
     Page<BookProductGetResponseDto> findLikeBooks(Long clientId, Pageable pageable, Integer productState);
+
+    long setProductState(Long productId, Integer productState);
 }

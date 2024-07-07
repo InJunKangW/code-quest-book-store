@@ -139,7 +139,9 @@ public class BookControllerTest {
 
         mockMvc.perform(post("/api/product/admin/book/register")
                         .content(json)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Role", "ROLE_ADMIN")
+                        .header("X-User-Id", 1))
                 .andExpect(status().isInternalServerError())
                 .andDo(print());
 

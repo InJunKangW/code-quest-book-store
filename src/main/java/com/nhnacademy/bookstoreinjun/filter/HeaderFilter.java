@@ -9,45 +9,50 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
 public class HeaderFilter extends OncePerRequestFilter {
-    private final String requiredPath;
-    private final String requiredMethod;
-    private final String[] requiredRole;
-    private final AntPathMatcher pathMatcher;
+    public static class RouteConfig {
+        String path;
+        String method;
+        List<String> roles;
 
-    public HeaderFilter(String requiredPath, String requiredMethod) {
-        this.requiredRole = new String[0];
-        this.requiredPath = requiredPath;
-        this.requiredMethod = requiredMethod;
-        this.pathMatcher = new AntPathMatcher();
+        public RouteConfig(URI path, String method, List<String> roles) {
+            this.path = path.getPath();
+            this.method = method;
+            this.roles = roles;
+        }
     }
 
-    public HeaderFilter(String requiredPath, String requiredMethod, String... requiredRole) {
-        this.requiredRole = requiredRole;
-        this.requiredPath = requiredPath;
-        this.requiredMethod = requiredMethod;
+    private final List<RouteConfig> routeConfigs;
+    private final AntPathMatcher pathMatcher;
+
+    public HeaderFilter(List<RouteConfig> routeConfigs) {
+        this.routeConfigs = routeConfigs;
         this.pathMatcher = new AntPathMatcher();
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.info("header filter start");
-        if (pathMatcher.match(requiredPath, request.getRequestURI()) && request.getMethod().equalsIgnoreCase(requiredMethod)) {
-            try {
-                Long.valueOf(request.getHeader("X-User-Id"));
-            } catch ( NumberFormatException e ) {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "id header is missing or invalid");
-                return;
-            }
+        for (RouteConfig routeConfig : routeConfigs) {
+            if (pathMatcher.match(routeConfig.path, request.getRequestURI()) && request.getMethod().equalsIgnoreCase(routeConfig.method)) {
+                log.info("{}:{} header filter start", routeConfig.method, request.getRequestURI());
+                try {
+                    Long.valueOf(request.getHeader("X-User-Id"));
+                } catch ( NumberFormatException e ) {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "id header is missing or invalid");
+                    return;
+                }
 
-            if (!isContainRole(getHeaderValues(request, "X-User-Role"))) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Role header is missing or invalid");
-                return;
+                if (!isContainRole(getHeaderValues(request, "X-User-Role"), routeConfig.roles)) {
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Role header is missing or invalid");
+                    return;
+                }
             }
         }
         filterChain.doFilter(request, response);
@@ -62,7 +67,7 @@ public class HeaderFilter extends OncePerRequestFilter {
         return headerValues;
     }
 
-    private boolean isContainRole(Set<String> roleSet) {
+    private boolean isContainRole(Set<String> roleSet, List<String> requiredRole) {
         for (String role : requiredRole) {
             if (!roleSet.contains(role)) {
                 return false;
