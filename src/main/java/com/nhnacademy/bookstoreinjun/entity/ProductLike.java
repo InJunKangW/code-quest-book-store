@@ -1,6 +1,5 @@
 package com.nhnacademy.bookstoreinjun.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,7 +31,7 @@ public class ProductLike {
 
     private Long clientId;
 
+    @JoinColumn(name = "productId", nullable = false)
     @ManyToOne
-    @JoinColumn(name = "productId")
     private Product product;
 }

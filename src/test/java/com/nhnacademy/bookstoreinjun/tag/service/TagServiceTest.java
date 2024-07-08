@@ -24,7 +24,6 @@ import com.nhnacademy.bookstoreinjun.service.tag.TagServiceImpl;
 import com.nhnacademy.bookstoreinjun.util.SortCheckUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -128,7 +127,7 @@ public class TagServiceTest {
 
         assertThrows(DuplicateException.class, () -> tagService.updateTag(tagUpdateRequestDto));
     }
-    
+
 
     @Test
     public void getAllTagPageTestSuccess(){

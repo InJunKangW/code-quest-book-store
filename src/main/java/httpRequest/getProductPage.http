@@ -9,6 +9,8 @@ X-User-Id: 1
 X-User-Role: ROLE_ADMIN
 
 
+###
+GET localhost:8004/api/product/books?sort=pubDate
 ### 둘 다 파라미터로 다음을 가질 수 있습니다.
 # Integer page : 페이지를 요청합니다. null이면 (파라미터 미지정) 1 페이지를 반환합니다. 0 이하일 경우 validation에 걸립니다.
 

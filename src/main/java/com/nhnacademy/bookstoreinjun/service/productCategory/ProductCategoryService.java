@@ -2,6 +2,7 @@ package com.nhnacademy.bookstoreinjun.service.productCategory;
 
 import com.nhnacademy.bookstoreinjun.dto.category.*;
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
@@ -59,7 +60,12 @@ public interface ProductCategoryService {
      * @throws PageOutOfRangeException 요청의 page 가, total page 를 초과할 때 발생합니다.
      * @throws InvalidSortNameException 요청의 sort 가, book 을 정렬하기에 부적절한 경우 발생합니다.
      */
-    Page<CategoryGetResponseDto> getSubCategoryPage(PageRequestDto pageRequestDto, String categoryName);
+//    Page<CategoryGetResponseDto> getSubCategoryPage(PageRequestDto pageRequestDto, String categoryName);
+
+
+    Page<CategoryGetResponseDto> getSubCategoryPage(PageRequestDto pageRequestDto, Long parentId);
+
+    List<CategoryGetResponseDto> getAllSubCategoryList(Long parentId);
 
     /**
      *

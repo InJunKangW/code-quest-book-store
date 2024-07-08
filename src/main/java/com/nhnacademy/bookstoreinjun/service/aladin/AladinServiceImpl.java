@@ -38,8 +38,6 @@ public class AladinServiceImpl implements AladinService {
             AladinBookListResponseDto responseDto = xmlMapper.readValue(responseBody, AladinBookListResponseDto.class);
             List<AladinBookResponseDto> aladinBookResponseDtoList = responseDto.getBooks();
 
-            log.info("size : {}", pageRequestDto.size());
-
             Pageable pageable = PageableUtil.makePageable(pageRequestDto, 4, "pubDate");
             log.info("page size : {}", pageable.getPageSize());
 

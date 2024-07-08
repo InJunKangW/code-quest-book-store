@@ -2,16 +2,17 @@ package com.nhnacademy.bookstoreinjun.repository;
 
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductGetResponseDto;
 import com.nhnacademy.bookstoreinjun.entity.Product;
-import java.util.Map;
+import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
+import com.nhnacademy.bookstoreinjun.entity.Tag;
 import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface BookQuerydslRepository {
-    BookProductGetResponseDto findBookByBookId(Long bookId);
-    Page<BookProductGetResponseDto> findAllBookPage(Pageable pageable, int productState);
+public interface QuerydslRepository {
+    BookProductGetResponseDto findBookByBookId(Long clientId, Long bookId);
+    Page<BookProductGetResponseDto> findAllBookPage(Long clientId, Pageable pageable, Integer productState);
 
-    Page<BookProductGetResponseDto> findNameContainingBookPage(Pageable pageable, String title, int productState);
+    Page<BookProductGetResponseDto> findNameContainingBookPage(Long clientId, Pageable pageable, String title, Integer productState);
     /**
      * 판매 중인 도서 상품 중 특정 태그를 갖는 도서의 페이지를 반환합니다.
      * @param tags 필터링할 태그명의 set 입니다.
@@ -20,16 +21,16 @@ public interface BookQuerydslRepository {
      * @param pageable 요청한 페이지. offset 과 limit, 정렬조건, 오름차순/내림차순을 결정합니다.
      * @return 태그명으로 필터링된 도서 상품 페이지
      */
-    Page<BookProductGetResponseDto> findBooksByTagFilter(Set<String> tags, Boolean conditionIsAnd, Pageable pageable);
+    Page<BookProductGetResponseDto> findBooksByTagFilter(Long clientId, Set<String> tags, Boolean conditionIsAnd, Pageable pageable , Integer productState);
 
 
     /**
      *
-     * @param categoryName
+     * @param categoryId
      * @param pageable
      * @return
      */
-    Page<BookProductGetResponseDto> findBooksByCategoryFilter(String categoryName, Pageable pageable);
+    Page<BookProductGetResponseDto> findBooksByCategoryFilter(Long clientId, Long categoryId, Pageable pageable , Integer productState);
 
 
     /**
@@ -38,7 +39,7 @@ public interface BookQuerydslRepository {
      * @param realProduct 검색할 상품
      * @return 해당 상품에 달린 모든 태그명
      */
-    Map<Long, String> getTagMapOfIdAndName(Product realProduct);
+    Set<Tag> getTagSet(Product realProduct);
 
 
     /**
@@ -46,5 +47,9 @@ public interface BookQuerydslRepository {
      * @param realProduct 검색할 상품
      * @return 해당 상품에 달린 모든 카테고리명
      */
-    Map<Long, String> getCategoryMapOfIdAndName(Product realProduct);
+    Set<ProductCategory> getCategorySet(Product realProduct);
+
+    Page<BookProductGetResponseDto> findLikeBooks(Long clientId, Pageable pageable, Integer productState);
+
+    long setProductState(Long productId, Integer productState);
 }

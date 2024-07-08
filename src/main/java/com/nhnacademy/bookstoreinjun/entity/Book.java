@@ -45,7 +45,7 @@ public class Book {
     @Column(nullable = false, unique = true, length = 10, name = "bookIsbn_10")
     private String isbn;
 
-    @Column(nullable = false, unique = true, length = 13, name = "bookIsbn_13")
+    @Column(nullable = true, unique = true, length = 13, name = "bookIsbn_13")
     private String isbn13;
 
     @Column(name = "bookPubdate")

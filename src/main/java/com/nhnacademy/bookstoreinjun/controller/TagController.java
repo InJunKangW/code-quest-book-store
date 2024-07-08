@@ -10,7 +10,6 @@ import com.nhnacademy.bookstoreinjun.dto.tag.TagUpdateResponseDto;
 import com.nhnacademy.bookstoreinjun.service.tag.TagService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

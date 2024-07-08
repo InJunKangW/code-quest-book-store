@@ -1,13 +1,19 @@
 package com.nhnacademy.bookstoreinjun.config;
 
 import com.nhnacademy.bookstoreinjun.filter.HeaderFilter;
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
+import org.apache.http.Header;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -16,29 +22,27 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
+    private final URI productClientPath = URI.create("/api/product/client/**");
+    private final URI productAdminPath = URI.create("/api/product/admin/**");
+    private static final String  ADMIN = "ROLE_ADMIN";
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
-        String GET = "GET";
-        String POST = "POST";
-        String DELETE = "DELETE";
-        String PUT = "PUT";
-        String ADMIN = "ROLE_ADMIN";
-
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .addFilterBefore(new HeaderFilter("/api/product/client/**",POST), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new HeaderFilter("/api/product/client/**",PUT), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new HeaderFilter("/api/product/client/**",DELETE), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new HeaderFilter("/api/product/admin/**",GET, ADMIN), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new HeaderFilter("/api/product/admin/**",POST, ADMIN), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new HeaderFilter("/api/product/admin/**",PUT, ADMIN), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new HeaderFilter(List.of(
+                        new HeaderFilter.RouteConfig(productClientPath, HttpMethod.POST.name(), Collections.emptyList()),
+                        new HeaderFilter.RouteConfig(productClientPath, HttpMethod.PUT.name(), Collections.emptyList()),
+                        new HeaderFilter.RouteConfig(productClientPath, HttpMethod.DELETE.name(), Collections.emptyList()),
+                        new HeaderFilter.RouteConfig(productAdminPath, HttpMethod.GET.name(), List.of(ADMIN)),
+                        new HeaderFilter.RouteConfig(productAdminPath, HttpMethod.POST.name(), List.of(ADMIN)),
+                        new HeaderFilter.RouteConfig(productAdminPath, HttpMethod.PUT.name(), List.of(ADMIN))
+                )), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(req ->
                                 req.anyRequest().permitAll()
                 )
-
-                .headers(h -> h.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
-
+                .headers(h -> h.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }
 

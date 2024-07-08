@@ -12,4 +12,6 @@ public interface FindAllSubCategoriesUtil {
      * @throws NotFoundNameException parentName 에 해당하는 카테고리가 데이터베이스에 존재하지 않을 경우 발생합니다
      */
     Set<ProductCategory> getAllSubcategorySet(String parentName);
+    Set<ProductCategory> getAllSubcategorySet(Long parentId);
+
 }

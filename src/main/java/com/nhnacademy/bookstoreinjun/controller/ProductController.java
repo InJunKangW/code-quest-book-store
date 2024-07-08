@@ -5,6 +5,8 @@ import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.product.ProductStateUpdateRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.product.ProductUpdateResponseDto;
 import com.nhnacademy.bookstoreinjun.service.product.ProductService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -15,9 +17,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,13 +54,26 @@ public class ProductController {
         return new ResponseEntity<>(productService.findNameContainingPage(pageRequestDto, productName), header, HttpStatus.OK);
     }
 
-
+    @PutMapping("/admin/update/state")
+    public ResponseEntity<ProductUpdateResponseDto> updateState(
+            @RequestBody @Valid ProductStateUpdateRequestDto productStateUpdateRequestDto){
+        return new ResponseEntity<>(productService.updateProductState(productStateUpdateRequestDto), header, HttpStatus.OK);
+    }
 
     @PostMapping("/client/like")
     public ResponseEntity<ProductLikeResponseDto> saveBookProductLike(
             @RequestHeader HttpHeaders httpHeaders,
             @RequestBody @Valid ProductLikeRequestDto productLikeRequestDto
     ){
-        return new ResponseEntity<>(productService.saveProductLike(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), productLikeRequestDto), header, HttpStatus.OK);
+        return new ResponseEntity<>(productService.saveProductLike(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), productLikeRequestDto), header, HttpStatus.CREATED);
     }
+
+    @DeleteMapping("/client/unlike")
+    public ResponseEntity<ProductLikeResponseDto> deleteBookProductLike(
+            @RequestHeader HttpHeaders httpHeaders,
+            @RequestParam("productId") Long productId
+    ){
+        return new ResponseEntity<>(productService.deleteProductLike(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), productId), header, HttpStatus.OK);
+    }
+
 }

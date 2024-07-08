@@ -4,6 +4,8 @@ import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.product.ProductStateUpdateRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.product.ProductUpdateResponseDto;
 import org.springframework.data.domain.Page;
 
 public interface ProductService {
@@ -33,9 +35,12 @@ public interface ProductService {
      * 상품의 좋아요를 남깁니다.
      * @param clientId 좋아요를 누른 고객의 아이디
      * @param productLikeRequestDto 좋아요의 요청. 다음 필드를 갖습니다.
-     *          Long clientId  - @NotNull @Min(1) - 혹여나 요청을 누른 유저 아이디와 일치하지 않을 경우를 방지하기 위해 확인합니다.
      *          Long productId - @NotNull @Min(1) - 고객이 좋아요를 누른 상품의 아이디
      * @return 좋아요를 누른 기록. 아직은 아무 필드가 없습니다. - Void 타입으로 반환할까 하다가 추후 필요한 필드가 생길 경우를 대비해 일단 빈 Dto 를 반환하기로 했습니다
      */
     ProductLikeResponseDto saveProductLike(Long clientId, ProductLikeRequestDto productLikeRequestDto);
+
+    ProductLikeResponseDto deleteProductLike(Long clientId, Long productId);
+
+    ProductUpdateResponseDto updateProductState(ProductStateUpdateRequestDto productStateUpdateRequestDto);
 }

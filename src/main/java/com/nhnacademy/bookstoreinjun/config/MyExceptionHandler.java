@@ -10,7 +10,6 @@ import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.exception.NullProductException;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
 import com.nhnacademy.bookstoreinjun.exception.XUserIdNotFoundException;
-import jakarta.servlet.http.HttpServletRequest;
 import java.sql.SQLIntegrityConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;

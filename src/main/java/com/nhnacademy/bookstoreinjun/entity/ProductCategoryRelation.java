@@ -18,7 +18,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-//@Table(name = "productCategoryRelation")
 public class ProductCategoryRelation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

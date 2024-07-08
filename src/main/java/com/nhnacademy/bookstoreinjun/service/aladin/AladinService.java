@@ -1,6 +1,5 @@
 package com.nhnacademy.bookstoreinjun.service.aladin;
 
-import com.nhnacademy.bookstoreinjun.dto.book.aladin.AladinBookListResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.book.aladin.AladinBookResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.exception.AladinJsonProcessingException;
