@@ -147,6 +147,7 @@ public class CartServiceImpl implements CartService {
                 .productThumbnailImage(product.getProductThumbnailUrl())
                 .categorySet(querydslRepository.getCategorySet(product))
                 .tagSet(querydslRepository.getTagSet(product))
+                .packable(product.isProductPackable())
                 .build();
     }
 

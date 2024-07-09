@@ -1,0 +1,21 @@
+PUT localhost:8004/api/product/inventory/decrease
+Content-Type: application/json
+
+
+  [{
+    "productId": 3,
+    "quantityToDecrease": 1
+
+  }
+  ]
+
+###
+PUT localhost:8004/api/product/admin/update/state
+Content-Type: application/json
+X-User-Id: 1
+X-User-Role: ROLE_ADMIN
+
+{
+  "productId": 3,
+  "productState": 1
+}

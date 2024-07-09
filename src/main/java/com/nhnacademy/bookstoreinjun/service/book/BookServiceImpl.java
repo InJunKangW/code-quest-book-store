@@ -195,7 +195,6 @@ public class BookServiceImpl implements BookService {
 
         try{
             Page<BookProductGetResponseDto> result = querydslRepository.findBooksByTagFilter(clientIdOfHeader, tags, conditionIsAnd, pageable, productState);
-
             PageableUtil.pageNumCheck(result, pageable);
 
             return result;
