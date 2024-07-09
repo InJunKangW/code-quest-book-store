@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/package")
+@RequestMapping("/api/product/package")
 public class PackageController {
 
     private final PackagingServiceImpl packagingServiceImpl;

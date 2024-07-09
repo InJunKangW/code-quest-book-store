@@ -1,9 +1,13 @@
 package com.nhnacademy.bookstoreinjun.repository;
 
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductGetResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.product.InventoryDecreaseRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.product.InventoryIncreaseRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.product.InventorySetRequestDto;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.entity.Tag;
+import java.util.List;
 import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -52,4 +56,10 @@ public interface QuerydslRepository {
     Page<BookProductGetResponseDto> findLikeBooks(Long clientId, Pageable pageable, Integer productState);
 
     long setProductState(Long productId, Integer productState);
+
+    long decreaseProductInventory(List<InventoryDecreaseRequestDto> dtoList);
+
+    long increaseProductInventory(InventoryIncreaseRequestDto dto);
+
+    long setProductInventory(InventorySetRequestDto dto);
 }

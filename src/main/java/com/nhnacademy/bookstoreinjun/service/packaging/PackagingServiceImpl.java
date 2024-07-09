@@ -59,8 +59,8 @@ public class PackagingServiceImpl implements PackagingService {
     }
 
     public boolean registerPackage(PackageInsertRequestDto packaging) {
-        if (!packageRepository.findById(packaging.getPackageId()).isPresent()
-                || !productRepository.findById(packaging.getProductId()).isPresent()) {
+        if (packageRepository.findById(packaging.getPackageId()).isPresent()
+                || productRepository.findById(packaging.getProductId()).isPresent()) {
             return false;
         }
         packageRepository.save(Packaging.builder()

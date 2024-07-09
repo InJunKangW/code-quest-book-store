@@ -1,7 +1,10 @@
 package com.nhnacademy.bookstoreinjun.repository;
 
+import com.mysql.cj.xdevapi.SqlUpdateResult;
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductGetResponseDto;
-import com.nhnacademy.bookstoreinjun.dto.product.ProductUpdateResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.product.InventoryDecreaseRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.product.InventoryIncreaseRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.product.InventorySetRequestDto;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.entity.QBook;
@@ -13,9 +16,11 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPQLQuery;
-import java.time.LocalDateTime;
+import com.querydsl.jpa.impl.JPAUpdateClause;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -294,11 +299,53 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
                 .fetch());
     }
 
+    @Transactional
     @Override
     public long setProductState(Long productId, Integer productState) {
         return update(p)
                 .set(p.productState, productState)
                 .where(p.productId.eq(productId))
+                .execute();
+    }
+
+    @Transactional
+    @Override
+    public long decreaseProductInventory(List<InventoryDecreaseRequestDto> dtoList){
+        if(dtoList == null || dtoList.isEmpty()){
+            return 0;
+        }
+
+        CaseBuilder caseBuilder = new CaseBuilder();
+        NumberExpression<Long> caseExpression = p.productInventory;
+        for(InventoryDecreaseRequestDto dto : dtoList){
+            caseExpression = caseBuilder.when(p.productId.eq(dto.productId())).then(p.productInventory.subtract(dto.quantityToDecrease())).otherwise(p.productInventory);
+        }
+
+        return update(p)
+                .set(p.productInventory, caseExpression)
+                .where(p.productId.in(dtoList.stream()
+                        .map(InventoryDecreaseRequestDto::productId)
+                        .toList()))
+                .execute();
+    }
+
+
+    @Transactional
+    @Override
+    public long increaseProductInventory(InventoryIncreaseRequestDto dto) {
+        return update(p)
+                .set(p.productInventory, p.productInventory.add(dto.quantityToIncrease()))
+                .where(p.productId.eq(dto.productId()))
+                .execute();
+    }
+
+
+    @Transactional
+    @Override
+    public long setProductInventory(InventorySetRequestDto dto) {
+        return update(p)
+                .set(p.productInventory, dto.quantityToSet())
+                .where(p.productId.eq(dto.productId()))
                 .execute();
     }
 }

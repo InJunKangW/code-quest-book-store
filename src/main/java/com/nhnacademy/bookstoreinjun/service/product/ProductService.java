@@ -1,12 +1,19 @@
 package com.nhnacademy.bookstoreinjun.service.product;
 
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.product.InventoryDecreaseRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.product.InventoryIncreaseRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.product.InventorySetRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductGetResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.product.ProductInventoryGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductStateUpdateRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductUpdateResponseDto;
+import java.util.List;
+import java.util.Set;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 
 public interface ProductService {
     /**
@@ -43,4 +50,12 @@ public interface ProductService {
     ProductLikeResponseDto deleteProductLike(Long clientId, Long productId);
 
     ProductUpdateResponseDto updateProductState(ProductStateUpdateRequestDto productStateUpdateRequestDto);
+
+    List<ProductInventoryGetResponseDto> getInventoryOfProductList (Set<Long> productIdSet);
+
+    ResponseEntity<Void> decreaseInventoryOfProductList(List<InventoryDecreaseRequestDto> inventoryDecreaseRequestDtoList);
+
+    ResponseEntity<Void> increaseProductInventory(InventoryIncreaseRequestDto inventoryIncreaseRequestDto);
+
+    ResponseEntity<Void> setProductInventory(InventorySetRequestDto inventorySetRequestDto);
 }

@@ -1,7 +1,11 @@
 package com.nhnacademy.bookstoreinjun.service.product;
 
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.product.InventoryDecreaseRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.product.InventoryIncreaseRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.product.InventorySetRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductGetResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.product.ProductInventoryGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductStateUpdateRequestDto;
@@ -19,12 +23,18 @@ import com.nhnacademy.bookstoreinjun.util.PageableUtil;
 import com.nhnacademy.bookstoreinjun.util.SortCheckUtil;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mapping.PropertyReferenceException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -64,6 +74,8 @@ public class ProductServiceImpl implements ProductService {
         return productPage.map(this::makeProductGetResponseDtoFromProduct);
     }
 
+
+    @Override
     public Page<ProductGetResponseDto> findAllPage(@Valid PageRequestDto pageRequestDto) {
         Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
 
@@ -87,7 +99,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
-
+    @Override
     public ProductLikeResponseDto saveProductLike(Long clientIdOfHeader, ProductLikeRequestDto productLikeRequestDto){
         if (clientIdOfHeader ==- 1){
             throw new XUserIdNotFoundException();
@@ -114,6 +126,8 @@ public class ProductServiceImpl implements ProductService {
         return new ProductLikeResponseDto();
     }
 
+
+    @Override
     public ProductLikeResponseDto deleteProductLike(Long clientIdOfHeader, Long productId) {
         if (clientIdOfHeader ==- 1){
             throw new XUserIdNotFoundException();
@@ -128,12 +142,61 @@ public class ProductServiceImpl implements ProductService {
         return new ProductLikeResponseDto();
     }
 
+
+    @Override
     public ProductUpdateResponseDto updateProductState(ProductStateUpdateRequestDto productStateUpdateRequestDto) {
         long result = querydslRepository.setProductState(productStateUpdateRequestDto.productId(), productStateUpdateRequestDto.productState());
-        if (result == -1){
+        log.info("update state called, dto : {}", productStateUpdateRequestDto);
+        if (result != 1){
             throw new NotFoundIdException("product", productStateUpdateRequestDto.productId());
         }else {
             return new ProductUpdateResponseDto(LocalDateTime.now());
         }
+    }
+
+
+    @Override
+    public List<ProductInventoryGetResponseDto> getInventoryOfProductList(Set<Long> productIdSet) {
+        List<ProductInventoryGetResponseDto> result = new ArrayList<>();
+        for (Long productId : productIdSet) {
+            Product product = productRepository.findById(productId).orElseThrow(() -> new NotFoundIdException("product", productId));
+            ProductInventoryGetResponseDto responseDto = ProductInventoryGetResponseDto.builder()
+                    .productId(productId)
+                    .productInventory(product.getProductInventory())
+                    .build();
+            result.add(responseDto);
+        }
+        return result;
+    }
+
+    @Override
+    public ResponseEntity<Void> decreaseInventoryOfProductList(List<InventoryDecreaseRequestDto> inventoryDecreaseRequestDtoList){
+        try {
+            long updatedRow = querydslRepository.decreaseProductInventory(inventoryDecreaseRequestDtoList);
+            if (updatedRow != inventoryDecreaseRequestDtoList.size()){
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (JpaSystemException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Override
+    public ResponseEntity<Void> increaseProductInventory(InventoryIncreaseRequestDto inventoryIncreaseRequestDto) {
+        long updatedRow = querydslRepository.increaseProductInventory(inventoryIncreaseRequestDto);
+        if (updatedRow != 1){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<Void> setProductInventory(InventorySetRequestDto inventorySetRequestDto) {
+        long updatedRow = querydslRepository.setProductInventory(inventorySetRequestDto);
+        if (updatedRow != 1){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
