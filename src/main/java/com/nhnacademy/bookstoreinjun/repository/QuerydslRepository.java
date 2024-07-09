@@ -13,7 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface QuerydslRepository {
-    BookProductGetResponseDto findBookByBookId(Long clientId, Long bookId);
+    BookProductGetResponseDto findBookByProductId(Long clientId, Long productId);
+
     Page<BookProductGetResponseDto> findAllBookPage(Long clientId, Pageable pageable, Integer productState);
 
     Page<BookProductGetResponseDto> findNameContainingBookPage(Long clientId, Pageable pageable, String title, Integer productState);

@@ -33,7 +33,6 @@ public class Product {
     @Builder.Default
     @ColumnDefault("'신규 상품'")
     private String productName = "신규 상품";
-//근데 디폴트 값이 있을 일이 있나..? 에러 날 때말곤 없을 것 같은데. 기본은 도서 이름으로 하되 readonly 빼면 될 듯..
 
     @Builder.Default
     @Column(nullable = false)
@@ -57,9 +56,8 @@ public class Product {
 
     @Builder.Default
     @Column(nullable = false)
-    @ColumnDefault("'https://i.postimg.cc/fbT2n5jH/Pngtree-man-face-6836758.png'")
-    private String productThumbnailUrl = "https://i.postimg.cc/fbT2n5jH/Pngtree-man-face-6836758.png";
-    //디비 자체에는 No image 를 적고 front 에서 저 파일을 띄우는 게 맞을지도.
+    @ColumnDefault("'https://i.postimg.cc/ydkCbCbC/image-2935360-1280.png'")
+    private String productThumbnailUrl = "https://i.postimg.cc/ydkCbCbC/image-2935360-1280.png";
 
     @Builder.Default
     @Column(nullable = false, columnDefinition = "TEXT")

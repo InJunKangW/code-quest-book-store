@@ -42,7 +42,7 @@ public interface BookService {
     /**
      * 도서 등록 요청에 따른, 상품 등록 결과를 반환합니다.
      * @param bookProductUpdateRequestDto 요청입니다. 이 요청은 다음 필드를 포함합니다:
-     *                                       - bookId: 업데이트 할 도서의 id
+     *                                       - productId: 업데이트 할 도서의 id
      *                                       - productName 상품명 (2글자 이상)
      *                                       - packable: 포장 가능 여부
      *                                       - productDescription: 상품 설명
@@ -58,10 +58,10 @@ public interface BookService {
 
     /**
      * 특정 도서 id에 해당하는 도서의 정보를 반환합니다.
-     * @param bookId 확인할 도서 id
+     * @param productId 확인할 도서의 상품 id
      * @return 해당 도서 id에 해당하는 도서의 정보
      */
-    BookProductGetResponseDto getBookByBookId(Long clientIdOfHeader, Long bookId);
+    BookProductGetResponseDto getBookByProductId(Long clientIdOfHeader, Long productId);
 
     /**
      * 페이징 요청에 따른 도서의 페이지를 반환합니다.

@@ -1,8 +1,10 @@
 package com.nhnacademy.bookstoreinjun.controller;
 
 import com.nhnacademy.bookstoreinjun.dto.packaging.PackageInfoResponseDto;
-import com.nhnacademy.bookstoreinjun.dto.packaging.PackageInsertRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.packaging.PackagingRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.packaging.PackageUpdateRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.product.ProductRegisterResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.product.ProductUpdateResponseDto;
 import com.nhnacademy.bookstoreinjun.service.packaging.PackagingServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,8 +21,8 @@ public class PackageController {
 
     private final PackagingServiceImpl packagingServiceImpl;
 
-    @GetMapping("/single")
-    public ResponseEntity<PackageInfoResponseDto> getPackageInfoByPackageID(@RequestParam Long packageId) {
+    @GetMapping("/single/byPackage/{packageId}")
+    public ResponseEntity<PackageInfoResponseDto> getPackageInfoByPackageID(@PathVariable("packageId") Long packageId) {
         PackageInfoResponseDto info = packagingServiceImpl.getPackageInfoById(packageId);
         if (info == null) {
             return ResponseEntity.notFound().build();
@@ -37,8 +39,8 @@ public class PackageController {
         return ResponseEntity.ok(info);
     }
 
-    @GetMapping("/asd")
-    public ResponseEntity<PackageInfoResponseDto> getPackageInfoByProductId(@RequestParam Long productId) {
+    @GetMapping("/single/byProduct/{productId}")
+    public ResponseEntity<PackageInfoResponseDto> getPackageInfoByProductId(@PathVariable("productId") Long productId) {
         PackageInfoResponseDto info = packagingServiceImpl.getPackageInfoByProductId(productId);
         if (info == null) {
             return ResponseEntity.notFound().build();
@@ -46,24 +48,20 @@ public class PackageController {
         return ResponseEntity.ok(info);
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<Boolean> updatePackage(@RequestBody PackageUpdateRequestDto req) {
-        if (packagingServiceImpl.updatePackageInfo(req)) {
-            return ResponseEntity.ok(true);
-        }
-        return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+    @PostMapping("/register")
+    public ResponseEntity<ProductRegisterResponseDto> insertPackage(@RequestBody PackagingRegisterRequestDto req) {
+        return ResponseEntity.ok(packagingServiceImpl.registerPackage(req));
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<Boolean> insertPackage(@RequestBody PackageInsertRequestDto req) {
-        if (packagingServiceImpl.registerPackage(req)) {
-            return ResponseEntity.ok(true);
-        }
-        return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+    @PutMapping("/update")
+    public ResponseEntity<ProductUpdateResponseDto> updatePackage(@RequestBody PackageUpdateRequestDto req) {
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
     @GetMapping("/list/all")
-    public ResponseEntity<List<PackageInfoResponseDto>> getAllPackage() {
+    public ResponseEntity<List<PackageInfoResponseDto>> getAllPackage(
+            @RequestParam(name = "productState", required = false) Integer productState
+    ) {
         return new ResponseEntity<>(packagingServiceImpl.getAllPackages(), HttpStatus.OK);
     }
 
