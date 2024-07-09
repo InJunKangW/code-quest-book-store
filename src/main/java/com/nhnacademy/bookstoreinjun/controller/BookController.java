@@ -103,7 +103,7 @@ public class BookController {
     public ResponseEntity<BookProductGetResponseDto> getSingleBookInfo(
             @RequestHeader HttpHeaders httpHeaders,
             @Min(1) @PathVariable long productId){
-        return new ResponseEntity<>(bookService.getBookByBookId(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), productId), header, HttpStatus.OK);
+        return new ResponseEntity<>(bookService.getBookByProductId(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), productId), header, HttpStatus.OK);
     }
 
 

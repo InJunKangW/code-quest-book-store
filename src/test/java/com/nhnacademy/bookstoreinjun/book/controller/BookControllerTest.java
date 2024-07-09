@@ -9,9 +9,7 @@ import com.nhnacademy.bookstoreinjun.dto.book.BookProductRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.exception.AladinJsonProcessingException;
 //import com.nhnacademy.bookstoreinjun.filter.EmailHeaderFilter;
-import com.nhnacademy.bookstoreinjun.exception.InvalidSortNameException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
-import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
 import com.nhnacademy.bookstoreinjun.service.aladin.AladinService;
 import com.nhnacademy.bookstoreinjun.service.book.BookService;
 import java.time.LocalDate;
@@ -187,7 +185,7 @@ public class BookControllerTest {
     @Test
     @WithMockUser(roles = "CLIENT")
     public void getIndividualBookTestFailure() throws Exception {
-        when(bookService.getBookByBookId(any(), eq(1L))).thenThrow(NotFoundIdException.class);
+        when(bookService.getBookByProductId(any(), eq(1L))).thenThrow(NotFoundIdException.class);
 
         mockMvc.perform(get("/api/product/book/1"))
                 .andExpect(status().isNotFound());

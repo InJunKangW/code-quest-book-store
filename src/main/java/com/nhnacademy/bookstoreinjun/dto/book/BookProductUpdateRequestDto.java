@@ -10,7 +10,7 @@ import org.hibernate.validator.constraints.Length;
 @Builder
 public record BookProductUpdateRequestDto (
         @NotNull
-        Long bookId,
+        Long productId,
 
         @NotNull
         @Length(min = 2)
