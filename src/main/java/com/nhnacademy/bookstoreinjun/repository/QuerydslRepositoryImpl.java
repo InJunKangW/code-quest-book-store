@@ -1,6 +1,5 @@
 package com.nhnacademy.bookstoreinjun.repository;
 
-import com.mysql.cj.xdevapi.SqlUpdateResult;
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventoryDecreaseRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventoryIncreaseRequestDto;
@@ -20,7 +19,6 @@ import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPQLQuery;
-import com.querydsl.jpa.impl.JPAUpdateClause;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -120,7 +118,6 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
     }
 
     private boolean hasProductLike(Long clientId, Long productId) {
-        log.info("checking productLike client : {}. book : {}", clientId, productId);
         if (clientId != null && clientId != 1){
             Long count = countQuery()
                     .innerJoin(p.productLikes, productLike)
@@ -149,7 +146,7 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
 
     @Transactional
     @Override
-    public BookProductGetResponseDto findBookByBookId(Long clientId, Long productId) {
+    public BookProductGetResponseDto findBookByProductId(Long clientId, Long productId) {
         JPQLQuery<Tuple> query = baseQuery()
                 .where(p.productId.eq(productId));
 

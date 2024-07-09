@@ -10,10 +10,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
-public class PackageUpdateRequestDto {
-    @NotNull
-    Long productId;
-
+public class PackagingRegisterRequestDto {
     @NotBlank
     @NotNull
     private String packageName;
@@ -38,7 +35,4 @@ public class PackageUpdateRequestDto {
 
     @Min(0)
     long productInventory;
-
-    @Min(0)
-    int productState;
 }
