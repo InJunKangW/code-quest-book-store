@@ -14,6 +14,6 @@ public interface PackagingService {
     PackageInfoResponseDto getPackageInfoByPackageName(String PackageName);
     ProductUpdateResponseDto updatePackageInfo(PackageUpdateRequestDto packaging);
     ProductRegisterResponseDto registerPackage(PackagingRegisterRequestDto packaging);
-    List<PackageInfoResponseDto> getAllPackages();
+    List<PackageInfoResponseDto> getAllPackages(Integer productState);
     Page<PackageInfoResponseDto> getPackagesPage(int page, int size);
 }

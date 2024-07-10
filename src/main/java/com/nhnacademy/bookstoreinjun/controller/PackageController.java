@@ -62,7 +62,7 @@ public class PackageController {
     public ResponseEntity<List<PackageInfoResponseDto>> getAllPackage(
             @RequestParam(name = "productState", required = false) Integer productState
     ) {
-        return new ResponseEntity<>(packagingServiceImpl.getAllPackages(), HttpStatus.OK);
+        return new ResponseEntity<>(packagingServiceImpl.getAllPackages(productState), HttpStatus.OK);
     }
 
     @GetMapping("/page")

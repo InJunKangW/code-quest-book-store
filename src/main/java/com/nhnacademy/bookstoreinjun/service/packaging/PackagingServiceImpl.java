@@ -98,14 +98,15 @@ public class PackagingServiceImpl implements PackagingService {
     }
 
 
-    public List<PackageInfoResponseDto> getAllPackages() {
-        return packageRepository.findAll().stream()
+    public List<PackageInfoResponseDto> getAllPackages(Integer productState) {
+        List<Packaging> packagingList = productState == null? packageRepository.findAll() : packageRepository.findByProduct_ProductState(productState);
+        return packagingList.stream()
                 .map(packaging -> new PackageInfoResponseDto(
                         packaging.getPackageId(),
                         packaging.getPackageName(),
                         packaging.getProduct()
                 ))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public Page<PackageInfoResponseDto> getPackagesPage(int page, int size) {
