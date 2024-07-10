@@ -127,7 +127,7 @@ public class BookController {
         return new ResponseEntity<>(bookService.getBookPageFilterByTagsAndProductState(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), pageRequestDto, tagNameSet, conditionIsAnd, productState), header, HttpStatus.OK);
     }
 
-    @GetMapping("/books/like")
+    @GetMapping("/client/books/like")
     public ResponseEntity<Page<BookProductGetResponseDto>> getLikeBookPage(
             @RequestHeader HttpHeaders httpHeaders,
             @Valid @ModelAttribute PageRequestDto pageRequestDto,

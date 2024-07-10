@@ -55,7 +55,7 @@ public interface ProductService {
 
     ResponseEntity<Void> decreaseInventoryOfProductList(List<InventoryDecreaseRequestDto> inventoryDecreaseRequestDtoList);
 
-    ResponseEntity<Void> increaseProductInventory(InventoryIncreaseRequestDto inventoryIncreaseRequestDto);
+    ResponseEntity<Void> increaseProductInventory(List<InventoryIncreaseRequestDto> inventoryIncreaseRequestDto);
 
     ResponseEntity<Void> setProductInventory(InventorySetRequestDto inventorySetRequestDto);
 }

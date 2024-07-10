@@ -97,9 +97,9 @@ public class ProductController {
         return productService.decreaseInventoryOfProductList(inventoryDecreaseRequestDtoList);
     }
 
-    @PutMapping("/admin/inventory/increase")
+    @PutMapping("/inventory/increase")
     public ResponseEntity<Void> increaseProductInventory(
-            @RequestBody @Valid InventoryIncreaseRequestDto inventoryIncreaseRequestDtoList
+            @RequestBody @Valid List<InventoryIncreaseRequestDto> inventoryIncreaseRequestDtoList
     ){
         return productService.increaseProductInventory(inventoryIncreaseRequestDtoList);
     }

@@ -1,8 +1,8 @@
 package com.nhnacademy.bookstoreinjun.service.packaging;
 
-import com.nhnacademy.bookstoreinjun.dto.packaging.PackageInfoResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.packaging.PackagingGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.packaging.PackagingRegisterRequestDto;
-import com.nhnacademy.bookstoreinjun.dto.packaging.PackageUpdateRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.packaging.PackagingUpdateRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductRegisterResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductUpdateResponseDto;
 import com.nhnacademy.bookstoreinjun.entity.Packaging;
@@ -19,7 +19,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -30,28 +29,41 @@ public class PackagingServiceImpl implements PackagingService {
     private final ProductRepository productRepository;
     private final ProductCheckUtil productCheckUtil;
 
-    public PackageInfoResponseDto getPackageInfoById(Long packageId){
+    private PackagingGetResponseDto makeDtoFromPackaging(Packaging packaging) {
+        return new PackagingGetResponseDto(
+                packaging.getPackageId(),
+                packaging.getPackageName(),
+                packaging.getProduct().getProductThumbnailUrl(),
+                packaging.getProduct().getProductId(),
+                packaging.getProduct().getProductName(),
+                packaging.getProduct().getProductState(),
+                packaging.getProduct().getProductPriceStandard(),
+                packaging.getProduct().getProductPriceSales(),
+                packaging.getProduct().getProductInventory());
+    }
+
+    public PackagingGetResponseDto getPackageInfoById(Long packageId){
         Packaging packaging = packageRepository.findById(packageId).orElse(null);
         if (packaging == null) {
             return null;
         }
-        return new PackageInfoResponseDto(packaging.getPackageId(), packaging.getPackageName(), packaging.getProduct());
+        return makeDtoFromPackaging(packaging);
     }
 
-    public PackageInfoResponseDto getPackageInfoByProductId(Long productId) {
+    public PackagingGetResponseDto getPackageInfoByProductId(Long productId) {
         Packaging packaging = packageRepository.findByProduct_ProductId(productId).orElse(null);
         if (packaging == null) {
             return null;
         }
-        return new PackageInfoResponseDto(packaging.getPackageId(), packaging.getPackageName(), packaging.getProduct());
+        return makeDtoFromPackaging(packaging);
     }
 
-    public PackageInfoResponseDto getPackageInfoByPackageName(String packageName) {
+    public PackagingGetResponseDto getPackageInfoByPackageName(String packageName) {
         Packaging packaging = packageRepository.findByPackageName(packageName).orElse(null);
         if (packaging == null) {
             return null;
         }
-        return new PackageInfoResponseDto(packaging.getPackageId(), packaging.getPackageName(), packaging.getProduct());
+        return makeDtoFromPackaging(packaging);
     }
 
 
@@ -69,13 +81,13 @@ public class PackagingServiceImpl implements PackagingService {
 
         packageRepository.save(Packaging.builder()
                 .product(product)
-                .packageName(packaging.getPackageName())
+                .packageName(packaging.getPackagingName())
                 .build());
 
         return new ProductRegisterResponseDto(product.getProductId(), product.getProductRegisterDate());
     }
 
-    public ProductUpdateResponseDto updatePackageInfo(PackageUpdateRequestDto request) {
+    public ProductUpdateResponseDto updatePackageInfo(PackagingUpdateRequestDto request) {
         Product product = productRepository.findByProductId(request.getProductId());
 
         productCheckUtil.checkProduct(product);
@@ -98,23 +110,17 @@ public class PackagingServiceImpl implements PackagingService {
     }
 
 
-    public List<PackageInfoResponseDto> getAllPackages(Integer productState) {
+    public List<PackagingGetResponseDto> getAllPackages(Integer productState) {
         List<Packaging> packagingList = productState == null? packageRepository.findAll() : packageRepository.findByProduct_ProductState(productState);
         return packagingList.stream()
-                .map(packaging -> new PackageInfoResponseDto(
-                        packaging.getPackageId(),
-                        packaging.getPackageName(),
-                        packaging.getProduct()
-                ))
+                .map(this::makeDtoFromPackaging
+                )
                 .toList();
     }
 
-    public Page<PackageInfoResponseDto> getPackagesPage(int page, int size) {
+    public Page<PackagingGetResponseDto> getPackagesPage(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by("packageId").descending());
-        return packageRepository.findAll(pageRequest).map(packaging -> new PackageInfoResponseDto(
-                packaging.getPackageId(),
-                packaging.getPackageName(),
-                packaging.getProduct()
-        ));
+        return packageRepository.findAll(pageRequest)
+                .map(this::makeDtoFromPackaging);
     }
 }

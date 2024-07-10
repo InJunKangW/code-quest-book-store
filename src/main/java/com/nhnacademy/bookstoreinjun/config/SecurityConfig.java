@@ -31,6 +31,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(new HeaderFilter(List.of(
+                        new HeaderFilter.RouteConfig(productClientPath, HttpMethod.GET.name(), Collections.emptyList()),
                         new HeaderFilter.RouteConfig(productClientPath, HttpMethod.POST.name(), Collections.emptyList()),
                         new HeaderFilter.RouteConfig(productClientPath, HttpMethod.PUT.name(), Collections.emptyList()),
                         new HeaderFilter.RouteConfig(productClientPath, HttpMethod.DELETE.name(), Collections.emptyList()),
