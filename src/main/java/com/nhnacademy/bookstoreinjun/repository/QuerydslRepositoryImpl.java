@@ -329,10 +329,20 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
 
     @Transactional
     @Override
-    public long increaseProductInventory(InventoryIncreaseRequestDto dto) {
+    public long increaseProductInventory(List<InventoryIncreaseRequestDto> dtoList) {
+        if(dtoList == null || dtoList.isEmpty()){
+            return 0;
+        }
+        CaseBuilder caseBuilder = new CaseBuilder();
+        NumberExpression<Long> caseExpression = p.productInventory;
+        for(InventoryIncreaseRequestDto dto : dtoList){
+            caseExpression = caseBuilder.when(p.productId.eq(dto.productId())).then(p.productInventory.add(dto.quantityToIncrease())).otherwise(p.productInventory);
+        }
         return update(p)
-                .set(p.productInventory, p.productInventory.add(dto.quantityToIncrease()))
-                .where(p.productId.eq(dto.productId()))
+                .set(p.productInventory, caseExpression)
+                .where(p.productId.in(dtoList.stream()
+                        .map(InventoryIncreaseRequestDto::productId)
+                        .toList()))
                 .execute();
     }
 

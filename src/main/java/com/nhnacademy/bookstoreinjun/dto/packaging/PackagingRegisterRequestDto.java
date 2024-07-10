@@ -13,7 +13,7 @@ import lombok.Setter;
 public class PackagingRegisterRequestDto {
     @NotBlank
     @NotNull
-    private String packageName;
+    private String packagingName;
 
     @NotBlank
     @NotNull

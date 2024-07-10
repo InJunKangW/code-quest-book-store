@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
-public class PackageUpdateRequestDto {
+public class PackagingUpdateRequestDto {
     @NotNull
     Long productId;
 

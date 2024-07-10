@@ -60,7 +60,7 @@ public interface QuerydslRepository {
 
     long decreaseProductInventory(List<InventoryDecreaseRequestDto> dtoList);
 
-    long increaseProductInventory(InventoryIncreaseRequestDto dto);
+    long increaseProductInventory(List<InventoryIncreaseRequestDto> dtoList);
 
     long setProductInventory(InventorySetRequestDto dto);
 }

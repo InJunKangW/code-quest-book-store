@@ -15,6 +15,7 @@ import com.nhnacademy.bookstoreinjun.entity.Tag;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
+import com.nhnacademy.bookstoreinjun.exception.XUserIdNotFoundException;
 import com.nhnacademy.bookstoreinjun.repository.QuerydslRepository;
 import com.nhnacademy.bookstoreinjun.repository.BookRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
@@ -177,6 +178,9 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Page<BookProductGetResponseDto> getLikeBookPage(Long clientIdOfHeader, PageRequestDto pageRequestDto, Integer productState) {
+        if (clientIdOfHeader ==- 1){
+            throw new XUserIdNotFoundException();
+        }
         Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
         try {
             Page<BookProductGetResponseDto> result = querydslRepository.findLikeBooks(clientIdOfHeader, pageable, productState);

@@ -43,7 +43,6 @@ public class CartServiceImpl implements CartService {
         }
         log.info("Restore client cart list with id {}", clientIdOfHeader);
         List<Cart> cartList = cartRepository.findAllByClientId(clientIdOfHeader);
-        log.info("list found. {}", cartList);
         return cartList.stream().map(cart -> CartRequestDto.builder()
                         .productId(cart.getProduct().getProductId())
                         .quantity(cart.getQuantity())

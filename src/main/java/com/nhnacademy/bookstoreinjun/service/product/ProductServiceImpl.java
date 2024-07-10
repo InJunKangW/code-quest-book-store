@@ -183,12 +183,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity<Void> increaseProductInventory(InventoryIncreaseRequestDto inventoryIncreaseRequestDto) {
-        long updatedRow = querydslRepository.increaseProductInventory(inventoryIncreaseRequestDto);
-        if (updatedRow != 1){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<Void> increaseProductInventory(List<InventoryIncreaseRequestDto> inventoryIncreaseRequestDtoList) {
+        try {
+            long updatedRow = querydslRepository.increaseProductInventory(inventoryIncreaseRequestDtoList);
+            if (updatedRow != inventoryIncreaseRequestDtoList.size()){
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (JpaSystemException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
