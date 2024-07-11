@@ -97,6 +97,10 @@ public class BookServiceImpl implements BookService {
         }
     }
 
+    @Override
+    public Boolean checkIfBookExists(String isbn) {
+        return bookRepository.existsByIsbn(isbn);
+    }
 
     @Override
     public BookProductGetResponseDto getBookByProductId(Long clientIdOfHeader, Long productId) {

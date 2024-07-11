@@ -36,6 +36,7 @@ public class PackagingServiceImpl implements PackagingService {
                 packaging.getProduct().getProductThumbnailUrl(),
                 packaging.getProduct().getProductId(),
                 packaging.getProduct().getProductName(),
+                packaging.getProduct().getProductDescription(),
                 packaging.getProduct().getProductState(),
                 packaging.getProduct().getProductPriceStandard(),
                 packaging.getProduct().getProductPriceSales(),
@@ -102,7 +103,7 @@ public class PackagingServiceImpl implements PackagingService {
         productRepository.save(product);
 
         Packaging packaging = packageRepository.findByProduct_ProductId(request.getProductId()).orElseThrow(() -> new NotFoundIdException("package", request.getProductId()));
-        packaging.setPackageName(request.getPackageName());
+        packaging.setPackageName(request.getPackagingName());
 
         packageRepository.save(packaging);
 

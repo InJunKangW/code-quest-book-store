@@ -79,6 +79,12 @@ public class BookController {
         return new ResponseEntity<>(aladinService.getAladdinBookPage(pageRequestDto, title), header, HttpStatus.OK);
     }
 
+
+    @GetMapping("")
+    public ResponseEntity<Boolean> checkIfBookExists(@RequestParam("isbn") String isbn){
+        return new ResponseEntity<>(bookService.checkIfBookExists(isbn), header, HttpStatus.OK);
+    }
+
     @GetMapping("/books")
     public ResponseEntity<Page<BookProductGetResponseDto>> getAllBookPage(
             @RequestHeader HttpHeaders httpHeaders,
