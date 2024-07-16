@@ -50,7 +50,7 @@ public class MyExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponseDto> MethodArgumentTypeMismatchExceptionHandler(MethodArgumentTypeMismatchException ex) {
-        log.info("MethodArgumentTypeMismatchException");
+        log.info("MethodArgumentTypeMismatchException {}", ex.getMessage());
         return getErrorResponse(ex, HttpStatus.BAD_REQUEST);
     }
 

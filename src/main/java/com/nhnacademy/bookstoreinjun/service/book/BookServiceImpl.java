@@ -97,6 +97,10 @@ public class BookServiceImpl implements BookService {
         }
     }
 
+    @Override
+    public Boolean checkIfBookExists(String isbn) {
+        return bookRepository.existsByIsbn(isbn);
+    }
 
     @Override
     public BookProductGetResponseDto getBookByProductId(Long clientIdOfHeader, Long productId) {
@@ -196,7 +200,8 @@ public class BookServiceImpl implements BookService {
     @Override
     public ProductRegisterResponseDto saveBook(BookProductRegisterRequestDto bookProductRegisterRequestDto) {
         log.info("trying save book : {}", bookProductRegisterRequestDto);
-        if (bookRepository.existsByIsbn(bookProductRegisterRequestDto.isbn())){
+        String isbn = bookProductRegisterRequestDto.isbn();
+        if (isbn != null && bookRepository.existsByIsbn(isbn)){
             log.info("book already exists : {}", bookProductRegisterRequestDto);
             throw new DuplicateException(TYPE);
         }else{

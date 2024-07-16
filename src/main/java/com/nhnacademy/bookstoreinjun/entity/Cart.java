@@ -1,5 +1,6 @@
 package com.nhnacademy.bookstoreinjun.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -8,6 +9,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,6 +36,13 @@ public class Cart {
     private Product product;
 
     @NotNull
-    @Min(1)
     private Long quantity;
+
+    @NotNull
+    @Column(nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime addedToCartAt;
+
+    @ManyToOne
+    @JoinColumn(name = "cartRemoveTypeId", nullable = true)
+    private CartRemoveType cartRemoveType;
 }

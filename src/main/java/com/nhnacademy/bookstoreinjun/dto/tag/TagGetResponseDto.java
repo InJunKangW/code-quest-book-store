@@ -4,6 +4,8 @@ import lombok.Builder;
 
 @Builder
 public record TagGetResponseDto (
-        String tagName
+        Long tagId,
+        String tagName,
+        Long productCount
 ){
 }

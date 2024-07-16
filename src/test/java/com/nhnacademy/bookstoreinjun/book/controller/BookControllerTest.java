@@ -8,7 +8,6 @@ import com.nhnacademy.bookstoreinjun.controller.BookController;
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductRegisterRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.exception.AladinJsonProcessingException;
-//import com.nhnacademy.bookstoreinjun.filter.EmailHeaderFilter;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.service.aladin.AladinService;
 import com.nhnacademy.bookstoreinjun.service.book.BookService;
@@ -41,7 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Slf4j
 @WebMvcTest(BookController.class)
 @Import(SecurityConfig.class)
-public class BookControllerTest {
+class BookControllerTest {
 
     @Autowired
      MockMvc mockMvc;
@@ -61,7 +60,7 @@ public class BookControllerTest {
 
 
     @Test
-    public void test1() throws Exception {
+    void test1() throws Exception {
         mockMvc.perform(get("/api/product/book")
                         .header("X-User-Role", "ROLE_ADMIN")
                         .header("X-User-Id", 1)
@@ -75,7 +74,7 @@ public class BookControllerTest {
     @DisplayName("도서 상품 등록 성공 테스트")
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void test2() throws Exception {
+    void test2() throws Exception {
 
         BookProductRegisterRequestDto bookProductRegisterRequestDto = BookProductRegisterRequestDto.builder()
                 .title("test title")
@@ -114,7 +113,7 @@ public class BookControllerTest {
     @DisplayName("도서 상품 등록 실패 테스트 - 상품명 제약 조건 위반 (최소 2 글자)")
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void test5() throws Exception {
+    void test5() throws Exception {
         BookProductRegisterRequestDto bookProductRegisterRequestDto = BookProductRegisterRequestDto.builder()
                 .title("test title")
                 .pubDate(LocalDate.now())
@@ -152,7 +151,7 @@ public class BookControllerTest {
     @DisplayName("알라딘 북 리스트 가져오기 성공.")
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void test3() throws Exception {
+    void test3() throws Exception {
         mockMvc.perform(get("/api/product/book")
                         .header("X-User-Role", "ROLE_ADMIN")
                         .header("X-User-Id", 1)
@@ -163,7 +162,7 @@ public class BookControllerTest {
     @DisplayName("알라딘 북 리스트 가져오기 실패.")
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void test4() throws Exception {
+    void test4() throws Exception {
         when(aladinService.getAladdinBookPage(any(), eq("이해"))).thenThrow(new AladinJsonProcessingException("error"));
 
         mockMvc.perform(get("/api/product/book")
@@ -176,7 +175,7 @@ public class BookControllerTest {
     @DisplayName("개별 도서 조회 성공")
     @Test
     @WithMockUser(roles = "CLIENT")
-    public void getIndividualBookTestSuccess() throws Exception {
+    void getIndividualBookTestSuccess() throws Exception {
         mockMvc.perform(get("/api/product/book/1"))
                 .andExpect(status().isOk());
     }
@@ -184,7 +183,7 @@ public class BookControllerTest {
     @DisplayName("개별 도서 조회 실패")
     @Test
     @WithMockUser(roles = "CLIENT")
-    public void getIndividualBookTestFailure() throws Exception {
+    void getIndividualBookTestFailure() throws Exception {
         when(bookService.getBookByProductId(any(), eq(1L))).thenThrow(NotFoundIdException.class);
 
         mockMvc.perform(get("/api/product/book/1"))
@@ -194,7 +193,7 @@ public class BookControllerTest {
     @DisplayName("도서 페이지 조회 성공")
     @WithMockUser(roles = "CLIENT")
     @Test
-    public void getBookPageSuccess() throws Exception {
+    void getBookPageSuccess() throws Exception {
         PageRequestDto dto = PageRequestDto.builder().build();
 
         String json = objectMapper.writeValueAsString(dto);
