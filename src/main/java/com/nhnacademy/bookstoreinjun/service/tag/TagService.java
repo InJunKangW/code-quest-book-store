@@ -11,6 +11,7 @@ import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
 import org.springframework.data.domain.Page;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
+import org.springframework.http.ResponseEntity;
 
 public interface TagService {
     /**
@@ -29,6 +30,8 @@ public interface TagService {
      * @throws DuplicateException 데이터베이스에 변경할 태그명의 태그가 존재할 경우 발생합니다.
      */
     TagUpdateResponseDto updateTag(TagUpdateRequestDto tagUpdateRequestDto);
+
+    ResponseEntity<Void> deleteTag(Long tagId);
 
     /**
      * 페이징 요청에 따른 모든 태그의 페이지를 반환합니다.

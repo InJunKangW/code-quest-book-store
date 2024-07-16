@@ -1,4 +1,5 @@
 package com.nhnacademy.bookstoreinjun.service.cart;
+import com.nhnacademy.bookstoreinjun.dto.cart.CartCheckoutRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.cart.CartRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.cart.CartGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.cart.SaveCartResponseDto;
@@ -6,11 +7,16 @@ import com.nhnacademy.bookstoreinjun.entity.Cart;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.XUserIdNotFoundException;
+import com.nhnacademy.bookstoreinjun.repository.CartRemoveTypeRepository;
 import com.nhnacademy.bookstoreinjun.repository.QuerydslRepository;
 import com.nhnacademy.bookstoreinjun.repository.CartRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +30,8 @@ public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
 
+    private final CartRemoveTypeRepository cartRemoveTypeRepository;
+
     private final ProductRepository productRepository;
 
     private final QuerydslRepository querydslRepository;
@@ -36,18 +44,38 @@ public class CartServiceImpl implements CartService {
         return productRepository.findById(productId).orElseThrow(() -> new NotFoundIdException("product", productId));
     }
 
+    private Long getQuantity(List<Cart> cartList){
+        if (cartList == null || cartList.isEmpty()) {
+            return 0L;
+        }else {
+            return cartList.stream().map(Cart::getQuantity).reduce(0L, Long::sum);
+        }
+    }
+
     @Override
     public List<CartRequestDto> restoreClientCartList(Long clientIdOfHeader) {
         if (clientIdOfHeader == -1){
             throw new XUserIdNotFoundException();
         }
         log.info("Restore client cart list with id {}", clientIdOfHeader);
-        List<Cart> cartList = cartRepository.findAllByClientId(clientIdOfHeader);
-        return cartList.stream().map(cart -> CartRequestDto.builder()
-                        .productId(cart.getProduct().getProductId())
-                        .quantity(cart.getQuantity())
-                        .build())
-                .toList();
+        List<Cart> cartList = cartRepository.findAllByClientIdAndCartRemoveTypeIsNull(clientIdOfHeader);
+
+        Map<Long, Long> productQuantityMap = new HashMap<>();
+        for (Cart cart : cartList) {
+            Long productId = cart.getProduct().getProductId();
+            Long currentQuantity = productQuantityMap.getOrDefault(productId, 0L);
+            productQuantityMap.put(productId, currentQuantity + cart.getQuantity());
+        }
+
+        List<CartRequestDto> result = new ArrayList<>();
+        for (Map.Entry<Long, Long> entry : productQuantityMap.entrySet()) {
+            result.add(CartRequestDto.builder()
+                    .productId(entry.getKey())
+                    .quantity(entry.getValue())
+                    .build());
+        }
+
+        return result;
     }
 
     @Override
@@ -56,21 +84,16 @@ public class CartServiceImpl implements CartService {
         long productInventory = product.getProductInventory();
 
         Long productId = cartRequestDto.productId();
-        Cart cart = cartRepository.findByClientIdAndProduct_ProductId(clientIdOfHeader, productId);
+        List<Cart> cartList = cartRepository.findByClientIdAndProduct_ProductIdAndCartRemoveTypeIsNull(clientIdOfHeader, productId);
 
-        Long quantity = cartRequestDto.quantity();
-        if (cart == null){
-            quantity = Math.min(quantity, productInventory);
-            cartRepository.save(Cart.builder()
-                    .clientId(clientIdOfHeader)
-                    .product(product)
-                    .quantity(quantity)
-                    .build());
-        }else {
-            quantity = Math.min(cart.getQuantity() + quantity, productInventory);
-            cart.setQuantity(quantity);
-            cartRepository.save(cart);
-        }
+        Long quantity = Math.min(cartRequestDto.quantity(), productInventory - getQuantity(cartList));
+
+        cartRepository.save(Cart.builder()
+                .clientId(clientIdOfHeader)
+                .product(product)
+                .quantity(quantity)
+                .addedToCartAt(LocalDateTime.now())
+                .build());
         return new SaveCartResponseDto(quantity);
     }
 
@@ -87,16 +110,16 @@ public class CartServiceImpl implements CartService {
         long productInventory = product.getProductInventory();
 
         Long productId = cartRequestDto.productId();
-        Cart cart = cartRepository.findByClientIdAndProduct_ProductId(clientIdOfHeader, productId);
+        List<Cart> cartList = cartRepository.findByClientIdAndProduct_ProductIdAndCartRemoveTypeIsNull(clientIdOfHeader, productId);
 
-        if (cart == null){
-            throw new NotFoundIdException("cart product", productId);
-        } else{
-            Long quantity = Math.min(cartRequestDto.quantity(), productInventory);
-            cart.setQuantity(quantity);
-            cartRepository.save(cart);
-            return new SaveCartResponseDto(quantity);
-        }
+        Long quantity = Math.min(cartRequestDto.quantity() - getQuantity(cartList), productInventory - getQuantity(cartList));
+        cartRepository.save(Cart.builder()
+                .clientId(clientIdOfHeader)
+                .product(product)
+                .quantity(quantity)
+                .addedToCartAt(LocalDateTime.now())
+                .build());
+        return new SaveCartResponseDto(quantity);
     }
 
     @Override
@@ -104,11 +127,14 @@ public class CartServiceImpl implements CartService {
         if (clientIdOfHeader == -1){
             throw new XUserIdNotFoundException();
         }
-        Cart cart = cartRepository.findByClientIdAndProduct_ProductId(clientIdOfHeader, productId);
-        if (cart == null){
+        List<Cart> cartList = cartRepository.findByClientIdAndProduct_ProductIdAndCartRemoveTypeIsNull(clientIdOfHeader, productId);
+        if (cartList == null || cartList.isEmpty()){
             throw new NotFoundIdException("cart product", productId);
         }
-        cartRepository.delete(cart);
+        for (Cart cart : cartList){
+            cart.setCartRemoveType(cartRemoveTypeRepository.findByCartRemoveTypeName("직접_삭제"));
+            cartRepository.save(cart);
+        }
     }
 
 
@@ -117,10 +143,16 @@ public class CartServiceImpl implements CartService {
         if (clientIdOfHeader == -1){
             throw new XUserIdNotFoundException();
         }
-        List<Cart> cartList = cartRepository.findAllByClientId(clientIdOfHeader);
-        return cartList.stream()
-                .map(cart -> getCartResponseDto(cart.getProduct(), cart.getQuantity()))
+        List<Cart> cartList = cartRepository.findAllByClientIdAndCartRemoveTypeIsNull(clientIdOfHeader);
+        Map<Product, Long> productQuantityMap = cartList.stream()
+                .collect(Collectors.groupingBy(Cart::getProduct, Collectors.summingLong(Cart::getQuantity)));
+
+        return productQuantityMap.entrySet().stream()
+                .map(entry -> getCartResponseDto(entry.getKey(), entry.getValue()))
                 .toList();
+//        return cartList.stream()
+//                .map(cart -> getCartResponseDto(cart.getProduct(), cart.getQuantity()))
+//                .toList();
     }
 
     @Override
@@ -155,6 +187,29 @@ public class CartServiceImpl implements CartService {
         if (clientIdOfHeader == -1){
             throw new XUserIdNotFoundException();
         }
-        cartRepository.deleteByClientId(clientIdOfHeader);
+        List<Cart> cartList = cartRepository.findAllByClientIdAndCartRemoveTypeIsNull(clientIdOfHeader);
+        if (cartList != null && !cartList.isEmpty()){
+            for (Cart cart : cartList){
+                cart.setCartRemoveType(cartRemoveTypeRepository.findByCartRemoveTypeName("직접_삭제"));
+                cartRepository.save(cart);
+            }
+        }
+    }
+
+    @Override
+    public void clearCartByCheckout(Long clientIdOfHeader, CartCheckoutRequestDto cartCheckoutRequestDto) {
+        if (clientIdOfHeader == -1){
+            throw new XUserIdNotFoundException();
+        }
+        List<Long> productIdList = cartCheckoutRequestDto.productIdList();
+        for (Long productId : productIdList){
+            List<Cart> cartList = cartRepository.findByClientIdAndProduct_ProductIdAndCartRemoveTypeIsNull(clientIdOfHeader, productId);
+            if (cartList != null && !cartList.isEmpty()){
+                for (Cart cart : cartList){
+                    cart.setCartRemoveType(cartRemoveTypeRepository.findByCartRemoveTypeName("구매"));
+                    cartRepository.save(cart);
+                }
+            }
+        }
     }
 }

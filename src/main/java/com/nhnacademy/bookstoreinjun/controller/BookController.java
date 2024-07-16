@@ -80,8 +80,10 @@ public class BookController {
     }
 
 
-    @GetMapping("")
+    // TODO - 이거 알라딘으로 도서 등록 시 호출하기
+    @GetMapping("/book/isbnCheck")
     public ResponseEntity<Boolean> checkIfBookExists(@RequestParam("isbn") String isbn){
+        log.info("Checking if book exists with isbn {}", isbn);
         return new ResponseEntity<>(bookService.checkIfBookExists(isbn), header, HttpStatus.OK);
     }
 

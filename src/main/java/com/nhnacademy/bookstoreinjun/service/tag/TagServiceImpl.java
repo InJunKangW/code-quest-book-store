@@ -8,8 +8,10 @@ import com.nhnacademy.bookstoreinjun.dto.tag.TagUpdateRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.tag.TagUpdateResponseDto;
 import com.nhnacademy.bookstoreinjun.entity.Tag;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
+import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
+import com.nhnacademy.bookstoreinjun.repository.ProductTagRepository;
 import com.nhnacademy.bookstoreinjun.repository.TagRepository;
 import com.nhnacademy.bookstoreinjun.util.PageableUtil;
 import com.nhnacademy.bookstoreinjun.util.SortCheckUtil;
@@ -18,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mapping.PropertyReferenceException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,15 +30,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class TagServiceImpl implements TagService {
     private final TagRepository tagRepository;
 
-    private final String TYPE = "tag";
+    private final ProductTagRepository productTagRepository;
 
-    private final int DEFAULT_PAGE_SIZE = 10;
+    private static final String TYPE = "tag";
 
-    private final String DEFAULT_SORT = "tagId";
+    private static final int DEFAULT_PAGE_SIZE = 10;
+
+    private static final String DEFAULT_SORT = "tagId";
 
     private TagGetResponseDto makeTagGetResponseDtoFromTag(Tag tag) {
         return TagGetResponseDto.builder()
+                .tagId(tag.getTagId())
                 .tagName(tag.getTagName())
+                .productCount(productTagRepository.countByTag(tag))
                 .build();
     }
 
@@ -82,6 +89,16 @@ public class TagServiceImpl implements TagService {
                     .newTagName(newTagName)
                     .updateTime(LocalDateTime.now())
                     .build();
+        }
+    }
+
+    public ResponseEntity<Void> deleteTag(Long tagId) {
+        Tag tag = tagRepository.findById(tagId).orElseThrow(() -> new NotFoundIdException(TYPE, tagId));
+        if (productTagRepository.existsByTag(tag)){
+            return ResponseEntity.status(409).build();
+        }else {
+            tagRepository.delete(tag);
+            return ResponseEntity.ok().build();
         }
     }
 

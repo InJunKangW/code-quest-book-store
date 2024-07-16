@@ -1,8 +1,10 @@
 package com.nhnacademy.bookstoreinjun.repository;
 
 import com.nhnacademy.bookstoreinjun.entity.Product;
+import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategoryRelation;
 import java.util.List;
+import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,6 +17,7 @@ public interface ProductCategoryRelationRepository extends JpaRepository<Product
      */
     List<ProductCategoryRelation> findByProduct(Product product);
 
+    boolean existsByProductCategoryIn(Set<ProductCategory> productCategorySet);
     /**
      * product 와 관련된 모든 카테고리 관계를 삭제합니다. (카테고리 자체 삭제가 아닙니다.)
      * 상품 업데이트 시 카테고리를 초기화 후 새로운 카테고리 관계를 맺기 위해 사용합니다.

@@ -24,12 +24,10 @@ public record BookProductRegisterRequestDto(
         @NotNull
         LocalDate pubDate,
 
-        @NotNull
         @Length(min = 10, max =10) String isbn,
 
         @Length(min = 13, max =13) String isbn13,
 
-        @NotNull
         String cover,
 
         @NotNull
