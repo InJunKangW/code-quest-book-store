@@ -5,9 +5,8 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CartRepository extends JpaRepository<Cart, Long> {
-    List<Cart> findAllByClientId(Long clientId);
 
-    void deleteByClientId(Long clientId);
+    List<Cart> findByClientIdAndProduct_ProductIdAndCartRemoveTypeIsNull(Long clientId, Long productId);
 
-    Cart findByClientIdAndProduct_ProductId(Long clientId, Long productId);
+    List<Cart> findAllByClientIdAndCartRemoveTypeIsNull(Long clientId);
 }

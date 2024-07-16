@@ -13,6 +13,7 @@ import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
 import com.nhnacademy.bookstoreinjun.util.ProductCheckUtil;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -112,16 +114,19 @@ public class PackagingServiceImpl implements PackagingService {
 
 
     public List<PackagingGetResponseDto> getAllPackages(Integer productState) {
-        List<Packaging> packagingList = productState == null? packageRepository.findAll() : packageRepository.findByProduct_ProductState(productState);
+        List<Packaging> packagingList = productState == null ? packageRepository.findAll() : packageRepository.findByProduct_ProductState(productState);
         return packagingList.stream()
                 .map(this::makeDtoFromPackaging
                 )
                 .toList();
     }
 
-    public Page<PackagingGetResponseDto> getPackagesPage(int page, int size) {
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("packageId").descending());
-        return packageRepository.findAll(pageRequest)
-                .map(this::makeDtoFromPackaging);
+    public Page<PackagingGetResponseDto> getPackagesPage(Integer productState, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page - 1, size, Sort.by("productProductId").descending());
+        return productState == null ?
+                packageRepository.findAll(pageRequest)
+                        .map(this::makeDtoFromPackaging) :
+                packageRepository.findByProduct_ProductState(productState, pageRequest)
+                        .map(this::makeDtoFromPackaging);
     }
 }

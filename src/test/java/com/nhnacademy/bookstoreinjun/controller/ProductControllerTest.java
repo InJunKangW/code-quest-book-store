@@ -11,8 +11,6 @@ class ProductControllerTest {
     @MockBean
     ProductService productService;
     @Test
-    void name() throws InterruptedException {
-
-        Thread.sleep(2000);
+    void contextLoads(){
     }
 }

@@ -42,7 +42,7 @@ public class Book {
     @Column(nullable = false, name = "bookAuthor")
     private String author;
 
-    @Column(nullable = false, unique = true, length = 10, name = "bookIsbn_10")
+    @Column(nullable = true, unique = true, length = 10, name = "bookIsbn_10")
     private String isbn;
 
     @Column(nullable = true, unique = true, length = 13, name = "bookIsbn_13")

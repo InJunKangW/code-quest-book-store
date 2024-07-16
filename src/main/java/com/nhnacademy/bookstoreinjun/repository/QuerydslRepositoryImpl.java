@@ -143,6 +143,17 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
         return new PageImpl<>(result, pageable, totalPages);
     }
 
+    private void addSoldOutChecker(Pageable pageable, BooleanBuilder whereBuilder) {
+        Sort sort = pageable.getSort();
+        Sort.Order order = sort.iterator().next();
+        String property = order.getProperty();
+
+        if (property.equals("product.productInventory")){
+            whereBuilder.and(product.productInventory.ne(0L));
+        }
+    }
+
+
 
     @Transactional
     @Override
@@ -167,6 +178,8 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
             whereBuilder.and(product.productState.eq(productState));
         }
 
+        addSoldOutChecker(pageable, whereBuilder);
+
         JPQLQuery<Tuple> query = baseQuery()
                 .where(whereBuilder)
                 .orderBy(orderSpecifier);
@@ -181,6 +194,8 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
     public Page<BookProductGetResponseDto> findNameContainingBookPage(Long clientId, Pageable pageable, String title, Integer productState){
         OrderSpecifier<?> orderSpecifier = makeOrderSpecifier(pageable, "book");
         BooleanBuilder whereBuilder = new BooleanBuilder();
+
+
 
         if(productState != null){
             whereBuilder.and(product.productState.eq(productState));

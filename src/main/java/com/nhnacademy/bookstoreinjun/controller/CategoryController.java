@@ -13,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,6 +47,10 @@ public class CategoryController {
         return new ResponseEntity<>(productCategoryService.updateCategory(categoryUpdateRequestDto), header, HttpStatus.OK);
     }
 
+    @DeleteMapping("/admin/category/delete/{categoryId}")
+    public ResponseEntity<Void> deleteCategory(@PathVariable("categoryId") Long categoryId) {
+        return productCategoryService.deleteCategory(categoryId);
+    }
 
     @GetMapping("/categories/all")
     public ResponseEntity<Page<CategoryGetResponseDto>> getAllCategories(

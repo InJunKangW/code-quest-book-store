@@ -8,6 +8,7 @@ import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
 import com.nhnacademy.bookstoreinjun.exception.InvalidSortNameException;
+import org.springframework.http.ResponseEntity;
 
 
 public interface ProductCategoryService {
@@ -28,6 +29,8 @@ public interface ProductCategoryService {
      * @throws NotFoundNameException 기존 카테고리명이 데이터베이스에 존재하지 않을 경우 발생합니다
      */
     CategoryUpdateResponseDto updateCategory(CategoryUpdateRequestDto categoryUpdateRequestDto);
+
+    ResponseEntity<Void> deleteCategory(Long categoryId);
 
 
     CategoryGetResponseDto getCategoryDtoByName(String categoryName);

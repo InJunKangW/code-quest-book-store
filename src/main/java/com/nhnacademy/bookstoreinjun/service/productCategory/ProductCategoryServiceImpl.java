@@ -3,9 +3,11 @@ package com.nhnacademy.bookstoreinjun.service.productCategory;
 import com.nhnacademy.bookstoreinjun.dto.category.*;
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
+import com.nhnacademy.bookstoreinjun.entity.ProductCategoryRelation;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
+import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRelationRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
 import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtil;
 import com.nhnacademy.bookstoreinjun.util.PageableUtil;
@@ -20,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ProductCategoryServiceImpl implements ProductCategoryService {
     private final ProductCategoryRepository productCategoryRepository;
+
+    private final ProductCategoryRelationRepository productCategoryRelationRepository;
 
     private final FindAllSubCategoriesUtil findAllSubCategoriesUtil;
 
@@ -94,6 +99,16 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
                     .updateTime(LocalDateTime.now())
                     .build();
         }
+    }
+
+    public ResponseEntity<Void> deleteCategory(Long categoryId){
+        Set<ProductCategory> allSubcategorySet = findAllSubCategoriesUtil.getAllSubcategorySet(categoryId);
+        if (productCategoryRelationRepository.existsByProductCategoryIn(allSubcategorySet)){
+            return ResponseEntity.status(409).body(null);
+        }else {
+            productCategoryRepository.deleteAll(allSubcategorySet);
+        }
+        return ResponseEntity.status(200).body(null);
     }
 
     public CategoryGetResponseDto getCategoryDtoByName(String categoryName) {

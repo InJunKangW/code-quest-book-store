@@ -1,5 +1,6 @@
 package com.nhnacademy.bookstoreinjun.controller;
 
+import com.nhnacademy.bookstoreinjun.dto.cart.CartCheckoutRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.cart.CartRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.cart.CartGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.cart.SaveCartResponseDto;
@@ -29,7 +30,6 @@ public class CartController {
     private final CartService cartService;
 
     private static final String ID_HEADER = "X-User-Id";
-
 
     private final HttpHeaders header = new HttpHeaders() {{
         setContentType(MediaType.APPLICATION_JSON);
@@ -95,6 +95,15 @@ public class CartController {
             @RequestHeader HttpHeaders httpHeaders
     ){
         cartService.clearAllCart(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L));
+        return new ResponseEntity<>(null, header, HttpStatus.OK);
+    }
+
+    @PutMapping("/client/cart/checkout")
+    public ResponseEntity<Void> clearAllCartByBuyingProducts(
+            @RequestHeader HttpHeaders httpHeaders,
+            @RequestBody @Valid CartCheckoutRequestDto cartCheckoutRequestDto
+    ){
+        cartService.clearCartByCheckout(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), cartCheckoutRequestDto);
         return new ResponseEntity<>(null, header, HttpStatus.OK);
     }
 

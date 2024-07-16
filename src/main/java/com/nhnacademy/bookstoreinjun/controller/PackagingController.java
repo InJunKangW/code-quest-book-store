@@ -66,7 +66,9 @@ public class PackagingController {
     }
 
     @GetMapping("/packaging/page")
-    public ResponseEntity<Page<PackagingGetResponseDto>> getAllPackageByProductId(@RequestParam(name = "page") int page, @RequestParam(name = "page") int size) {
-        return new ResponseEntity<>(packagingService.getPackagesPage(page, size), HttpStatus.OK);
+    public ResponseEntity<Page<PackagingGetResponseDto>> getAllPackageByProductId(
+            @RequestParam(name = "productState", required = false) Integer productState,
+            @RequestParam(name = "page") int page, @RequestParam(name = "size") int size) {
+        return new ResponseEntity<>(packagingService.getPackagesPage(productState, page, size), HttpStatus.OK);
     }
 }
