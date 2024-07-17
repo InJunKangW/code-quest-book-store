@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.nhnacademy.bookstoreinjun.config.SecurityConfig;
 import com.nhnacademy.bookstoreinjun.controller.BookController;
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductRegisterRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.book.BookProductUpdateRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.exception.AladinJsonProcessingException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
@@ -34,6 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -156,6 +158,34 @@ class BookControllerTest {
         verify(bookService,times(0)).saveBook(any());
     }
 
+    @DisplayName("도서 상품 업데이트 성공")
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void test6() throws Exception {
+        BookProductUpdateRequestDto bookProductUpdateRequestDto = BookProductUpdateRequestDto.builder()
+                .productId(1L)
+                .productName("updated name")
+                .productDescription("test product description")
+                .productInventory(0)
+                .productPriceSales(1)
+                .productState(1)
+                .packable(false)
+                .categories(Set.copyOf(Arrays.asList("test category1","test category2")))
+                .tags(Set.copyOf(Arrays.asList("test tag1","test tag2")))
+                .build();
+
+        String json = objectMapper.writeValueAsString(bookProductUpdateRequestDto);
+
+        mockMvc.perform(put("/api/product/admin/book/update")
+                        .content(json)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Role", "ROLE_ADMIN")
+                        .header("X-User-Id", 1))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        verify(bookService,times(0)).saveBook(any());
+    }
 
 
 

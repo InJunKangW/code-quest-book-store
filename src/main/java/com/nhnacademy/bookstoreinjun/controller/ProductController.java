@@ -90,24 +90,24 @@ public class ProductController {
     }
 
 
-    @PutMapping("/inventory/decrease")
-    public ResponseEntity<Void> decreaseProductInventory(
-            @RequestBody @Valid List<InventoryDecreaseRequestDto> inventoryDecreaseRequestDtoList
-    ){
-        return productService.decreaseInventoryOfProductList(inventoryDecreaseRequestDtoList);
-    }
-
-    @PutMapping("/inventory/increase")
-    public ResponseEntity<Void> increaseProductInventory(
-            @RequestBody @Valid List<InventoryIncreaseRequestDto> inventoryIncreaseRequestDtoList
-    ){
-        return productService.increaseProductInventory(inventoryIncreaseRequestDtoList);
-    }
+//    @PutMapping("/inventory/decrease")
+//    public ResponseEntity<Void> decreaseProductInventory(
+//            @RequestBody @Valid List<InventoryDecreaseRequestDto> inventoryDecreaseRequestDtoList
+//    ){
+//        return productService.decreaseProductInventory(inventoryDecreaseRequestDtoList);
+//    }
+//
+//    @PutMapping("/inventory/increase")
+//    public ResponseEntity<Void> increaseProductInventory(
+//            @RequestBody @Valid List<InventoryIncreaseRequestDto> inventoryIncreaseRequestDtoList
+//    ){
+//        return productService.increaseProductInventory(inventoryIncreaseRequestDtoList);
+//    }
 
     @PutMapping("/admin/inventory/set")
     public ResponseEntity<Void> setProductInventory(
-            @RequestBody @Valid InventorySetRequestDto inventorySetRequestDtoList
+            @RequestBody @Valid InventorySetRequestDto inventorySetRequestDto
     ){
-        return productService.setProductInventory(inventorySetRequestDtoList);
+        return productService.setProductInventory(inventorySetRequestDto);
     }
 }
