@@ -13,6 +13,7 @@ import com.nhnacademy.bookstoreinjun.service.aladin.AladinService;
 import com.nhnacademy.bookstoreinjun.service.book.BookService;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,6 +72,16 @@ class BookControllerTest {
         verify(aladinService,times(1)).getAladdinBookPage(any(), eq("이해"));
     }
 
+    @DisplayName("도서 상품 중복 조회 테스트")
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void isbnCheckTest() throws Exception {
+        mockMvc.perform(get("/api/product/book/isbnCheck")
+                        .param("isbn", "1234567890"))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
     @DisplayName("도서 상품 등록 성공 테스트")
     @Test
     @WithMockUser(roles = "ADMIN")
@@ -91,7 +102,7 @@ class BookControllerTest {
                 .productPriceSales(1)
                 .packable(false)
                 .categories(
-                        Set.copyOf(Arrays.asList("category1"))
+                        Set.copyOf(List.of("category1"))
                 )
                 .tags(
                         Set.copyOf(Arrays.asList("test tag1","test tag2")))
@@ -203,43 +214,39 @@ class BookControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
-//
-//    @DisplayName("도서 페이지 조회 실패 - 잘못된 정렬 조건")
-//    @WithMockUser(roles = "CLIENT")
-//    @Test
-//    public void getBookPageFailureByWrongSortValue() throws Exception {
-//        when(bookService.getBookPage(eq(1L), any())).thenThrow(InvalidSortNameException.class);
-//
-//        PageRequestDto dto = PageRequestDto.builder()
-//                .sort("wrong sort")
-//                .build();
-//
-//        String json = objectMapper.writeValueAsString(dto);
-//
-//        mockMvc.perform(get("/api/product/books")
-//                        .param("sort", "wrong sort"))
-////                        .content(json)
-////                        .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isBadRequest());
-//    }
-//
-//    @DisplayName("도서 페이지 조회 실패 - 초과 페이지 요청")
-//    @WithMockUser(roles = "CLIENT")
-//    @Test
-//    public void getBookPageFailureByOutOfPageRange() throws Exception {
-//        when(bookService.getBookPage(eq(1L), any())).thenThrow(PageOutOfRangeException.class);
-//
-//        PageRequestDto dto = PageRequestDto.builder()
-//                .sort("wrong sort")
-//                .build();
-//
-//        String json = objectMapper.writeValueAsString(dto);
-//
-//        mockMvc.perform(get("/api/product/books")
-//                        .content(json)
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isNotFound());
-//    }
 
+    @DisplayName("도서 페이지 조회 - 제목 포함")
+    @WithMockUser(roles = "CLIENT")
+    @Test
+    void getBookPageByTitle() throws Exception {
+        mockMvc.perform(get("/api/product/books/containing")
+                                .param("title", "test"))
+                .andExpect(status().isOk());
+    }
 
+    @DisplayName("도서 페이지 조회 - 카테고리")
+    @WithMockUser(roles = "CLIENT")
+    @Test
+    void getBookPageByCategory() throws Exception {
+        mockMvc.perform(get("/api/product/books/category/1"))
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("도서 페이지 조회 - 태그")
+    @WithMockUser(roles = "CLIENT")
+    @Test
+    void getBookPageByTag() throws Exception {
+        mockMvc.perform(get("/api/product/books/tagFilter")
+                        .param("tagName", "test,test2"))
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("도서 페이지 조회 - 나의 좋아요")
+    @WithMockUser(roles = "CLIENT")
+    @Test
+    void getBookPageByMyLike() throws Exception {
+        mockMvc.perform(get("/api/product/client/books/like")
+                        .header("X-User-Id", 1))
+                .andExpect(status().isOk());
+    }
 }
