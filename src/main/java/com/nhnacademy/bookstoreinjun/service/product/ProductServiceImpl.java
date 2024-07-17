@@ -1,5 +1,8 @@
 package com.nhnacademy.bookstoreinjun.service.product;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventoryDecreaseRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventoryIncreaseRequestDto;
@@ -29,6 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mapping.PropertyReferenceException;
@@ -51,6 +55,8 @@ public class ProductServiceImpl implements ProductService {
     private final int DEFAULT_PAGE_SIZE = 10;
 
     private final String DEFAULT_SORT = "productId";
+
+    private final ObjectMapper objectMapper;
 
     private ProductGetResponseDto makeProductGetResponseDtoFromProduct(Product product) {
         return ProductGetResponseDto.builder()
@@ -169,29 +175,71 @@ public class ProductServiceImpl implements ProductService {
         return result;
     }
 
+//    @Override
+//    public ResponseEntity<Void> decreaseProductInventory(List<InventoryDecreaseRequestDto> inventoryDecreaseRequestDtoList){
+//        try {
+//            long updatedRow = querydslRepository.decreaseProductInventory(inventoryDecreaseRequestDtoList);
+//            if (updatedRow != inventoryDecreaseRequestDtoList.size()){
+//                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+//            }
+//            return new ResponseEntity<>(HttpStatus.OK);
+//        }catch (JpaSystemException e) {
+//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//        }
+//    }
+//
+//    @Override
+//    public ResponseEntity<Void> increaseProductInventory(List<InventoryIncreaseRequestDto> inventoryIncreaseRequestDtoList) {
+//        try {
+//            long updatedRow = querydslRepository.increaseProductInventory(inventoryIncreaseRequestDtoList);
+//            if (updatedRow != inventoryIncreaseRequestDtoList.size()){
+//                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+//            }
+//            return new ResponseEntity<>(HttpStatus.OK);
+//        }catch (JpaSystemException e) {
+//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//        }
+//    }
+
+    @RabbitListener(queues = "${rabbit.inventory.decrease.queue.name}")
     @Override
-    public ResponseEntity<Void> decreaseInventoryOfProductList(List<InventoryDecreaseRequestDto> inventoryDecreaseRequestDtoList){
+    public void decreaseProductInventoryQueue(String message){
+        List<InventoryDecreaseRequestDto> inventoryDecreaseRequestDtoList;
+        log.info("decrease product inventory queue: {}", message);
         try {
+            inventoryDecreaseRequestDtoList = objectMapper.readValue(message, new TypeReference<List<InventoryDecreaseRequestDto>>() {});
             long updatedRow = querydslRepository.decreaseProductInventory(inventoryDecreaseRequestDtoList);
             if (updatedRow != inventoryDecreaseRequestDtoList.size()){
-                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+                log.error("decrease product inventory queue failed");
+            }else {
+                log.info("decrease product inventory queue success");
             }
-            return new ResponseEntity<>(HttpStatus.OK);
-        }catch (JpaSystemException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (JsonProcessingException e) {
+            log.error("decrease product inventory queue failed", e);
+        } catch (JpaSystemException e) {
+            log.error("decrease product inventory queue failed ", e);
         }
     }
 
+
+
+    @RabbitListener(queues = "${rabbit.inventory.increase.queue.name}")
     @Override
-    public ResponseEntity<Void> increaseProductInventory(List<InventoryIncreaseRequestDto> inventoryIncreaseRequestDtoList) {
+    public void increaseProductInventoryQueue(String message){
+        List<InventoryIncreaseRequestDto> inventoryIncreaseRequestDtoList;
+        log.info("increase product inventory queue: {}", message);
         try {
+            inventoryIncreaseRequestDtoList = objectMapper.readValue(message, new TypeReference<List<InventoryIncreaseRequestDto>>() {});
             long updatedRow = querydslRepository.increaseProductInventory(inventoryIncreaseRequestDtoList);
             if (updatedRow != inventoryIncreaseRequestDtoList.size()){
-                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+                log.error("increase product inventory queue failed. updatedRow: {}, size: {}, request : {}", updatedRow, inventoryIncreaseRequestDtoList.size(), inventoryIncreaseRequestDtoList);
+            }else {
+                log.info("increase product inventory queue success");
             }
-            return new ResponseEntity<>(HttpStatus.OK);
-        }catch (JpaSystemException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (JsonProcessingException e) {
+            log.error("increase product inventory queue failed", e);
+        } catch (JpaSystemException e) {
+            log.error("increase product inventory queue failed ", e);
         }
     }
 

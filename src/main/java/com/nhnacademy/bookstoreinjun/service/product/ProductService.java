@@ -53,9 +53,13 @@ public interface ProductService {
 
     List<ProductInventoryGetResponseDto> getInventoryOfProductList (Set<Long> productIdSet);
 
-    ResponseEntity<Void> decreaseInventoryOfProductList(List<InventoryDecreaseRequestDto> inventoryDecreaseRequestDtoList);
+//    ResponseEntity<Void> decreaseProductInventory(List<InventoryDecreaseRequestDto> inventoryDecreaseRequestDtoList);
+//
+//    ResponseEntity<Void> increaseProductInventory(List<InventoryIncreaseRequestDto> inventoryIncreaseRequestDto);
 
-    ResponseEntity<Void> increaseProductInventory(List<InventoryIncreaseRequestDto> inventoryIncreaseRequestDto);
+    void decreaseProductInventoryQueue(String message);
+
+    void increaseProductInventoryQueue(String message);
 
     ResponseEntity<Void> setProductInventory(InventorySetRequestDto inventorySetRequestDto);
 }

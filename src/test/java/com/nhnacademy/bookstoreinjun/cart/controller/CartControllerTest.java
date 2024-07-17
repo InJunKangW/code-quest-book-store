@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.security.test.context.support.WithMockUser;
 
@@ -59,24 +60,39 @@ class CartControllerTest {
                 .andExpect(status().isOk());
     }
 
-//    @DisplayName("장바구니 조회 테스트 - 비회원")
-//    @Test
-//    void getGuestCartTest() throws Exception {
-//        List<CartRequestDto> requestDtoList = Arrays.asList(
-//                CartRequestDto.builder()
-//                        .productId(1L)
-//                        .quantity(3L)
-//                        .build(),
-//                CartRequestDto.builder()
-//                        .productId(2L)
-//                        .quantity(5L)
-//                        .build()
-//        );
-//
-//        mockMvc.perform(post("/api/product/guest/cart")
-////                        .header("X-User-Id", 1)
-//                                .content(objectMapper.writeValueAsString(requestDtoList))
-//                )
-//                .andExpect(status().isOk());
-//    }
+    @DisplayName("장바구니 조회 테스트 - 비회원")
+    @Test
+    void getGuestCartTest() throws Exception {
+        List<CartRequestDto> requestDtoList = Arrays.asList(
+                CartRequestDto.builder()
+                        .productId(1L)
+                        .quantity(3L)
+                        .build(),
+                CartRequestDto.builder()
+                        .productId(2L)
+                        .quantity(5L)
+                        .build()
+        );
+
+        mockMvc.perform(post("/api/product/guest/cart")
+                                .content(objectMapper.writeValueAsString(requestDtoList))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("회원 장바구니 물품 등록 테스트")
+    @Test
+    void addClientCartItemTest() throws Exception {
+        CartRequestDto requestDto = CartRequestDto.builder()
+                .productId(1L)
+                .quantity(3L)
+                .build();
+        mockMvc.perform(post("/api/product/client/cart/add")
+                        .content(objectMapper.writeValueAsString(requestDto))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", 1)
+                )
+                .andExpect(status().isOk());
+    }
 }
