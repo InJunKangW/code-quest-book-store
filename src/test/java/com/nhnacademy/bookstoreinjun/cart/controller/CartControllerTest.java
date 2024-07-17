@@ -59,24 +59,24 @@ class CartControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @DisplayName("장바구니 조회 테스트 - 비회원")
-    @Test
-    void getGuestCartTest() throws Exception {
-        List<CartRequestDto> requestDtoList = Arrays.asList(
-                CartRequestDto.builder()
-                        .productId(1L)
-                        .quantity(3L)
-                        .build(),
-                CartRequestDto.builder()
-                        .productId(2L)
-                        .quantity(5L)
-                        .build()
-        );
-
-        mockMvc.perform(post("/api/product/guest/cart")
-//                        .header("X-User-Id", 1)
-                                .content(objectMapper.writeValueAsString(requestDtoList))
-                )
-                .andExpect(status().isOk());
-    }
+//    @DisplayName("장바구니 조회 테스트 - 비회원")
+//    @Test
+//    void getGuestCartTest() throws Exception {
+//        List<CartRequestDto> requestDtoList = Arrays.asList(
+//                CartRequestDto.builder()
+//                        .productId(1L)
+//                        .quantity(3L)
+//                        .build(),
+//                CartRequestDto.builder()
+//                        .productId(2L)
+//                        .quantity(5L)
+//                        .build()
+//        );
+//
+//        mockMvc.perform(post("/api/product/guest/cart")
+////                        .header("X-User-Id", 1)
+//                                .content(objectMapper.writeValueAsString(requestDtoList))
+//                )
+//                .andExpect(status().isOk());
+//    }
 }

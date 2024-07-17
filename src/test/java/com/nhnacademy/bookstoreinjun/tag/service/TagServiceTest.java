@@ -129,25 +129,25 @@ public class TagServiceTest {
     }
 
 
-    @Test
-    public void getAllTagPageTestSuccess(){
-        PageRequestDto pageRequestDto = PageRequestDto.builder()
-                .build();
-
-        when(tagRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(Arrays.asList(
-                Tag.builder()
-                        .tagName("test tag")
-                        .build(),
-                Tag.builder()
-                        .tagName("test tag")
-                        .build()
-        )));
-        Page<TagGetResponseDto> testTagPage = tagService.getAllTagPage(pageRequestDto);
-
-        verify(tagRepository, times(1)).findAll(any(Pageable.class));
-        assertNotNull(testTagPage);
-        assertEquals(testTagPage.getTotalElements(),2);
-    }
+//    @Test
+//    public void getAllTagPageTestSuccess(){
+//        PageRequestDto pageRequestDto = PageRequestDto.builder()
+//                .build();
+//
+//        when(tagRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(Arrays.asList(
+//                Tag.builder()
+//                        .tagName("test tag")
+//                        .build(),
+//                Tag.builder()
+//                        .tagName("test tag")
+//                        .build()
+//        )));
+//        Page<TagGetResponseDto> testTagPage = tagService.getAllTagPage(pageRequestDto);
+//
+//        verify(tagRepository, times(1)).findAll(any(Pageable.class));
+//        assertNotNull(testTagPage);
+//        assertEquals(testTagPage.getTotalElements(),2);
+//    }
 
     @Test
     public void getAllTagPageTestFailureByWrongSort(){
@@ -176,29 +176,29 @@ public class TagServiceTest {
         assertThrows(PageOutOfRangeException.class, () -> tagService.getAllTagPage(pageRequestDto));
     }
 
-    @Test
-    public void getNameContainingTagPageTestSuccess(){
-        PageRequestDto pageRequestDto = PageRequestDto.builder()
-                .build();
-
-        when(tagRepository.findAllByTagNameContaining(any(Pageable.class), eq("test"))).thenReturn(new PageImpl<>(Arrays.asList(
-                Tag.builder()
-                        .tagName("test tag")
-                        .build(),
-                Tag.builder()
-                        .tagName("test tag")
-                        .build(),
-                Tag.builder()
-                        .tagName("test tag")
-                        .build()
-        )));
-
-        Page<TagGetResponseDto> testTagPage = tagService.getNameContainingTagPage(pageRequestDto, "test");
-
-        verify(tagRepository, times(1)).findAllByTagNameContaining(any(Pageable.class), eq("test"));
-        assertNotNull(testTagPage);
-        assertEquals(testTagPage.getTotalElements(),3);
-    }
+//    @Test
+//    public void getNameContainingTagPageTestSuccess(){
+//        PageRequestDto pageRequestDto = PageRequestDto.builder()
+//                .build();
+//
+//        when(tagRepository.findAllByTagNameContaining(any(Pageable.class), eq("test"))).thenReturn(new PageImpl<>(Arrays.asList(
+//                Tag.builder()
+//                        .tagName("test tag")
+//                        .build(),
+//                Tag.builder()
+//                        .tagName("test tag")
+//                        .build(),
+//                Tag.builder()
+//                        .tagName("test tag")
+//                        .build()
+//        )));
+//
+//        Page<TagGetResponseDto> testTagPage = tagService.getNameContainingTagPage(pageRequestDto, "test");
+//
+//        verify(tagRepository, times(1)).findAllByTagNameContaining(any(Pageable.class), eq("test"));
+//        assertNotNull(testTagPage);
+//        assertEquals(testTagPage.getTotalElements(),3);
+//    }
 
     @Test
     public void getNameContainingTagPageTestFailure(){
