@@ -248,7 +248,6 @@ public class BookServiceImpl implements BookService {
         Product product = productRepository.findByProductId(productId);
         productCheckUtil.checkProduct(product);
 
-
         product.setProductDescription(bookProductUpdateRequestDto.productDescription());
         product.setProductInventory(bookProductUpdateRequestDto.productInventory());
         product.setProductState(bookProductUpdateRequestDto.productState());

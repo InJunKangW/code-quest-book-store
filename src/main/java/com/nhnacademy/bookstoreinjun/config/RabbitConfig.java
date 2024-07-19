@@ -35,6 +35,19 @@ public class RabbitConfig {
     @Value("${rabbit.inventory.decrease.dlq.routing.key}")
     private String decreaseInventoryDlqRoutingKey;
 
+
+    @Value("${rabbit.cart.checkout.exchange.name}")
+    private String cartCheckoutExchangeName;
+    @Value("${rabbit.cart.checkout.queue.name}")
+    private String cartCheckoutQueueName;
+    @Value("${rabbit.cart.checkout.routing.key}")
+    private String cartCheckoutRoutingKey;
+    @Value("${rabbit.cart.checkout.dlq.queue.name}")
+    private String cartCheckoutDlqQueueName;
+    @Value("${rabbit.cart.checkout.dlq.routing.key}")
+    private String cartCheckoutDlqRoutingKey;
+
+
     @Bean
     DirectExchange increaseInventoryExchange() {
         return new DirectExchange(increaseInventoryExchangeName);
@@ -43,6 +56,11 @@ public class RabbitConfig {
     @Bean
     DirectExchange decreaseInventoryExchange() {
         return new DirectExchange(decreaseInventoryExchangeName);
+    }
+
+    @Bean
+    DirectExchange cartCheckoutExchange() {
+        return new DirectExchange(cartCheckoutExchangeName);
     }
 
     @Bean
@@ -62,6 +80,14 @@ public class RabbitConfig {
     }
 
     @Bean
+    Queue cartCheckoutQueue() {
+        return QueueBuilder.durable(cartCheckoutQueueName)
+                .withArgument("x-dead-letter-exchange", cartCheckoutExchangeName)
+                .withArgument("x-dead-letter-routing-key", cartCheckoutDlqRoutingKey)
+                .build();
+    }
+
+    @Bean
     Queue increaseInventoryDlqQueue() {
                     return new Queue(increaseInventoryDlqQueueName);
     }
@@ -72,14 +98,26 @@ public class RabbitConfig {
     }
 
     @Bean
+    Queue cartCheckoutDlqQueue() {
+        return new Queue(cartCheckoutDlqQueueName);
+    }
+
+    @Bean
     Binding increaseInventoryBinding() {    return BindingBuilder.bind(increaseInventoryQueue()).to(increaseInventoryExchange()).with(increaseInventoryRoutingKey);}
 
     @Bean
     Binding decreaseInventoryBinding() {    return BindingBuilder.bind(decreaseInventoryQueue()).to(decreaseInventoryExchange()).with(decreaseInventoryRoutingKey);}
 
     @Bean
+    Binding cartCheckoutBinding() {    return BindingBuilder.bind(cartCheckoutQueue()).to(cartCheckoutExchange()).with(cartCheckoutRoutingKey);}
+
+    @Bean
     Binding increaseInventoryDlqBinding() { return BindingBuilder.bind(increaseInventoryDlqQueue()).to(increaseInventoryExchange()).with(increaseInventoryDlqRoutingKey);}
 
     @Bean
     Binding decreaseInventoryDlqBinding() { return BindingBuilder.bind(decreaseInventoryDlqQueue()).to(decreaseInventoryExchange()).with(decreaseInventoryDlqRoutingKey);}
+
+    @Bean
+    Binding cartCheckoutDlqBinding() { return BindingBuilder.bind(cartCheckoutDlqQueue()).to(cartCheckoutExchange()).with(cartCheckoutDlqRoutingKey);}
+
 }

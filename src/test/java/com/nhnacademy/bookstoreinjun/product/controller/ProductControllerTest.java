@@ -1,5 +1,6 @@
-package com.nhnacademy.bookstoreinjun.controller;
+package com.nhnacademy.bookstoreinjun.product.controller;
 
+import com.nhnacademy.bookstoreinjun.controller.ProductController;
 import com.nhnacademy.bookstoreinjun.service.product.ProductService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

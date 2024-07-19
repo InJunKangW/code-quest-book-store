@@ -1,4 +1,6 @@
 package com.nhnacademy.bookstoreinjun.service.cart;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.bookstoreinjun.dto.cart.CartCheckoutRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.cart.CartRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.cart.CartGetResponseDto;
@@ -7,7 +9,6 @@ import com.nhnacademy.bookstoreinjun.entity.Cart;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.exception.XUserIdNotFoundException;
-import com.nhnacademy.bookstoreinjun.repository.CartRemoveTypeRepository;
 import com.nhnacademy.bookstoreinjun.repository.QuerydslRepository;
 import com.nhnacademy.bookstoreinjun.repository.CartRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
@@ -19,6 +20,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,18 +32,20 @@ public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
 
-    private final CartRemoveTypeRepository cartRemoveTypeRepository;
-
     private final ProductRepository productRepository;
 
     private final QuerydslRepository querydslRepository;
+
+    private final ObjectMapper objectMapper;
+
+    private static final String PRODUCT ="product";
 
     private Product getProduct(Long clientIdOfHeader, CartRequestDto cartRequestDto) {
         if (clientIdOfHeader == -1){
             throw new XUserIdNotFoundException();
         }
         Long productId = cartRequestDto.productId();
-        return productRepository.findById(productId).orElseThrow(() -> new NotFoundIdException("product", productId));
+        return productRepository.findById(productId).orElseThrow(() -> new NotFoundIdException(PRODUCT, productId));
     }
 
     private Long getQuantity(List<Cart> cartList){
@@ -99,7 +103,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public SaveCartResponseDto checkCartRequestOfGuest(CartRequestDto cartRequestDto){
-        Product product = productRepository.findById(cartRequestDto.productId()).orElseThrow(() -> new NotFoundIdException("product", cartRequestDto.productId()));
+        Product product = productRepository.findById(cartRequestDto.productId()).orElseThrow(() -> new NotFoundIdException(PRODUCT, cartRequestDto.productId()));
         return new SaveCartResponseDto(Math.min(cartRequestDto.quantity(), product.getProductInventory()));
     }
 
@@ -124,18 +128,48 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void deleteCartItem(Long clientIdOfHeader, Long productId) {
+        log.info("trying delete cart item with client : {}, product : {}", clientIdOfHeader, productId);
         if (clientIdOfHeader == -1){
             throw new XUserIdNotFoundException();
-        }
-        List<Cart> cartList = cartRepository.findByClientIdAndProduct_ProductIdAndCartRemoveTypeIsNull(clientIdOfHeader, productId);
-        if (cartList == null || cartList.isEmpty()){
-            throw new NotFoundIdException("cart product", productId);
-        }
-        for (Cart cart : cartList){
-            cart.setCartRemoveType(cartRemoveTypeRepository.findByCartRemoveTypeName("직접_삭제"));
-            cartRepository.save(cart);
+        } else if (querydslRepository.deleteCartItem(clientIdOfHeader, productId)){
+            log.info("delete cart item success");
+        } else{
+            log.info("delete cart item succeed, but no columns were updated. There may be an issue, such as cart not already containing the product.");
         }
     }
+
+    @Override
+    public void clearAllCart(Long clientIdOfHeader) {
+        if (clientIdOfHeader == -1){
+            throw new XUserIdNotFoundException();
+        } else if (querydslRepository.deleteAllCart(clientIdOfHeader)){
+            log.info("Clear cart succeeded with clientId {}", clientIdOfHeader);
+        } else{
+            log.warn("Clear cart succeeded with clientId {}, but no columns were updated. There may be an issue, such as the cart already being empty.", clientIdOfHeader);
+        }
+    }
+
+    @RabbitListener(queues = "${rabbit.cart.checkout.queue.name}")
+    @Override
+    public void checkOutCart(String message) {
+        log.info("Trying checkout cart - message : {}", message);
+        try {
+            CartCheckoutRequestDto requestDto = objectMapper.readValue(message, CartCheckoutRequestDto.class);
+            if (querydslRepository.checkOutCart(requestDto)){
+                log.info("Checkout cart success");
+            }else {
+                log.warn("Checkout cart success but no column updated. There may be some problem");
+            }
+        }catch (JsonProcessingException e){
+            log.warn("Invalid rabbit mq message for json processing - {}, Caused by {}", message, e.getMessage());
+        }
+    }
+
+    @RabbitListener(queues = "${rabbit.cart.checkout.dlq.queue.name}")
+    public void saveDlqLog(String message){
+        log.error("Finally failed processing rabbitMq message - {}", message);
+    }
+
 
 
     @Override
@@ -150,16 +184,13 @@ public class CartServiceImpl implements CartService {
         return productQuantityMap.entrySet().stream()
                 .map(entry -> getCartResponseDto(entry.getKey(), entry.getValue()))
                 .toList();
-//        return cartList.stream()
-//                .map(cart -> getCartResponseDto(cart.getProduct(), cart.getQuantity()))
-//                .toList();
     }
 
     @Override
     public List<CartGetResponseDto> getGuestCart(List<CartRequestDto> cartRequestDtoList) {
         List<CartGetResponseDto> responseDtoList = new ArrayList<>();
         for (CartRequestDto cartRequestDto : cartRequestDtoList) {
-            Product product = productRepository.findById(cartRequestDto.productId()).orElseThrow(() -> new NotFoundIdException("product", cartRequestDto.productId()));
+            Product product = productRepository.findById(cartRequestDto.productId()).orElseThrow(() -> new NotFoundIdException(PRODUCT, cartRequestDto.productId()));
             responseDtoList.add(getCartResponseDto(product, cartRequestDto.quantity()));
        }
     return responseDtoList;
@@ -180,36 +211,5 @@ public class CartServiceImpl implements CartService {
                 .tagSet(querydslRepository.getTagSet(product))
                 .packable(product.isProductPackable())
                 .build();
-    }
-
-    @Override
-    public void clearAllCart(Long clientIdOfHeader) {
-        if (clientIdOfHeader == -1){
-            throw new XUserIdNotFoundException();
-        }
-        List<Cart> cartList = cartRepository.findAllByClientIdAndCartRemoveTypeIsNull(clientIdOfHeader);
-        if (cartList != null && !cartList.isEmpty()){
-            for (Cart cart : cartList){
-                cart.setCartRemoveType(cartRemoveTypeRepository.findByCartRemoveTypeName("직접_삭제"));
-                cartRepository.save(cart);
-            }
-        }
-    }
-
-    @Override
-    public void clearCartByCheckout(Long clientIdOfHeader, CartCheckoutRequestDto cartCheckoutRequestDto) {
-        if (clientIdOfHeader == -1){
-            throw new XUserIdNotFoundException();
-        }
-        List<Long> productIdList = cartCheckoutRequestDto.productIdList();
-        for (Long productId : productIdList){
-            List<Cart> cartList = cartRepository.findByClientIdAndProduct_ProductIdAndCartRemoveTypeIsNull(clientIdOfHeader, productId);
-            if (cartList != null && !cartList.isEmpty()){
-                for (Cart cart : cartList){
-                    cart.setCartRemoveType(cartRemoveTypeRepository.findByCartRemoveTypeName("구매"));
-                    cartRepository.save(cart);
-                }
-            }
-        }
     }
 }

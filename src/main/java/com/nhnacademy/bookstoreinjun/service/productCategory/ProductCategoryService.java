@@ -68,8 +68,6 @@ public interface ProductCategoryService {
 
     Page<CategoryGetResponseDto> getSubCategoryPage(PageRequestDto pageRequestDto, Long parentId);
 
-    List<CategoryGetResponseDto> getAllSubCategoryList(Long parentId);
-
     /**
      *
      * @return

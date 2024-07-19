@@ -1,18 +1,23 @@
 package com.nhnacademy.bookstoreinjun.repository;
 
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductGetResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.cart.CartCheckoutRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventoryDecreaseRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventoryIncreaseRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventorySetRequestDto;
+import com.nhnacademy.bookstoreinjun.entity.Cart;
+import com.nhnacademy.bookstoreinjun.entity.CartRemoveType;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.entity.QBook;
+import com.nhnacademy.bookstoreinjun.entity.QCart;
 import com.nhnacademy.bookstoreinjun.entity.QProduct;
 import com.nhnacademy.bookstoreinjun.entity.Tag;
 import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtil;
 import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtilImpl;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.dml.UpdateClause;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.CaseBuilder;
@@ -21,6 +26,7 @@ import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPQLQuery;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +38,8 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.nhnacademy.bookstoreinjun.entity.QCart.cart;
+import static com.nhnacademy.bookstoreinjun.entity.QCartRemoveType.cartRemoveType;
 import static com.nhnacademy.bookstoreinjun.entity.QProduct.product;
 import static com.nhnacademy.bookstoreinjun.entity.QProductTag.productTag;
 import static com.nhnacademy.bookstoreinjun.entity.QTag.tag;
@@ -39,6 +47,7 @@ import static com.nhnacademy.bookstoreinjun.entity.QProductCategoryRelation.prod
 import static com.nhnacademy.bookstoreinjun.entity.QProductCategory.productCategory;
 import static com.nhnacademy.bookstoreinjun.entity.QProductLike.productLike;
 import static com.querydsl.core.types.dsl.Wildcard.count;
+import static org.springframework.jdbc.core.JdbcOperationsExtensionsKt.query;
 
 
 @Slf4j
@@ -278,7 +287,8 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
         whereBuilder.and(productLike.clientId.eq(clientId));
         JPQLQuery<Tuple> query = baseQuery()
                 .innerJoin(p.productLikes, productLike)
-                .where(whereBuilder);
+                .where(whereBuilder)
+                .orderBy(orderSpecifier);
 
         JPQLQuery<Long> countQuery = countQuery()
                 .innerJoin(p.productLikes, productLike)
@@ -322,22 +332,48 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
 
     @Transactional
     @Override
-    public long decreaseProductInventory(List<InventoryDecreaseRequestDto> dtoList){
-        if(dtoList == null || dtoList.isEmpty()){
+    public long decreaseProductInventory(InventoryDecreaseRequestDto inventoryDecreaseRequestDto){
+
+        Map<Long, Long> decreaseRequestMap = inventoryDecreaseRequestDto.decreaseInfo();
+        if(decreaseRequestMap == null || decreaseRequestMap.isEmpty()){
             return 0;
         }
 
+        List<Product> products = from(p)
+                .select(p)
+                .where(p.productId.in(decreaseRequestMap.keySet()))
+                .fetch();
+
         CaseBuilder caseBuilder = new CaseBuilder();
         NumberExpression<Long> caseExpression = p.productInventory;
-        for(InventoryDecreaseRequestDto dto : dtoList){
-            caseExpression = caseBuilder.when(p.productId.eq(dto.productId())).then(p.productInventory.subtract(dto.quantityToDecrease())).otherwise(p.productInventory);
+
+        for (Product product : products) {
+            Long productId = product.getProductId();
+            Long currentInventory = product.getProductInventory();
+            Long quantityToDecrease = decreaseRequestMap.get(productId);
+
+            if (quantityToDecrease != null) {
+                if (currentInventory < quantityToDecrease) {
+                    long shortage = quantityToDecrease - currentInventory;
+                    log.warn("The inventory of Product (id : {}) is not enough. Shortage : {}, OrderId : {}", productId, shortage, inventoryDecreaseRequestDto.orderId());
+                    // 재고가 부족한 경우 0으로 설정
+                    caseExpression = caseBuilder
+                            .when(p.productId.eq(productId))
+                            .then(0L)
+                            .otherwise(caseExpression);
+                } else {
+                    // 재고가 충분한 경우 감소
+                    caseExpression = caseBuilder
+                            .when(p.productId.eq(productId))
+                            .then(p.productInventory.subtract(quantityToDecrease))
+                            .otherwise(caseExpression);
+                }
+            }
         }
 
         return update(p)
                 .set(p.productInventory, caseExpression)
-                .where(p.productId.in(dtoList.stream()
-                        .map(InventoryDecreaseRequestDto::productId)
-                        .toList()))
+                .where(p.productId.in(decreaseRequestMap.keySet()))
                 .execute();
     }
 
@@ -348,6 +384,9 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
         if(dtoList == null || dtoList.isEmpty()){
             return 0;
         }
+
+
+
         CaseBuilder caseBuilder = new CaseBuilder();
         NumberExpression<Long> caseExpression = p.productInventory;
         for(InventoryIncreaseRequestDto dto : dtoList){
@@ -369,5 +408,54 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
                 .set(p.productInventory, dto.quantityToSet())
                 .where(p.productId.eq(dto.productId()))
                 .execute();
+    }
+
+    @Transactional
+    @Override
+    public boolean checkOutCart(CartCheckoutRequestDto dto) {
+        List<Long> productIdList = dto.productIdList();
+        if(productIdList == null || productIdList.isEmpty()){
+            return false;
+        }
+
+        return update(cart)
+                .set(cart.cartRemoveType, from(cartRemoveType)
+                        .select(cartRemoveType)
+                        .where(cartRemoveType.cartRemoveTypeName.eq("구매")))
+                .where(cart.clientId.eq(dto.clientId())
+                                .and(cart.product.productId.in(dto.productIdList()))
+                                .and(cart.cartRemoveType.isNull())
+                                )
+                .execute() > 0;
+    }
+
+    @Transactional
+    @Override
+    public boolean deleteCartItem(long clientId, long productId) {
+        if(clientId <= 0 ||productId <= 0){
+            return false;
+        }
+        return update(cart)
+                .set(cart.cartRemoveType, from(cartRemoveType)
+                        .select(cartRemoveType)
+                        .where(cartRemoveType.cartRemoveTypeName.eq("직접_삭제")))
+                .where(cart.clientId.eq(clientId)
+                        .and(cart.product.productId.eq(productId))
+                        .and(cart.cartRemoveType.isNull())
+                )
+                .execute() > 0;
+    }
+
+    @Transactional
+    @Override
+    public boolean deleteAllCart(long clientId){
+        return update(cart)
+                .set(cart.cartRemoveType, from(cartRemoveType)
+                        .select(cartRemoveType)
+                        .where(cartRemoveType.cartRemoveTypeName.eq("직접_삭제")))
+                .where(cart.clientId.eq(clientId)
+                        .and(cart.cartRemoveType.isNull())
+                )
+                .execute() > 0;
     }
 }

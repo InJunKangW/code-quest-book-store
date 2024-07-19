@@ -3,7 +3,6 @@ package com.nhnacademy.bookstoreinjun.service.productCategory;
 import com.nhnacademy.bookstoreinjun.dto.category.*;
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
-import com.nhnacademy.bookstoreinjun.entity.ProductCategoryRelation;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
@@ -37,11 +36,11 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     private final FindAllSubCategoriesUtil findAllSubCategoriesUtil;
 
-    private final String TYPE = "productCategory";
+    private static final String TYPE = "productCategory";
 
-    private final int DEFAULT_PAGE_SIZE = 10;
+    private static final int DEFAULT_PAGE_SIZE = 10;
 
-    private final String DEFAULT_SORT = "productCategoryId";
+    private static final String DEFAULT_SORT = "productCategoryId";
 
     private CategoryGetResponseDto makeCategoryGetResponseDtoFromProductCategory(ProductCategory productCategory) {
         return CategoryGetResponseDto.builder()
@@ -107,8 +106,8 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
             return ResponseEntity.status(409).body(null);
         }else {
             productCategoryRepository.deleteAll(allSubcategorySet);
+            return ResponseEntity.status(200).body(null);
         }
-        return ResponseEntity.status(200).body(null);
     }
 
     public CategoryGetResponseDto getCategoryDtoByName(String categoryName) {
@@ -146,11 +145,6 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
         Page<ProductCategory> productCategoryPage = new PageImpl<>(categoryList, pageable, categoryList.size());
         return makeCategoryGetResponseDtoPage(pageable, productCategoryPage);
-    }
-
-    public List<CategoryGetResponseDto> getAllSubCategoryList(Long parentId) {
-        Set<ProductCategory> categorySet = findAllSubCategoriesUtil.getAllSubcategorySet(parentId);
-        return categorySet.stream().map(this::makeCategoryGetResponseDtoFromProductCategory).toList();
     }
 
 

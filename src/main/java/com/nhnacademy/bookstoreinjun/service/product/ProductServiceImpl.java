@@ -204,23 +204,20 @@ public class ProductServiceImpl implements ProductService {
     @RabbitListener(queues = "${rabbit.inventory.decrease.queue.name}")
     @Override
     public void decreaseProductInventoryQueue(String message){
-        List<InventoryDecreaseRequestDto> inventoryDecreaseRequestDtoList;
-        log.info("decrease product inventory queue: {}", message);
+        InventoryDecreaseRequestDto inventoryDecreaseRequestDto;
+        log.info("Trying decrease product inventory : {}", message);
         try {
-            inventoryDecreaseRequestDtoList = objectMapper.readValue(message, new TypeReference<List<InventoryDecreaseRequestDto>>() {});
-            long updatedRow = querydslRepository.decreaseProductInventory(inventoryDecreaseRequestDtoList);
-            if (updatedRow != inventoryDecreaseRequestDtoList.size()){
-                log.error("decrease product inventory queue failed");
+            inventoryDecreaseRequestDto = objectMapper.readValue(message, InventoryDecreaseRequestDto.class);
+            long updatedRow = querydslRepository.decreaseProductInventory(inventoryDecreaseRequestDto);
+            if (updatedRow != inventoryDecreaseRequestDto.decreaseInfo().size()){
+                log.warn("Decreasing product inventory succeeded, but there were issues with some items. For example, the request might contain non-existing product IDs. OrderId : {}", inventoryDecreaseRequestDto.orderId());
             }else {
-                log.info("decrease product inventory queue success");
+                log.info("Decreasing product inventory succeeded as requested");
             }
-        } catch (JsonProcessingException e) {
-            log.error("decrease product inventory queue failed", e);
-        } catch (JpaSystemException e) {
-            log.error("decrease product inventory queue failed ", e);
+        } catch (JsonProcessingException | JpaSystemException e) {
+            log.error("Decreasing product inventory failed, error message : {}", e.getMessage());
         }
     }
-
 
 
     @RabbitListener(queues = "${rabbit.inventory.increase.queue.name}")

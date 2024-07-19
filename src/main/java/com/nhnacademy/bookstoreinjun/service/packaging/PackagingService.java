@@ -9,9 +9,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 
 public interface PackagingService {
-    PackagingGetResponseDto getPackageInfoById(Long packageId);
     PackagingGetResponseDto getPackageInfoByProductId(Long productId);
-    PackagingGetResponseDto getPackageInfoByPackageName(String PackageName);
     ProductUpdateResponseDto updatePackageInfo(PackagingUpdateRequestDto packaging);
     ProductRegisterResponseDto registerPackage(PackagingRegisterRequestDto packaging);
     List<PackagingGetResponseDto> getAllPackages(Integer productState);

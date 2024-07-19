@@ -5,7 +5,6 @@ import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
 import com.nhnacademy.bookstoreinjun.service.productCategory.ProductCategoryService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -73,11 +72,6 @@ public class CategoryController {
         return new ResponseEntity<>(productCategoryService.getSubCategoryPage(pageRequestDto, categoryId), header, HttpStatus.OK);
     }
 
-    @GetMapping("/categories/{categoryId}/sub/all")
-    public ResponseEntity<List<CategoryGetResponseDto>> getAllSubCategories(
-            @PathVariable("categoryId") Long categoryId){
-        return new ResponseEntity<>(productCategoryService.getAllSubCategoryList(categoryId), header, HttpStatus.OK);
-    }
 
 
     @GetMapping("/categories/tree")
