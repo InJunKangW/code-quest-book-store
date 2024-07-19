@@ -21,24 +21,6 @@ public class PackagingController {
 
     private final PackagingService packagingService;
 
-    @GetMapping("/packaging/single/byPackage/{packageId}")
-    public ResponseEntity<PackagingGetResponseDto> getPackageInfoByPackageID(@PathVariable("packageId") Long packageId) {
-        PackagingGetResponseDto info = packagingService.getPackageInfoById(packageId);
-        if (info == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(info);
-    }
-
-    @GetMapping("/packaging/name")
-    public ResponseEntity<PackagingGetResponseDto> getPackageInfoByName(@RequestParam() String packageName) {
-        PackagingGetResponseDto info = packagingService.getPackageInfoByPackageName(packageName);
-        if (info == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(info);
-    }
-
     @GetMapping("/packaging/single/byProduct/{productId}")
     public ResponseEntity<PackagingGetResponseDto> getPackageInfoByProductId(@PathVariable("productId") Long productId) {
         PackagingGetResponseDto info = packagingService.getPackageInfoByProductId(productId);

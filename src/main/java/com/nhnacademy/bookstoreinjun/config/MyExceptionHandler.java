@@ -44,12 +44,12 @@ public class MyExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDto> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException ex) {
-        log.info("MethodArgumentNotValidException");
+        log.info("MethodArgumentNotValidException {}", ex.getMessage());
         return getErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ErrorResponseDto> MethodArgumentTypeMismatchExceptionHandler(MethodArgumentTypeMismatchException ex) {
+    public ResponseEntity<ErrorResponseDto> methodArgumentTypeMismatchExceptionHandler(MethodArgumentTypeMismatchException ex) {
         log.info("MethodArgumentTypeMismatchException {}", ex.getMessage());
         return getErrorResponse(ex, HttpStatus.BAD_REQUEST);
     }

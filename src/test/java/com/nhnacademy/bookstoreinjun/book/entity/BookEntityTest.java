@@ -3,14 +3,13 @@ package com.nhnacademy.bookstoreinjun.book.entity;
 import com.nhnacademy.bookstoreinjun.entity.Book;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import jakarta.persistence.EntityManager;
@@ -19,7 +18,8 @@ import org.springframework.test.context.TestPropertySource;
 
 @DataJpaTest
 @TestPropertySource(locations = "classpath:application-dev.properties")
-public class BookEntityTest {
+@DisplayName("도서 엔티티 테스트")
+class BookEntityTest {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -34,15 +34,16 @@ public class BookEntityTest {
         entityManager.flush();
     }
 
+    @DisplayName("도서 엔티티 저장 테스트")
     @Test
-    public void testSaveBook() {
+    void testSaveBook() {
         Book book = Book.builder()
                 .bookId(1L)
                 .title("test Title")
                 .author("test Author")
                 .publisher("test Publisher")
                 .isbn("123456789a")
-                .isbn13("123456789abcd")
+                .isbn13("123456789abed")
                 .pubDate(LocalDate.of(1960, 7, 11))
                 .product(product)
                 .build();
@@ -51,24 +52,25 @@ public class BookEntityTest {
 
         assertNotNull(savedBook);
         assertNotNull(savedBook.getBookId());
-        assertEquals(savedBook.getTitle(), "test Title");
-        assertEquals(savedBook.getAuthor(), "test Author");
-        assertEquals(savedBook.getPublisher(), "test Publisher");
-        assertEquals(savedBook.getIsbn(), "123456789a");
-        assertEquals(savedBook.getIsbn13(), "123456789abcd");
-        assertEquals(savedBook.getPubDate(), LocalDate.of(1960, 7, 11));
-        assertEquals(savedBook.getProduct(), product);
+        assertEquals("test Title", savedBook.getTitle());
+        assertEquals("test Author", savedBook.getAuthor());
+        assertEquals("test Publisher", savedBook.getPublisher());
+        assertEquals("123456789a", savedBook.getIsbn());
+        assertEquals("123456789abed", savedBook.getIsbn13());
+        assertEquals(LocalDate.of(1960, 7, 11), savedBook.getPubDate());
+        assertEquals(product, savedBook.getProduct());
     }
 
+    @DisplayName("도서 엔티티 업데이트 테스트")
     @Test
-    public void testUpdateBook() {
+    void testUpdateBook() {
         Book book = Book.builder()
                 .bookId(1L)
                 .title("test Title")
                 .author("test Author")
                 .publisher("test Publisher")
                 .isbn("123456789a")
-                .isbn13("123456789abcd")
+                .isbn13("123456789abed")
                 .pubDate(LocalDate.of(1960, 7, 11))
                 .product(product)
                 .build();
@@ -79,19 +81,19 @@ public class BookEntityTest {
         savedBook.setAuthor("new test Author");
         savedBook.setPublisher("new test Publisher");
         savedBook.setIsbn("23456789ab");
-        savedBook.setIsbn13("23456789abcde");
+        savedBook.setIsbn13("23456789abide");
         savedBook.setPubDate(LocalDate.of(1999, 7, 11));
         savedBook.setProduct(product);
 
         entityManager.flush();
 
         Book updatedBook = entityManager.merge(savedBook);
-        assertEquals(updatedBook.getTitle(), "new test Title");
-        assertEquals(updatedBook.getAuthor(), "new test Author");
-        assertEquals(updatedBook.getPublisher(), "new test Publisher");
-        assertEquals(updatedBook.getIsbn(), "23456789ab");
-        assertEquals(updatedBook.getIsbn13(), "23456789abcde");
-        assertEquals(updatedBook.getPubDate(), LocalDate.of(1999, 7, 11));
-        assertEquals(updatedBook.getProduct(), product);
+        assertEquals("new test Title", updatedBook.getTitle());
+        assertEquals("new test Author", updatedBook.getAuthor());
+        assertEquals("new test Publisher", updatedBook.getPublisher());
+        assertEquals("23456789ab", updatedBook.getIsbn());
+        assertEquals("23456789abide", updatedBook.getIsbn13());
+        assertEquals(LocalDate.of(1999, 7, 11), updatedBook.getPubDate());
+        assertEquals(product, updatedBook.getProduct());
     }
 }

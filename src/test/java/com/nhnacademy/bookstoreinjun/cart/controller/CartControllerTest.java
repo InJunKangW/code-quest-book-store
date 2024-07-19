@@ -3,6 +3,7 @@ package com.nhnacademy.bookstoreinjun.cart.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.bookstoreinjun.config.SecurityConfig;
 import com.nhnacademy.bookstoreinjun.controller.CartController;
+import com.nhnacademy.bookstoreinjun.dto.cart.CartGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.cart.CartRequestDto;
 import com.nhnacademy.bookstoreinjun.service.cart.CartService;
 import java.util.Arrays;
@@ -15,21 +16,21 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.security.test.context.support.WithMockUser;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(CartController.class)
 @Import(SecurityConfig.class)
+@DisplayName("장바구니 컨트롤러 테스트")
 class CartControllerTest {
 
     @Autowired
@@ -40,16 +41,13 @@ class CartControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Test
-    void contextLoads() {}
-
-
     @DisplayName("장바구니 복구 테스트")
     @Test
     void restoreTest() throws Exception {
         mockMvc.perform(get("/api/product/client/cart/restore")
                         .header("X-User-Id", 1))
                 .andExpect(status().isOk());
+        verify(cartService,times(1)).restoreClientCartList(1L);
     }
 
     @DisplayName("장바구니 조회 테스트 - 회원")
@@ -58,6 +56,8 @@ class CartControllerTest {
         mockMvc.perform(get("/api/product/client/cart")
                         .header("X-User-Id", 1))
                 .andExpect(status().isOk());
+        verify(cartService,times(1)).getClientCart(1L);
+
     }
 
     @DisplayName("장바구니 조회 테스트 - 비회원")
@@ -74,14 +74,25 @@ class CartControllerTest {
                         .build()
         );
 
+        when(cartService.getGuestCart(requestDtoList))
+                .thenReturn(Arrays.asList(
+                        CartGetResponseDto.builder()
+                                .build(),
+                        CartGetResponseDto.builder()
+                                .build()));
+
         mockMvc.perform(post("/api/product/guest/cart")
                                 .content(objectMapper.writeValueAsString(requestDtoList))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
+
+        verify(cartService,times(1)).getGuestCart(requestDtoList);
+
     }
 
-    @DisplayName("회원 장바구니 물품 등록 테스트")
+    @DisplayName("장바구니 물품 등록 테스트 - 회원")
     @Test
     void addClientCartItemTest() throws Exception {
         CartRequestDto requestDto = CartRequestDto.builder()
@@ -94,5 +105,72 @@ class CartControllerTest {
                         .header("X-User-Id", 1)
                 )
                 .andExpect(status().isOk());
+        verify(cartService,times(1)).addClientCartItem(1L, requestDto);
+    }
+
+    @DisplayName("장바구니 물품 등록 테스트 - 비회원")
+    @Test
+    void addGuestCartItemTest() throws Exception {
+        CartRequestDto requestDto = CartRequestDto.builder()
+                .productId(1L)
+                .quantity(3L)
+                .build();
+        mockMvc.perform(post("/api/product/guest/cart/add")
+                        .content(objectMapper.writeValueAsString(requestDto))
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk());
+        verify(cartService,times(1)).checkCartRequestOfGuest(requestDto);
+    }
+
+    @DisplayName("장바구니 물품 갱신 테스트 - 회원")
+    @Test
+    void updateClientCartItemTest() throws Exception {
+        CartRequestDto requestDto = CartRequestDto.builder()
+                .productId(1L)
+                .quantity(3L)
+                .build();
+        mockMvc.perform(put("/api/product/client/cart/update")
+                        .content(objectMapper.writeValueAsString(requestDto))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", 1)
+                )
+                .andExpect(status().isOk());
+        verify(cartService,times(1)).setClientCartItemQuantity(1L, requestDto);
+    }
+
+    @DisplayName("장바구니 물품 갱신 테스트 - 비회원")
+    @Test
+    void updateGuestCartItemTest() throws Exception {
+        CartRequestDto requestDto = CartRequestDto.builder()
+                .productId(1L)
+                .quantity(3L)
+                .build();
+        mockMvc.perform(put("/api/product/guest/cart/update")
+                        .content(objectMapper.writeValueAsString(requestDto))
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk());
+        verify(cartService,times(1)).checkCartRequestOfGuest(requestDto);
+    }
+
+    @DisplayName("장바구니 물품 삭제 테스트 - 회원")
+    @Test
+    void deleteClientCartItemTest() throws Exception {
+        mockMvc.perform(delete("/api/product/client/cart/items/1")
+                        .header("X-User-Id", 1)
+                )
+                .andExpect(status().isOk());
+        verify(cartService,times(1)).deleteCartItem(1L,1L);
+    }
+
+    @DisplayName("장바구니 물품 초기화 테스트 - 회원")
+    @Test
+    void clearClientCartItemTest() throws Exception {
+        mockMvc.perform(delete("/api/product/client/cart/all")
+                                .header("X-User-Id", 1)
+                )
+                .andExpect(status().isOk());
+        verify(cartService,times(1)).clearAllCart(1L);
     }
 }

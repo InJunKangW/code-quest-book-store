@@ -97,14 +97,4 @@ public class CartController {
         cartService.clearAllCart(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L));
         return new ResponseEntity<>(null, header, HttpStatus.OK);
     }
-
-    @PutMapping("/client/cart/checkout")
-    public ResponseEntity<Void> clearAllCartByBuyingProducts(
-            @RequestHeader HttpHeaders httpHeaders,
-            @RequestBody @Valid CartCheckoutRequestDto cartCheckoutRequestDto
-    ){
-        cartService.clearCartByCheckout(NumberUtils.toLong(httpHeaders.getFirst(ID_HEADER), -1L), cartCheckoutRequestDto);
-        return new ResponseEntity<>(null, header, HttpStatus.OK);
-    }
-
 }

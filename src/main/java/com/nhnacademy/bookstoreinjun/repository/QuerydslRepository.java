@@ -1,6 +1,7 @@
 package com.nhnacademy.bookstoreinjun.repository;
 
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductGetResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.cart.CartCheckoutRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventoryDecreaseRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventoryIncreaseRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventorySetRequestDto;
@@ -8,6 +9,7 @@ import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.entity.Tag;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -58,9 +60,15 @@ public interface QuerydslRepository {
 
     long setProductState(Long productId, Integer productState);
 
-    long decreaseProductInventory(List<InventoryDecreaseRequestDto> dtoList);
+    long decreaseProductInventory(InventoryDecreaseRequestDto inventoryDecreaseRequestDto);
 
     long increaseProductInventory(List<InventoryIncreaseRequestDto> dtoList);
 
     long setProductInventory(InventorySetRequestDto dto);
+
+    boolean deleteCartItem(long clientId, long productId);
+
+    boolean deleteAllCart(long clientId);
+
+    boolean checkOutCart(CartCheckoutRequestDto dto);
 }

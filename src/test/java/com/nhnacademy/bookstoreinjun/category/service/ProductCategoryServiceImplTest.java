@@ -2,7 +2,6 @@ package com.nhnacademy.bookstoreinjun.category.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -22,6 +21,7 @@ import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.InvalidSortNameException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
+import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRelationRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
 import com.nhnacademy.bookstoreinjun.service.productCategory.ProductCategoryServiceImpl;
 import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtilImpl;
@@ -36,9 +36,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 
 @ExtendWith(MockitoExtension.class)
-public class ProductProductCategoryServiceImplTest {
+class ProductCategoryServiceImplTest {
 
     @InjectMocks
     private ProductCategoryServiceImpl categoryService;
@@ -47,12 +48,14 @@ public class ProductProductCategoryServiceImplTest {
     private ProductCategoryRepository productCategoryRepository;
 
     @Mock
+    private ProductCategoryRelationRepository productCategoryRelationRepository;
+
+    @Mock
     private FindAllSubCategoriesUtilImpl findAllSubCategoriesUtil;
 
+    private static final String TEST_CATEGORY_NAME = "Test ProductCategory";
 
-    private final String TEST_CATEGORY_NAME = "Test ProductCategory";
-
-    private final String TEST_PARENT_CATEGORY_NAME = "Test Parent ProductCategory";
+    private static final String TEST_PARENT_CATEGORY_NAME = "Test Parent ProductCategory";
 
     private final CategoryRegisterRequestDto requestDto = CategoryRegisterRequestDto.builder()
             .categoryName(TEST_CATEGORY_NAME)
@@ -61,7 +64,7 @@ public class ProductProductCategoryServiceImplTest {
 
     @DisplayName("카테고리 신규 등록 성공 테스트")
     @Test
-    public void saveCategoryTestSuccess(){
+    void saveCategoryTestSuccess(){
         CategoryRegisterResponseDto resultDto =  categoryService.saveCategory(requestDto);
 
         assertNotNull(resultDto);
@@ -71,7 +74,7 @@ public class ProductProductCategoryServiceImplTest {
 
     @DisplayName("카테고리 신규 등록 실패 테스트 - 존재하지 않는 상위 카테고리명")
     @Test
-    public void saveCategoryTestFailureByNotFoundParentCategoryName(){
+    void saveCategoryTestFailureByNotFoundParentCategoryName(){
         when(productCategoryRepository.existsByCategoryName(TEST_PARENT_CATEGORY_NAME)).thenReturn(false);
 
         CategoryRegisterRequestDto dto = CategoryRegisterRequestDto.builder()
@@ -84,7 +87,7 @@ public class ProductProductCategoryServiceImplTest {
 
     @DisplayName("카테고리 신규 등록 실패 테스트 - 중복되는 카테고리명")
     @Test
-    public void saveCategoryTestFailureByExistingCategoryName(){
+    void saveCategoryTestFailureByExistingCategoryName(){
         when(productCategoryRepository.existsByCategoryName(TEST_CATEGORY_NAME)).thenReturn(true);
 
         assertThrows(DuplicateException.class, () -> categoryService.saveCategory(requestDto));
@@ -92,7 +95,7 @@ public class ProductProductCategoryServiceImplTest {
 
     @DisplayName("카테고리 업데이트 성공 테스트")
     @Test
-    public void updateCategoryTestSuccess(){
+    void updateCategoryTestSuccess(){
         when(productCategoryRepository.existsByCategoryName(TEST_CATEGORY_NAME)).thenReturn(true);
         when(productCategoryRepository.existsByCategoryName("new" + TEST_CATEGORY_NAME)).thenReturn(false);
         when(productCategoryRepository.findByCategoryName(TEST_CATEGORY_NAME)).thenReturn(new ProductCategory());
@@ -105,14 +108,14 @@ public class ProductProductCategoryServiceImplTest {
         CategoryUpdateResponseDto resultDto = categoryService.updateCategory(dto);
 
         assertNotNull(resultDto);
-        assertEquals(resultDto.previousCategoryName(), TEST_CATEGORY_NAME);
-        assertEquals(resultDto.newCategoryName(),"new" + TEST_CATEGORY_NAME);
+        assertEquals( TEST_CATEGORY_NAME, resultDto.previousCategoryName());
+        assertEquals("new" + TEST_CATEGORY_NAME, resultDto.newCategoryName());
         assertNotNull(resultDto.updateTime());
     }
 
     @DisplayName("카테고리 업데이트 실패 테스트 - 바뀌기 이전의 카테고리명이 현재 존재하지 않음")
     @Test
-    public void updateCategoryTestFailureByNotFoundCategoryName(){
+    void updateCategoryTestFailureByNotFoundCategoryName(){
         when(productCategoryRepository.existsByCategoryName(TEST_CATEGORY_NAME)).thenReturn(false);
 
         CategoryUpdateRequestDto dto = CategoryUpdateRequestDto.builder()
@@ -125,7 +128,7 @@ public class ProductProductCategoryServiceImplTest {
 
     @DisplayName("카테고리 업데이트 실패 테스트 - 바뀌기 이후의 카테고리명이 중복됨")
     @Test
-    public void updateCategoryTestFailureByExistingCategoryName(){
+    void updateCategoryTestFailureByExistingCategoryName(){
         when(productCategoryRepository.existsByCategoryName(TEST_CATEGORY_NAME)).thenReturn(true);
         when(productCategoryRepository.existsByCategoryName("new" + TEST_CATEGORY_NAME)).thenReturn(true);
 
@@ -140,7 +143,7 @@ public class ProductProductCategoryServiceImplTest {
 
     @DisplayName("카테고리 조회 성공 테스트")
     @Test
-    public void getCategoryDtoTestSuccess(){
+    void getCategoryDtoTestSuccess(){
         when(productCategoryRepository.findByCategoryName(TEST_CATEGORY_NAME)).thenReturn(new ProductCategory());
 
         CategoryGetResponseDto dto = categoryService.getCategoryDtoByName(TEST_CATEGORY_NAME);
@@ -152,7 +155,7 @@ public class ProductProductCategoryServiceImplTest {
 
     @DisplayName("카테고리 조회 실패 테스트 - 존재하지 않는 카테고리명")
     @Test
-    public void getCategoryDtoTestFailureByNotFoundCategoryName(){
+    void getCategoryDtoTestFailureByNotFoundCategoryName(){
         when(productCategoryRepository.findByCategoryName(TEST_CATEGORY_NAME)).thenReturn(null);
 
         assertThrows(NotFoundNameException.class, () -> categoryService.getCategoryDtoByName(TEST_CATEGORY_NAME));
@@ -162,7 +165,7 @@ public class ProductProductCategoryServiceImplTest {
 
     @DisplayName("모든 카테고리 페이지 조회 성공 테스트")
     @Test
-    public void getAllCategoryPageTestSuccess(){
+    void getAllCategoryPageTestSuccess(){
         PageRequestDto pageRequestDto = PageRequestDto.builder().build();
         when(productCategoryRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(Arrays.asList(
                 ProductCategory.builder()
@@ -176,14 +179,14 @@ public class ProductProductCategoryServiceImplTest {
         Page<CategoryGetResponseDto> dto = categoryService.getAllCategoryPage(pageRequestDto);
         assertNotNull(dto);
 
-        assertEquals(dto.getTotalElements(), 2);
+        assertEquals(2, dto.getTotalElements());
     }
 
 
 
     @DisplayName("모든 카테고리 페이지 조회 실패 테스트 - 잘못된 정렬 조건")
     @Test
-    public void getAllCategoryPageTestFailureByWrongSort(){
+    void getAllCategoryPageTestFailureByWrongSort(){
         PageRequestDto pageRequestDto = PageRequestDto.builder().sort("wrong").build();
 
 
@@ -192,7 +195,7 @@ public class ProductProductCategoryServiceImplTest {
 
     @DisplayName("모든 카테고리 페이지 조회 실패 테스트 - 초과된 페이지 넘버")
     @Test
-    public void getAllTagPageTestFailureByOutOfPageRange(){
+    void getAllTagPageTestFailureByOutOfPageRange(){
         PageRequestDto pageRequestDto = PageRequestDto.builder()
                 .page(100)
                 .build();
@@ -211,7 +214,7 @@ public class ProductProductCategoryServiceImplTest {
 
     @DisplayName("특정 이름이 포함된 카테고리의 페이지 조회 성공 테스트")
     @Test
-    public void getNameContainingCategoryPageTestSuccess(){
+    void getNameContainingCategoryPageTestSuccess(){
         PageRequestDto pageRequestDto = PageRequestDto.builder().build();
         when(productCategoryRepository.findAllByCategoryNameContaining(any(Pageable.class), eq(TEST_CATEGORY_NAME))).thenReturn(new PageImpl<>(Arrays.asList(
                 ProductCategory.builder()
@@ -226,43 +229,43 @@ public class ProductProductCategoryServiceImplTest {
 
         assertNotNull(dto);
 
-        assertEquals(dto.getTotalElements(), 2);
+        assertEquals(2, dto.getTotalElements());
     }
 
     @DisplayName("특정 이름이 포함된 카테고리의 페이지 조회 실패 테스트 - 잘못된 정렬 조건")
     @Test
-    public void getNameContainingCategoryPageTestFailureByWrongSort(){
+    void getNameContainingCategoryPageTestFailureByWrongSort(){
         PageRequestDto pageRequestDto = PageRequestDto.builder().sort("wrong").build();
 
         assertThrows(InvalidSortNameException.class, () -> categoryService.getNameContainingCategoryPage(pageRequestDto, TEST_CATEGORY_NAME));
     }
 
-//    @DisplayName("특정 카테고리의 하위 카테고리 페이지 조회 성공 테스트")
-//    @Test
-//    public void getSubCategoryPageTestSuccess(){
-//        PageRequestDto pageRequestDto = PageRequestDto.builder().build();
-//
-//
-//        when(findAllSubCategoriesUtil.getAllSubcategorySet(TEST_CATEGORY_NAME)).thenReturn(new LinkedHashSet<>(Arrays.asList(
-//                ProductCategory.builder()
-//                        .categoryName(TEST_CATEGORY_NAME)
-//                        .build(),
-//                ProductCategory.builder()
-//                        .categoryName(TEST_CATEGORY_NAME)
-//                        .build()
-//        )));
-//
-//
-//        Page<CategoryGetResponseDto> dto = categoryService.getSubCategoryPage(pageRequestDto, 1L);
-//
-//        assertNotNull(dto);
-//
-//        assertEquals(2, dto.getTotalElements());
-//    }
+    @DisplayName("특정 카테고리의 하위 카테고리 페이지 조회 성공 테스트")
+    @Test
+    void getSubCategoryPageTestSuccess(){
+        PageRequestDto pageRequestDto = PageRequestDto.builder().build();
+
+
+        when(findAllSubCategoriesUtil.getAllSubcategorySet(1L)).thenReturn(new LinkedHashSet<>(Arrays.asList(
+                ProductCategory.builder()
+                        .categoryName(TEST_CATEGORY_NAME)
+                        .build(),
+                ProductCategory.builder()
+                        .categoryName(TEST_CATEGORY_NAME)
+                        .build()
+        )));
+
+
+        Page<CategoryGetResponseDto> dto = categoryService.getSubCategoryPage(pageRequestDto, 1L);
+
+        assertNotNull(dto);
+
+        assertEquals(2, dto.getTotalElements());
+    }
 
     @DisplayName("특정 카테고리의 하위 카테고리 페이지 조회 실패 테스트 - 존재하지 않는 상위 카테고리 - 이거 여기서 하지말고 유틸 테스트로 이동해야 할듯")
     @Test
-    public void getSubCategoryPageTestFailureByNotExistingParentCategory(){
+    void getSubCategoryPageTestFailureByNotExistingParentCategory(){
         PageRequestDto pageRequestDto = PageRequestDto.builder().build();
 
         when(findAllSubCategoriesUtil.getAllSubcategorySet(1L)).thenThrow(new NotFoundNameException("category", TEST_CATEGORY_NAME));
@@ -273,9 +276,33 @@ public class ProductProductCategoryServiceImplTest {
 
     @DisplayName("특정 카테고리의 하위 카테고리 페이지 조회 실패 테스트 - 잘못된 정렬 조건")
     @Test
-    public void getSubCategoryPageTestFailureByWrongSort(){
+    void getSubCategoryPageTestFailureByWrongSort(){
         PageRequestDto pageRequestDto = PageRequestDto.builder().page(1).sort("wrong").build();
 
         assertThrows(InvalidSortNameException.class, () -> categoryService.getSubCategoryPage(pageRequestDto, 1L));
+    }
+
+    @DisplayName("카테고리 삭제 성공 테스트")
+    @Test
+    void deleteCategoryTestSuccess(){
+        when(productCategoryRelationRepository.existsByProductCategoryIn(any())).thenReturn(false);
+
+        ResponseEntity<Void> response = categoryService.deleteCategory(1L);
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        verify(productCategoryRelationRepository, times(1)).existsByProductCategoryIn(any());
+        verify(productCategoryRepository, times(1)).deleteAll(any());
+    }
+
+    @DisplayName("카테고리 삭제 실패 테스트")
+    @Test
+    void deleteCategoryTestFailure(){
+        when(productCategoryRelationRepository.existsByProductCategoryIn(any())).thenReturn(true);
+
+        ResponseEntity<Void> response = categoryService.deleteCategory(1L);
+        assertNotNull(response);
+        assertEquals(409, response.getStatusCode().value());
+        verify(productCategoryRelationRepository, times(1)).existsByProductCategoryIn(any());
+        verify(productCategoryRepository, times(0)).deleteAll(any());
     }
 }

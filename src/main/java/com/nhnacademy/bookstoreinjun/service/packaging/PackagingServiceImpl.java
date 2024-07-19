@@ -45,24 +45,8 @@ public class PackagingServiceImpl implements PackagingService {
                 packaging.getProduct().getProductInventory());
     }
 
-    public PackagingGetResponseDto getPackageInfoById(Long packageId){
-        Packaging packaging = packageRepository.findById(packageId).orElse(null);
-        if (packaging == null) {
-            return null;
-        }
-        return makeDtoFromPackaging(packaging);
-    }
-
     public PackagingGetResponseDto getPackageInfoByProductId(Long productId) {
         Packaging packaging = packageRepository.findByProduct_ProductId(productId).orElse(null);
-        if (packaging == null) {
-            return null;
-        }
-        return makeDtoFromPackaging(packaging);
-    }
-
-    public PackagingGetResponseDto getPackageInfoByPackageName(String packageName) {
-        Packaging packaging = packageRepository.findByPackageName(packageName).orElse(null);
         if (packaging == null) {
             return null;
         }
@@ -116,8 +100,7 @@ public class PackagingServiceImpl implements PackagingService {
     public List<PackagingGetResponseDto> getAllPackages(Integer productState) {
         List<Packaging> packagingList = productState == null ? packageRepository.findAll() : packageRepository.findByProduct_ProductState(productState);
         return packagingList.stream()
-                .map(this::makeDtoFromPackaging
-                )
+                .map(this::makeDtoFromPackaging)
                 .toList();
     }
 
