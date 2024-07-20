@@ -3,6 +3,7 @@ package com.nhnacademy.bookstoreinjun.book.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.nhnacademy.bookstoreinjun.config.HeaderConfig;
 import com.nhnacademy.bookstoreinjun.config.SecurityConfig;
 import com.nhnacademy.bookstoreinjun.controller.BookController;
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductRegisterRequestDto;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -42,12 +44,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @Slf4j
 @WebMvcTest(BookController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, HeaderConfig.class})
 @DisplayName("도서 컨트롤러 테스트")
 class BookControllerTest {
 
     @Autowired
-     MockMvc mockMvc;
+    MockMvc mockMvc;
+
+    @Autowired
+    HttpHeaders header;
 
     @MockBean
     AladinService aladinService;

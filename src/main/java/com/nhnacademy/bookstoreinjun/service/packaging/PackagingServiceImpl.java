@@ -31,6 +31,8 @@ public class PackagingServiceImpl implements PackagingService {
     private final ProductRepository productRepository;
     private final ProductCheckUtil productCheckUtil;
 
+    private static final String TYPE = "packaging";
+
     private PackagingGetResponseDto makeDtoFromPackaging(Packaging packaging) {
         return new PackagingGetResponseDto(
                 packaging.getPackageId(),
@@ -46,10 +48,7 @@ public class PackagingServiceImpl implements PackagingService {
     }
 
     public PackagingGetResponseDto getPackageInfoByProductId(Long productId) {
-        Packaging packaging = packageRepository.findByProduct_ProductId(productId).orElse(null);
-        if (packaging == null) {
-            return null;
-        }
+        Packaging packaging = packageRepository.findByProduct_ProductId(productId).orElseThrow(() -> new NotFoundIdException(TYPE, productId));
         return makeDtoFromPackaging(packaging);
     }
 
@@ -88,7 +87,7 @@ public class PackagingServiceImpl implements PackagingService {
         product.setProductState(request.getProductState());
         productRepository.save(product);
 
-        Packaging packaging = packageRepository.findByProduct_ProductId(request.getProductId()).orElseThrow(() -> new NotFoundIdException("package", request.getProductId()));
+        Packaging packaging = packageRepository.findByProduct_ProductId(request.getProductId()).orElseThrow(() -> new NotFoundIdException(TYPE, request.getProductId()));
         packaging.setPackageName(request.getPackagingName());
 
         packageRepository.save(packaging);

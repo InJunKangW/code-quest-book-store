@@ -2,7 +2,7 @@ package com.nhnacademy.bookstoreinjun.controller;
 
 import com.nhnacademy.bookstoreinjun.dto.category.*;
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
-import com.nhnacademy.bookstoreinjun.service.productCategory.ProductCategoryService;
+import com.nhnacademy.bookstoreinjun.service.category.ProductCategoryService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,11 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CategoryController {
     private final ProductCategoryService productCategoryService;
 
-
-    private final HttpHeaders header = new HttpHeaders() {{
-        setContentType(MediaType.APPLICATION_JSON);
-    }};
-
+    private final HttpHeaders header;
 
     @PostMapping("/admin/category/register")
     public ResponseEntity<CategoryRegisterResponseDto> createCategory(@Valid @RequestBody CategoryRegisterRequestDto categoryRegisterRequestDto) {

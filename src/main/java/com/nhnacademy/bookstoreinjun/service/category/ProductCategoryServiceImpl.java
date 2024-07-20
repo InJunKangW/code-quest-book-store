@@ -1,4 +1,4 @@
-package com.nhnacademy.bookstoreinjun.service.productCategory;
+package com.nhnacademy.bookstoreinjun.service.category;
 
 import com.nhnacademy.bookstoreinjun.dto.category.*;
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
@@ -166,10 +166,10 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
                 categoryMap.get(category.getParentProductCategory().getProductCategoryId()).getChildren().add(node);
             }
         }
-        return BFS(root);
+        return bFS(root);
     }
 
-    private CategoryNodeResponseDto BFS(CategoryNodeResponseDto root) {
+    private CategoryNodeResponseDto bFS(CategoryNodeResponseDto root) {
         Map.Entry<Integer, CategoryNodeResponseDto> curr;
         Queue<Map.Entry<Integer, CategoryNodeResponseDto>> queue = new ArrayDeque<>();
 

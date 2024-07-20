@@ -13,6 +13,8 @@ public record CategoryRegisterRequestDto (
         @NotBlank
         String categoryName,
 
-        @Nullable String parentCategoryName
+        @Pattern(regexp = "^(?!.*,).*$")
+        @Nullable
+        String parentCategoryName
 )
 {}

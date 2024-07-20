@@ -1,17 +1,12 @@
 package com.nhnacademy.bookstoreinjun.service.product;
 
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
-import com.nhnacademy.bookstoreinjun.dto.product.InventoryDecreaseRequestDto;
-import com.nhnacademy.bookstoreinjun.dto.product.InventoryIncreaseRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventorySetRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductGetResponseDto;
-import com.nhnacademy.bookstoreinjun.dto.product.ProductInventoryGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductStateUpdateRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductUpdateResponseDto;
-import java.util.List;
-import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 
@@ -30,13 +25,6 @@ public interface ProductService {
      */
     Page<ProductGetResponseDto> findAllPage(PageRequestDto pageRequestDto);
 
-    /**
-     * 특정 상품 명을 포함하는 상품의 Dto 페이지를 반환합니다.
-     * @param pageRequestDto 페이징 요청 (int page (페이지 넘버), int size (페이지 당 사이즈), String sort (정렬할 조건), boolean desc (오름차순/내림차순 여부))
-     * @param productName 포함되어야 할 상품명
-     * @return 요청에 따른 상품 Dto 의 페이지
-     */
-    Page<ProductGetResponseDto> findNameContainingPage(PageRequestDto pageRequestDto, String productName);
 
     /**
      * 상품의 좋아요를 남깁니다.
@@ -51,11 +39,6 @@ public interface ProductService {
 
     ProductUpdateResponseDto updateProductState(ProductStateUpdateRequestDto productStateUpdateRequestDto);
 
-    List<ProductInventoryGetResponseDto> getInventoryOfProductList (Set<Long> productIdSet);
-
-//    ResponseEntity<Void> decreaseProductInventory(List<InventoryDecreaseRequestDto> inventoryDecreaseRequestDtoList);
-//
-//    ResponseEntity<Void> increaseProductInventory(List<InventoryIncreaseRequestDto> inventoryIncreaseRequestDto);
 
     void decreaseProductInventoryQueue(String message);
 

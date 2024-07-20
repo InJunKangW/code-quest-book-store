@@ -9,7 +9,6 @@ import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.entity.Tag;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,9 +32,9 @@ public interface QuerydslRepository {
 
     /**
      *
-     * @param categoryId
-     * @param pageable
-     * @return
+     * @param categoryId a
+     * @param pageable a
+     * @return a
      */
     Page<BookProductGetResponseDto> findBooksByCategoryFilter(Long clientId, Long categoryId, Pageable pageable , Integer productState);
 
@@ -70,5 +69,5 @@ public interface QuerydslRepository {
 
     boolean deleteAllCart(long clientId);
 
-    boolean checkOutCart(CartCheckoutRequestDto dto);
+    long checkOutCart(CartCheckoutRequestDto dto);
 }

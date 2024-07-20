@@ -247,7 +247,7 @@ class CartServiceTest {
                 .build();
 
         String message = objectMapper.writeValueAsString(requestDto);
-
+        when(mapper.readValue(message, CartCheckoutRequestDto.class)).thenReturn(requestDto);
         assertDoesNotThrow(() -> cartService.checkOutCart(message));
     }
 

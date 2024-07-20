@@ -11,6 +11,9 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitConfig {
+    private static final String EXCHANGE = "x-dead-letter-exchange";
+
+    private static final String ROUTING_KEY = "x-dead-letter-routing-key";
 
     @Value("${rabbit.inventory.increase.exchange.name}")
     private String increaseInventoryExchangeName;
@@ -66,24 +69,24 @@ public class RabbitConfig {
     @Bean
     Queue increaseInventoryQueue() {
         return QueueBuilder.durable(increaseInventoryQueueName)
-                .withArgument("x-dead-letter-exchange", increaseInventoryExchangeName)
-                .withArgument("x-dead-letter-routing-key", increaseInventoryDlqRoutingKey)
+                .withArgument(EXCHANGE, increaseInventoryExchangeName)
+                .withArgument(ROUTING_KEY, increaseInventoryDlqRoutingKey)
                 .build();
     }
 
     @Bean
     Queue decreaseInventoryQueue() {
         return QueueBuilder.durable(decreaseInventoryQueueName)
-                .withArgument("x-dead-letter-exchange", decreaseInventoryExchangeName)
-                .withArgument("x-dead-letter-routing-key", decreaseInventoryDlqRoutingKey)
+                .withArgument(EXCHANGE, decreaseInventoryExchangeName)
+                .withArgument(ROUTING_KEY, decreaseInventoryDlqRoutingKey)
                 .build();
     }
 
     @Bean
     Queue cartCheckoutQueue() {
         return QueueBuilder.durable(cartCheckoutQueueName)
-                .withArgument("x-dead-letter-exchange", cartCheckoutExchangeName)
-                .withArgument("x-dead-letter-routing-key", cartCheckoutDlqRoutingKey)
+                .withArgument(EXCHANGE, cartCheckoutExchangeName)
+                .withArgument(ROUTING_KEY, cartCheckoutDlqRoutingKey)
                 .build();
     }
 

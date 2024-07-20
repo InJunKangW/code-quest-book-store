@@ -1,8 +1,7 @@
-package com.nhnacademy.bookstoreinjun.service.productCategory;
+package com.nhnacademy.bookstoreinjun.service.category;
 
 import com.nhnacademy.bookstoreinjun.dto.category.*;
 import com.nhnacademy.bookstoreinjun.dto.page.PageRequestDto;
-import java.util.List;
 import org.springframework.data.domain.Page;
 import com.nhnacademy.bookstoreinjun.exception.DuplicateException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundNameException;
@@ -54,23 +53,9 @@ public interface ProductCategoryService {
      */
     Page<CategoryGetResponseDto> getNameContainingCategoryPage(PageRequestDto pageRequestDto, String categoryName);
 
-    /**
-     * 특정 이름을 가진 카테고리의 모든 하위 카테고리 페이지를 반환합니다.
-     * @param pageRequestDto 페이징 요청 (int page (페이지 넘버), int size (페이지 당 사이즈), String sort (정렬할 조건), boolean desc (오름차순/내림차순 여부))
-     * @param categoryName 하위 카테고리를 찾을 카테고리명
-     * @return 요청에 따른 페이지
-     * @throws NotFoundNameException 카테고리명이 categoryName 에 해당하는 카테고리가 없을 때 발생합니다.
-     * @throws PageOutOfRangeException 요청의 page 가, total page 를 초과할 때 발생합니다.
-     * @throws InvalidSortNameException 요청의 sort 가, book 을 정렬하기에 부적절한 경우 발생합니다.
-     */
-//    Page<CategoryGetResponseDto> getSubCategoryPage(PageRequestDto pageRequestDto, String categoryName);
 
 
     Page<CategoryGetResponseDto> getSubCategoryPage(PageRequestDto pageRequestDto, Long parentId);
 
-    /**
-     *
-     * @return
-     */
     CategoryNodeResponseDto getCategoryTree();
 }

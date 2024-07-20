@@ -1,4 +1,4 @@
-package com.nhnacademy.bookstoreinjun.service.productCategoryRelation;
+package com.nhnacademy.bookstoreinjun.service.product_category_relation;
 
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.entity.Product;
@@ -27,7 +27,7 @@ public class ProductCategoryRelationServiceImpl implements ProductCategoryRelati
 
         ProductCategory productCategory = productCategoryRelation.getProductCategory();
         if (productCategory == null || productCategory.getProductCategoryId() == null) {
-            throw new RuntimeException();
+            throw new NotFoundIdException("productCategory", null);
         } else if (!productCategoryRepository.existsById(productCategory.getProductCategoryId())) {
             throw new NotFoundIdException("productCategory", productCategory.getProductCategoryId());
         }

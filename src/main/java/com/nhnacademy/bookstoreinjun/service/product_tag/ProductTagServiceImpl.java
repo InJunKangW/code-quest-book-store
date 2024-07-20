@@ -1,4 +1,4 @@
-package com.nhnacademy.bookstoreinjun.service.productTag;
+package com.nhnacademy.bookstoreinjun.service.product_tag;
 
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductTag;
@@ -27,7 +27,7 @@ public class ProductTagServiceImpl implements ProductTagService {
 
         Tag tag = productTag.getTag();
         if (tag == null || tag.getTagId() == null) {
-            throw new RuntimeException();
+            throw new NotFoundIdException("tag", null);
         } else if (!tagRepository.existsById(tag.getTagId())) {
             throw new NotFoundIdException("tag", tag.getTagId());
         }

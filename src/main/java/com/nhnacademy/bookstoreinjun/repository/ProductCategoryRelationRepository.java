@@ -3,19 +3,12 @@ package com.nhnacademy.bookstoreinjun.repository;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategoryRelation;
-import java.util.List;
 import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductCategoryRelationRepository extends JpaRepository<ProductCategoryRelation, Long> {
-    /**
-     * 특정 product 에 달린 모든 카테고리를 찾아내기 위해 사용합니다.
-     * @param product 찾아낼 기준이 되는 product
-     * @return 해당 product 와 관계된 모든 카테고리
-     */
-    List<ProductCategoryRelation> findByProduct(Product product);
 
     boolean existsByProductCategoryIn(Set<ProductCategory> productCategorySet);
     /**

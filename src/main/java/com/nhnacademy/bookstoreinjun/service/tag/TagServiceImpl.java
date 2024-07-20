@@ -112,7 +112,7 @@ public class TagServiceImpl implements TagService {
 
             return makeTagGetResponseDtoPage(pageable, tagPage);
         }catch (PropertyReferenceException e) {
-            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
+            throw SortCheckUtil.throwInvalidSortNameException(pageable);
         }
     }
 
@@ -126,7 +126,7 @@ public class TagServiceImpl implements TagService {
 
             return makeTagGetResponseDtoPage(pageable, tagPage);
         }catch (PropertyReferenceException e) {
-            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
+            throw SortCheckUtil.throwInvalidSortNameException(pageable);
         }
     }
 

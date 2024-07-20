@@ -3,9 +3,7 @@ package com.nhnacademy.bookstoreinjun.util;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.exception.InconsistentEntityException;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
-import com.nhnacademy.bookstoreinjun.exception.NullProductException;
 import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,15 +13,15 @@ public class ProductCheckUtil {
 
     private final ProductRepository productRepository;
 
+    private static final String TYPE = "product";
+
     public void checkProduct(Product product){
         if (product == null || product.getProductId() == null) {
-            throw new NullProductException();
+            throw new NotFoundIdException(TYPE, null);
         } else{
-            Optional<Product> optionalProduct = productRepository.findById(product.getProductId());
-            if (optionalProduct.isEmpty()) {
-                throw new NotFoundIdException("product", product.getProductId());
-            } else if (!product.equals(optionalProduct.get())) {
-                throw new InconsistentEntityException("product");
+            Product foundProduct = productRepository.findById(product.getProductId()).orElseThrow(() -> new NotFoundIdException(TYPE, product.getProductId()));
+            if (!product.equals(foundProduct)) {
+                throw new InconsistentEntityException(TYPE);
             }
         }
     }

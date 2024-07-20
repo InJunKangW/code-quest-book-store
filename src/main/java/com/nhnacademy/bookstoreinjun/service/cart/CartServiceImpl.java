@@ -155,10 +155,12 @@ public class CartServiceImpl implements CartService {
         log.info("Trying checkout cart - message : {}", message);
         try {
             CartCheckoutRequestDto requestDto = objectMapper.readValue(message, CartCheckoutRequestDto.class);
-            if (querydslRepository.checkOutCart(requestDto)){
-                log.info("Checkout cart success");
+            List<Long> productIdList = requestDto.productIdList();
+            long updatedRow = querydslRepository.checkOutCart(requestDto);
+            if (updatedRow == productIdList.size()){
+                log.info("Checkout cart succeeded as requested");
             }else {
-                log.warn("Checkout cart success but no column updated. There may be some problem");
+                log.warn("Checkout cart succeeded, but there were issues with some items. For example, the request might contain non-existing product IDs. checked out : {}, request: {}", updatedRow, productIdList.size());
             }
         }catch (JsonProcessingException e){
             log.warn("Invalid rabbit mq message for json processing - {}, Caused by {}", message, e.getMessage());
