@@ -15,9 +15,11 @@
 
 ### Architecture
 
+수정해야함 (인증 그대로 복붙한거임)
 ![Auth Architecture](https://github.com/nhnacademy-be6-code-quest/.github/blob/main/img/auth/AuthArchitecture.png)
 
 ### Test
 
+수정해야함 (인증 그대로 복붙한거임)
 ![Auth Test](https://github.com/nhnacademy-be6-code-quest/.github/blob/main/img/auth/AuthTest.png)
 
