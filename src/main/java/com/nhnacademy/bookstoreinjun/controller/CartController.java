@@ -1,6 +1,5 @@
 package com.nhnacademy.bookstoreinjun.controller;
 
-import com.nhnacademy.bookstoreinjun.dto.cart.CartCheckoutRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.cart.CartRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.cart.CartGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.cart.SaveCartResponseDto;
@@ -11,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,11 +27,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class CartController {
     private final CartService cartService;
 
+    private final HttpHeaders header;
+
     private static final String ID_HEADER = "X-User-Id";
 
-    private final HttpHeaders header = new HttpHeaders() {{
-        setContentType(MediaType.APPLICATION_JSON);
-    }};
 
     @GetMapping("/client/cart/restore")
     public ResponseEntity<List<CartRequestDto>> restoreClientCartList(
@@ -66,7 +63,7 @@ public class CartController {
     ResponseEntity<SaveCartResponseDto> addGuestCartItem(
             @RequestBody @Valid CartRequestDto cartRequestDto){
         return new ResponseEntity<>(cartService.checkCartRequestOfGuest(cartRequestDto), header, HttpStatus.OK);
-    };
+    }
 
     @PutMapping("/client/cart/update")
     public ResponseEntity<SaveCartResponseDto> updateClientCartItem(
@@ -80,7 +77,7 @@ public class CartController {
     ResponseEntity<SaveCartResponseDto> updateGuestCartItem(
             @RequestBody @Valid CartRequestDto cartRequestDto){
         return new ResponseEntity<>(cartService.checkCartRequestOfGuest(cartRequestDto), header, HttpStatus.OK);
-    };
+    }
 
     @DeleteMapping("/client/cart/items/{productId}")
     public ResponseEntity<Void> deleteCartItem(

@@ -12,7 +12,7 @@ import com.nhnacademy.bookstoreinjun.entity.Tag;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.repository.ProductTagRepository;
 import com.nhnacademy.bookstoreinjun.repository.TagRepository;
-import com.nhnacademy.bookstoreinjun.service.productTag.ProductTagServiceImpl;
+import com.nhnacademy.bookstoreinjun.service.product_tag.ProductTagServiceImpl;
 import com.nhnacademy.bookstoreinjun.util.ProductCheckUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -9,8 +9,8 @@ import org.springframework.data.domain.Sort;
 
 public class SortCheckUtil {
 
-    public SortCheckUtil() {
-        throw new RuntimeException("utility class");
+    private SortCheckUtil() {
+        throw new IllegalStateException("Utility class");
     }
 
 
@@ -19,7 +19,7 @@ public class SortCheckUtil {
      * @param pageable 예외 객체를 만들 때 사용할 pageable 객체
      * @return pageable 의 sort 값들이 이어진 문자열을 message 로 갖는 InValidSortNameException
      */
-    public static InvalidSortNameException ThrowInvalidSortNameException(Pageable pageable){
+    public static InvalidSortNameException throwInvalidSortNameException(Pageable pageable){
         StringBuilder stringBuilder = new StringBuilder();
         Sort sorts = pageable.getSort();
         List<Sort.Order> orders = sorts.toList();
@@ -52,7 +52,7 @@ public class SortCheckUtil {
         for (Sort.Order order : sort) {
             String fieldName = order.getProperty();
             if (!classFields.contains(fieldName)) {
-                throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
+                throw SortCheckUtil.throwInvalidSortNameException(pageable);
             }
         }
     }

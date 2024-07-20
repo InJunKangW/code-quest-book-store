@@ -2,7 +2,9 @@ package com.nhnacademy.bookstoreinjun.dto.product;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 
+@Builder
 public record InventoryIncreaseRequestDto(
         @NotNull
         @Min(1)

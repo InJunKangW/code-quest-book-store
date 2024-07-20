@@ -20,9 +20,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -45,11 +43,9 @@ public class BookController {
 
     private final BookService bookService;
 
-    private static final String ID_HEADER = "X-User-Id";
+    private final HttpHeaders header;
 
-    private final HttpHeaders header = new HttpHeaders() {{
-        setContentType(MediaType.APPLICATION_JSON);
-    }};
+    private static final String ID_HEADER = "X-User-Id";
 
 
     @ExceptionHandler(AladinJsonProcessingException.class)
@@ -79,8 +75,6 @@ public class BookController {
         return new ResponseEntity<>(aladinService.getAladdinBookPage(pageRequestDto, title), header, HttpStatus.OK);
     }
 
-
-    // TODO - 이거 알라딘으로 도서 등록 시 호출하기
     @GetMapping("/book/isbnCheck")
     public ResponseEntity<Boolean> checkIfBookExists(@RequestParam("isbn") String isbn){
         log.info("Checking if book exists with isbn {}", isbn);

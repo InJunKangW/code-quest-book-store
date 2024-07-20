@@ -13,7 +13,6 @@ public interface ProductLikeRepository extends JpaRepository<ProductLike, Long> 
      */
     boolean existsByClientIdAndProduct(Long userId, Product product);
 
-//    void deleteByClientIdAndProduct(Long userId, Product product);
 
     ProductLike findByClientIdAndProduct(Long userId, Product product);
 }

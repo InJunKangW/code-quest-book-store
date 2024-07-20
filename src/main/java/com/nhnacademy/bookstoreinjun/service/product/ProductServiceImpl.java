@@ -8,7 +8,6 @@ import com.nhnacademy.bookstoreinjun.dto.product.InventoryDecreaseRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventoryIncreaseRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventorySetRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductGetResponseDto;
-import com.nhnacademy.bookstoreinjun.dto.product.ProductInventoryGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductLikeResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.product.ProductStateUpdateRequestDto;
@@ -26,10 +25,7 @@ import com.nhnacademy.bookstoreinjun.util.PageableUtil;
 import com.nhnacademy.bookstoreinjun.util.SortCheckUtil;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -52,9 +48,12 @@ public class ProductServiceImpl implements ProductService {
 
     private final QuerydslRepository querydslRepository;
 
-    private final int DEFAULT_PAGE_SIZE = 10;
+    private static final int DEFAULT_PAGE_SIZE = 10;
 
-    private final String DEFAULT_SORT = "productId";
+    private static final String DEFAULT_SORT = "productId";
+
+    private static final String TYPE = "product";
+
 
     private final ObjectMapper objectMapper;
 
@@ -89,18 +88,7 @@ public class ProductServiceImpl implements ProductService {
             Page<Product> productPage = productRepository.findAll(pageable);
             return makeProductGetResponseDtoPage(pageable, productPage);
         }catch (PropertyReferenceException e) {
-            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
-        }
-    }
-
-    public Page<ProductGetResponseDto> findNameContainingPage(@Valid PageRequestDto pageRequestDto, String productName) {
-        Pageable pageable = PageableUtil.makePageable(pageRequestDto, DEFAULT_PAGE_SIZE, DEFAULT_SORT);
-
-        try {
-            Page<Product> productPage = productRepository.findByProductNameContaining(pageable, productName);
-            return makeProductGetResponseDtoPage(pageable, productPage);
-        }catch (PropertyReferenceException e) {
-            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
+            throw SortCheckUtil.throwInvalidSortNameException(pageable);
         }
     }
 
@@ -114,22 +102,18 @@ public class ProductServiceImpl implements ProductService {
         log.info("Saving product like request: {} with id {}", productLikeRequestDto, clientIdOfHeader);
 
         Long productId = productLikeRequestDto.productId();
-        Optional<Product> optionalProduct = productRepository.findById(productId);
-        if(optionalProduct.isPresent()){
-            log.info("Saving product. found product!: {}", productLikeRequestDto);
-            Product product = optionalProduct.get();
-            if (productLikeRepository.existsByClientIdAndProduct(clientIdOfHeader, product)){
-                throw new DuplicateException("Product Like");
-            }
+
+        Product product = productRepository.findById(productId).orElseThrow(() -> new NotFoundIdException(TYPE, productId));
+
+        if (productLikeRepository.existsByClientIdAndProduct(clientIdOfHeader, product)){
+            throw new DuplicateException("Product Like");
+        }else {
             productLikeRepository.save(ProductLike.builder()
                     .clientId(clientIdOfHeader)
                     .product(product)
                     .build());
-        }else {
-            log.warn("product not found with {}", productLikeRequestDto.productId());
-            throw new NotFoundIdException("product", productId);
+            return new ProductLikeResponseDto();
         }
-        return new ProductLikeResponseDto();
     }
 
 
@@ -138,68 +122,29 @@ public class ProductServiceImpl implements ProductService {
         if (clientIdOfHeader ==- 1){
             throw new XUserIdNotFoundException();
         }
-        Product product = productRepository.findById(productId).orElseThrow(() -> new NotFoundIdException("product", productId));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new NotFoundIdException(TYPE, productId));
         if (!productLikeRepository.existsByClientIdAndProduct(clientIdOfHeader, product)){
-            throw new DuplicateException("Product Like");
+            throw new NotFoundIdException("Product Like", clientIdOfHeader);
         }else {
             ProductLike productLike = productLikeRepository.findByClientIdAndProduct(clientIdOfHeader, product);
             productLikeRepository.delete(productLike);
+            return new ProductLikeResponseDto();
         }
-        return new ProductLikeResponseDto();
     }
 
 
     @Override
     public ProductUpdateResponseDto updateProductState(ProductStateUpdateRequestDto productStateUpdateRequestDto) {
-        long result = querydslRepository.setProductState(productStateUpdateRequestDto.productId(), productStateUpdateRequestDto.productState());
         log.info("update state called, dto : {}", productStateUpdateRequestDto);
+        long result = querydslRepository.setProductState(productStateUpdateRequestDto.productId(), productStateUpdateRequestDto.productState());
         if (result != 1){
-            throw new NotFoundIdException("product", productStateUpdateRequestDto.productId());
+            throw new NotFoundIdException(TYPE, productStateUpdateRequestDto.productId());
         }else {
             return new ProductUpdateResponseDto(LocalDateTime.now());
         }
     }
 
 
-    @Override
-    public List<ProductInventoryGetResponseDto> getInventoryOfProductList(Set<Long> productIdSet) {
-        List<ProductInventoryGetResponseDto> result = new ArrayList<>();
-        for (Long productId : productIdSet) {
-            Product product = productRepository.findById(productId).orElseThrow(() -> new NotFoundIdException("product", productId));
-            ProductInventoryGetResponseDto responseDto = ProductInventoryGetResponseDto.builder()
-                    .productId(productId)
-                    .productInventory(product.getProductInventory())
-                    .build();
-            result.add(responseDto);
-        }
-        return result;
-    }
-
-//    @Override
-//    public ResponseEntity<Void> decreaseProductInventory(List<InventoryDecreaseRequestDto> inventoryDecreaseRequestDtoList){
-//        try {
-//            long updatedRow = querydslRepository.decreaseProductInventory(inventoryDecreaseRequestDtoList);
-//            if (updatedRow != inventoryDecreaseRequestDtoList.size()){
-//                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//            }
-//            return new ResponseEntity<>(HttpStatus.OK);
-//        }catch (JpaSystemException e) {
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-//    }
-//
-//    @Override
-//    public ResponseEntity<Void> increaseProductInventory(List<InventoryIncreaseRequestDto> inventoryIncreaseRequestDtoList) {
-//        try {
-//            long updatedRow = querydslRepository.increaseProductInventory(inventoryIncreaseRequestDtoList);
-//            if (updatedRow != inventoryIncreaseRequestDtoList.size()){
-//                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//            }
-//            return new ResponseEntity<>(HttpStatus.OK);
-//        }catch (JpaSystemException e) {
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-//    }
 
     @RabbitListener(queues = "${rabbit.inventory.decrease.queue.name}")
     @Override
@@ -229,14 +174,12 @@ public class ProductServiceImpl implements ProductService {
             inventoryIncreaseRequestDtoList = objectMapper.readValue(message, new TypeReference<List<InventoryIncreaseRequestDto>>() {});
             long updatedRow = querydslRepository.increaseProductInventory(inventoryIncreaseRequestDtoList);
             if (updatedRow != inventoryIncreaseRequestDtoList.size()){
-                log.error("increase product inventory queue failed. updatedRow: {}, size: {}, request : {}", updatedRow, inventoryIncreaseRequestDtoList.size(), inventoryIncreaseRequestDtoList);
+                log.warn("Increasing product inventory succeeded, but there were issues with some items. For example, the request might contain non-existing product IDs. updatedRow: {}, size: {}", updatedRow, inventoryIncreaseRequestDtoList.size());
             }else {
-                log.info("increase product inventory queue success");
+                log.info("Increasing product inventory succeeded as requested");
             }
-        } catch (JsonProcessingException e) {
-            log.error("increase product inventory queue failed", e);
-        } catch (JpaSystemException e) {
-            log.error("increase product inventory queue failed ", e);
+        } catch (JsonProcessingException  | JpaSystemException e) {
+            log.error("Increasing product inventory failed, error message : {}", e.getMessage());
         }
     }
 

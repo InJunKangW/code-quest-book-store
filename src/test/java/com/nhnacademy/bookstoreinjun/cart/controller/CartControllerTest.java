@@ -1,6 +1,7 @@
 package com.nhnacademy.bookstoreinjun.cart.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nhnacademy.bookstoreinjun.config.HeaderConfig;
 import com.nhnacademy.bookstoreinjun.config.SecurityConfig;
 import com.nhnacademy.bookstoreinjun.controller.CartController;
 import com.nhnacademy.bookstoreinjun.dto.cart.CartGetResponseDto;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -29,12 +31,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(CartController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, HeaderConfig.class})
 @DisplayName("장바구니 컨트롤러 테스트")
 class CartControllerTest {
 
     @Autowired
     MockMvc mockMvc;
+
+    @Autowired
+    HttpHeaders header;
 
     @MockBean
     CartService cartService;

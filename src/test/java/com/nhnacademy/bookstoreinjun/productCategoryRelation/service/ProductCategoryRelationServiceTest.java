@@ -6,7 +6,7 @@ import com.nhnacademy.bookstoreinjun.entity.ProductCategoryRelation;
 import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRelationRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
-import com.nhnacademy.bookstoreinjun.service.productCategoryRelation.ProductCategoryRelationServiceImpl;
+import com.nhnacademy.bookstoreinjun.service.product_category_relation.ProductCategoryRelationServiceImpl;
 import com.nhnacademy.bookstoreinjun.util.ProductCheckUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

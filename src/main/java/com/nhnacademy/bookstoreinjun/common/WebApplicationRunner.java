@@ -1,7 +1,7 @@
 package com.nhnacademy.bookstoreinjun.common;
 
 import com.nhnacademy.bookstoreinjun.feignclient.WebClient;
-import com.nhnacademy.bookstoreinjun.service.productCategory.ProductCategoryService;
+import com.nhnacademy.bookstoreinjun.service.category.ProductCategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;

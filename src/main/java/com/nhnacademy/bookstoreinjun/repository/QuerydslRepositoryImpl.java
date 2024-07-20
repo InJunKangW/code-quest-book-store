@@ -5,19 +5,15 @@ import com.nhnacademy.bookstoreinjun.dto.cart.CartCheckoutRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventoryDecreaseRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventoryIncreaseRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventorySetRequestDto;
-import com.nhnacademy.bookstoreinjun.entity.Cart;
-import com.nhnacademy.bookstoreinjun.entity.CartRemoveType;
 import com.nhnacademy.bookstoreinjun.entity.Product;
 import com.nhnacademy.bookstoreinjun.entity.ProductCategory;
 import com.nhnacademy.bookstoreinjun.entity.QBook;
-import com.nhnacademy.bookstoreinjun.entity.QCart;
 import com.nhnacademy.bookstoreinjun.entity.QProduct;
 import com.nhnacademy.bookstoreinjun.entity.Tag;
 import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtil;
 import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtilImpl;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
-import com.querydsl.core.dml.UpdateClause;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.CaseBuilder;
@@ -47,7 +43,6 @@ import static com.nhnacademy.bookstoreinjun.entity.QProductCategoryRelation.prod
 import static com.nhnacademy.bookstoreinjun.entity.QProductCategory.productCategory;
 import static com.nhnacademy.bookstoreinjun.entity.QProductLike.productLike;
 import static com.querydsl.core.types.dsl.Wildcard.count;
-import static org.springframework.jdbc.core.JdbcOperationsExtensionsKt.query;
 
 
 @Slf4j
@@ -118,7 +113,7 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
     }
 
     private void makeFilter(JPQLQuery<Tuple> query, JPQLQuery<Long> countQuery ,Boolean conditionIsAnd, int filterSize){
-        if(conditionIsAnd){
+        if(conditionIsAnd != null && conditionIsAnd){
             query.groupBy(b.bookId)
                     .having(count.eq((long)filterSize));
             countQuery.groupBy(b.bookId)
@@ -127,7 +122,7 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
     }
 
     private boolean hasProductLike(Long clientId, Long productId) {
-        if (clientId != null && clientId != 1){
+        if (clientId != null && clientId != -1){
             Long count = countQuery()
                     .innerJoin(p.productLikes, productLike)
                     .where(p.productId.eq(productId).and(productLike.clientId.eq(clientId)))
@@ -203,7 +198,6 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
     public Page<BookProductGetResponseDto> findNameContainingBookPage(Long clientId, Pageable pageable, String title, Integer productState){
         OrderSpecifier<?> orderSpecifier = makeOrderSpecifier(pageable, "book");
         BooleanBuilder whereBuilder = new BooleanBuilder();
-
 
 
         if(productState != null){
@@ -385,13 +379,12 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
             return 0;
         }
 
-
-
         CaseBuilder caseBuilder = new CaseBuilder();
         NumberExpression<Long> caseExpression = p.productInventory;
         for(InventoryIncreaseRequestDto dto : dtoList){
-            caseExpression = caseBuilder.when(p.productId.eq(dto.productId())).then(p.productInventory.add(dto.quantityToIncrease())).otherwise(p.productInventory);
+            caseExpression = caseBuilder.when(p.productId.eq(dto.productId())).then(p.productInventory.add(dto.quantityToIncrease())).otherwise(caseExpression);
         }
+
         return update(p)
                 .set(p.productInventory, caseExpression)
                 .where(p.productId.in(dtoList.stream()
@@ -412,10 +405,10 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
 
     @Transactional
     @Override
-    public boolean checkOutCart(CartCheckoutRequestDto dto) {
+    public long checkOutCart(CartCheckoutRequestDto dto) {
         List<Long> productIdList = dto.productIdList();
         if(productIdList == null || productIdList.isEmpty()){
-            return false;
+            return 0;
         }
 
         return update(cart)
@@ -426,7 +419,7 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
                                 .and(cart.product.productId.in(dto.productIdList()))
                                 .and(cart.cartRemoveType.isNull())
                                 )
-                .execute() > 0;
+                .execute();
     }
 
     @Transactional

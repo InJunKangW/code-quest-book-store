@@ -21,8 +21,8 @@ import com.nhnacademy.bookstoreinjun.repository.BookRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductCategoryRepository;
 import com.nhnacademy.bookstoreinjun.repository.ProductRepository;
 import com.nhnacademy.bookstoreinjun.repository.TagRepository;
-import com.nhnacademy.bookstoreinjun.service.productCategoryRelation.ProductCategoryRelationService;
-import com.nhnacademy.bookstoreinjun.service.productTag.ProductTagService;
+import com.nhnacademy.bookstoreinjun.service.product_category_relation.ProductCategoryRelationService;
+import com.nhnacademy.bookstoreinjun.service.product_tag.ProductTagService;
 import com.nhnacademy.bookstoreinjun.util.PageableUtil;
 import com.nhnacademy.bookstoreinjun.util.ProductCheckUtil;
 import com.nhnacademy.bookstoreinjun.util.SortCheckUtil;
@@ -127,7 +127,7 @@ public class BookServiceImpl implements BookService {
 
             return result;
         }catch (InvalidDataAccessApiUsageException e) {
-            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
+            throw SortCheckUtil.throwInvalidSortNameException(pageable);
         }
     }
 
@@ -143,7 +143,7 @@ public class BookServiceImpl implements BookService {
 
             return result;
         }catch (InvalidDataAccessApiUsageException e) {
-            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
+            throw SortCheckUtil.throwInvalidSortNameException(pageable);
         }
     }
 
@@ -159,7 +159,7 @@ public class BookServiceImpl implements BookService {
 
             return result;
         }catch (InvalidDataAccessApiUsageException e){
-            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
+            throw SortCheckUtil.throwInvalidSortNameException(pageable);
         }
     }
 
@@ -176,7 +176,7 @@ public class BookServiceImpl implements BookService {
 
             return result;
         }catch (InvalidDataAccessApiUsageException e){
-            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
+            throw SortCheckUtil.throwInvalidSortNameException(pageable);
         }
     }
 
@@ -193,7 +193,7 @@ public class BookServiceImpl implements BookService {
 
             return result;
         }catch (InvalidDataAccessApiUsageException e){
-            throw SortCheckUtil.ThrowInvalidSortNameException(pageable);
+            throw SortCheckUtil.throwInvalidSortNameException(pageable);
         }
     }
 

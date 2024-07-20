@@ -4,7 +4,6 @@ import com.nhnacademy.bookstoreinjun.filter.HeaderFilter;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
-import org.apache.http.Header;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
@@ -27,7 +26,7 @@ public class SecurityConfig {
     private static final String  ADMIN = "ROLE_ADMIN";
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(new HeaderFilter(List.of(

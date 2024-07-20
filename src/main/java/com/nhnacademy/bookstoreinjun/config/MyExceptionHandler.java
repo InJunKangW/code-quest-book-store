@@ -11,10 +11,10 @@ import com.nhnacademy.bookstoreinjun.exception.NullProductException;
 import com.nhnacademy.bookstoreinjun.exception.PageOutOfRangeException;
 import com.nhnacademy.bookstoreinjun.exception.XUserIdNotFoundException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -22,11 +22,10 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 @Slf4j
 @org.springframework.web.bind.annotation.ControllerAdvice
+@RequiredArgsConstructor
 public class MyExceptionHandler {
 
-    private final HttpHeaders header = new HttpHeaders() {{
-        setContentType(MediaType.APPLICATION_JSON);
-    }};
+    private final HttpHeaders header;
 
     private ResponseEntity<ErrorResponseDto> getErrorResponse(Exception ex, HttpStatus status) {
         return new ResponseEntity<>(new ErrorResponseDto(ex.getMessage()), header, status);

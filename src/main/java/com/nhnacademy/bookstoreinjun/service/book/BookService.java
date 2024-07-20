@@ -71,9 +71,6 @@ public interface BookService {
      * @throws PageOutOfRangeException 요청의 page 가, total page 를 초과할 때 발생합니다.
      * @throws InvalidSortNameException 요청의 sort 가, book 을 정렬하기에 부적절한 경우 발생합니다.
      */
-//    Page<BookProductGetResponseDto> getBookPage(Long clientIdOfHeader, PageRequestDto pageRequestDto);
-
-
     Page<BookProductGetResponseDto> getBookPageByProductState(Long clientIdOfHeader, PageRequestDto pageRequestDto, Integer productState);
 
 
@@ -85,8 +82,6 @@ public interface BookService {
      * @throws PageOutOfRangeException 요청의 page 가, total page 를 초과할 때 발생합니다.
      * @throws InvalidSortNameException 요청의 sort 가, book 을 정렬하기에 부적절한 경우 발생합니다.
      */
-//    Page<BookProductGetResponseDto> getNameContainingBookPage(Long clientIdOfHeader, PageRequestDto pageRequestDto, String title);
-
     Page<BookProductGetResponseDto> getNameContainingBookPageByProductState(Long clientIdOfHeader, PageRequestDto pageRequestDto, String title, Integer productState);
 
 
@@ -100,19 +95,15 @@ public interface BookService {
      * @throws PageOutOfRangeException 요청의 page 가, total page 를 초과할 때 발생합니다.
      * @throws InvalidSortNameException 요청의 sort 가, book 을 정렬하기에 부적절한 경우 발생합니다.
      */
-//    Page<BookProductGetResponseDto> getBookPageFilterByTags(Long clientIdOfHeader, PageRequestDto pageRequestDto, Set<String> tags, Boolean conditionIsAnd);
 
     Page<BookProductGetResponseDto> getBookPageFilterByTagsAndProductState(Long clientIdOfHeader, PageRequestDto pageRequestDto, Set<String> tags, Boolean conditionIsAnd, Integer productState);
 
 
     /**
      * @param pageRequestDto 페이징 요청 (int page (페이지 넘버), int size (페이지 당 사이즈), String sort (정렬할 조건), boolean desc (오름차순/내림차순 여부))*
-     * @param categoryName 필터링할 카테고리명
+     * @param categoryId 필터링할 카테고리 아이디
      * @return 카테고리명으로 필터링된 도서 상품 페이지
      */
-//    Page<BookProductGetResponseDto> getBookPageFilterByCategory(Long clientIdOfHeader, PageRequestDto pageRequestDto, Long categoryId);
-
-
     Page<BookProductGetResponseDto> getBookPageFilterByCategoryAndProductState(Long clientIdOfHeader, PageRequestDto pageRequestDto, Long categoryId, Integer productState);
 
 

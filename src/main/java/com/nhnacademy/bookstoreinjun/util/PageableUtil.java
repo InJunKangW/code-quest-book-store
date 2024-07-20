@@ -10,7 +10,7 @@ import org.springframework.data.domain.Sort;
 
 public class PageableUtil {
 
-    public PageableUtil() {
+    private PageableUtil() {
         throw new IllegalStateException("Utility class");
     }
 
