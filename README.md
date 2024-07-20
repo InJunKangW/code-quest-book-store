@@ -1,1 +1,23 @@
-# code-quest-bookstore-shop
+# [Book Store](https://book-store.shop)
+
+## 🔒 Product Service
+
+ 상품과 관련한 전반전인 기능을 수행합니다.  
+1. 도서 상품 등록 / 수정 / 조회
+2. 포장지 상품 등록 / 수정 / 조회
+3. 상품 태그 등록 / 수정 / 조회 / 삭제
+4. 상품 카테고리 등록 / 수정 / 조회 /삭제
+5. Access Token 재발급 기능
+
+### Service Dependency
+
+[👥 Client Service](https://github.com/nhnacademy-be6-code-quest/service-client)
+
+### Architecture
+
+![Auth Architecture](https://github.com/nhnacademy-be6-code-quest/.github/blob/main/img/auth/AuthArchitecture.png)
+
+### Test
+
+![Auth Test](https://github.com/nhnacademy-be6-code-quest/.github/blob/main/img/auth/AuthTest.png)
+
