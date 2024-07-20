@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @TestPropertySource(locations = "classpath:application-dev.properties")
-public class ProductCategoryRepositoryTest {
+class ProductCategoryRepositoryTest {
 
     @Autowired
     private ProductCategoryRepository productCategoryRepository;
@@ -31,16 +31,16 @@ public class ProductCategoryRepositoryTest {
 
 
     @Test
-    public void categorySaveTest() {
+    void categorySaveTest() {
         ProductCategory savedProductCategory = productCategoryRepository.save(productCategory);
         assertNotNull(savedProductCategory);
-        assertEquals(savedProductCategory.getCategoryName(), "test category1");
+        assertEquals("test category1", savedProductCategory.getCategoryName());
         assertNull(savedProductCategory.getParentProductCategory());
     }
 
 
     @Test
-    public void categoryCheckTest() {
+    void categoryCheckTest() {
         ProductCategory savedProductCategory = productCategoryRepository.save(productCategory);
         assertNotNull(savedProductCategory);
         assertTrue(productCategoryRepository.existsByCategoryName("test category1"));
@@ -49,28 +49,5 @@ public class ProductCategoryRepositoryTest {
         assertNotNull(foundProductCategory);
         assertEquals(savedProductCategory, foundProductCategory);
     }
-//
-//    @Test
-//    public void categoriesCheckTest(){
-//        ProductCategory savedProductCategory = productCategoryRepository.save(productCategory);
-//        for (int i = 0; i < 10; i ++){
-//            String value = "";
-//            if(i % 2 == 0){
-//                value = "add";
-//            }
-//            ProductCategory subProductCategory = ProductCategory.builder()
-//                    .categoryName("sub productCategory" + value + i)
-//                    .parentProductCategory(savedProductCategory)
-//                    .build();
-//            productCategoryRepository.save(subProductCategory);
-//        }
-//        List<ProductCategory> subCategories = productCategoryRepository.findSubCategoriesByParentProductCategory(savedProductCategory);
-//
-//        assertNotNull(subCategories);
-//        assertEquals(10, subCategories.size());
-//
-//        List<ProductCategory> subContainingCategories = productCategoryRepository.findAllByCategoryNameContaining("add");
-//        assertNotNull(subContainingCategories);
-//        assertEquals(5, subContainingCategories.size());
-//    }
+
 }

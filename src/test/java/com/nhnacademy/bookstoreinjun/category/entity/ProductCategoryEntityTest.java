@@ -8,16 +8,12 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.TestPropertySource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
-//@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @TestPropertySource(locations = "classpath:application-dev.properties")
-
-public class ProductCategoryEntityTest {
+class ProductCategoryEntityTest {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -25,7 +21,7 @@ public class ProductCategoryEntityTest {
     private final String TEST_CATEGORY_NAME = "Test Category";
 
     @Test
-    public void testSaveCategory() {
+    void testSaveCategory() {
         ProductCategory productCategory = ProductCategory.builder()
                 .categoryName(TEST_CATEGORY_NAME)
                 .build();
@@ -39,7 +35,7 @@ public class ProductCategoryEntityTest {
     }
 
     @Test
-    public void testSaveCategory2() {
+    void testSaveCategory2() {
         ProductCategory parentProductCategory = ProductCategory.builder()
                 .categoryName(TEST_CATEGORY_NAME + "parent")
                 .build();
@@ -63,7 +59,7 @@ public class ProductCategoryEntityTest {
     }
 
     @Test
-    public void testUpdateCategory() {
+    void testUpdateCategory() {
         ProductCategory parentProductCategory = ProductCategory.builder()
                 .categoryName(TEST_CATEGORY_NAME + "parent")
                 .build();

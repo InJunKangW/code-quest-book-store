@@ -24,7 +24,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.org.lidalia.slf4jtest.TestLogger;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,7 +33,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.org.lidalia.slf4jtest.TestLoggerFactory.getTestLogger;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
@@ -56,8 +54,6 @@ class CartServiceTest {
     private ObjectMapper mapper;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-    private final TestLogger logger = getTestLogger(CartServiceImpl.class);
 
     @DisplayName("장바구니 복구 성공 테스트")
     @Test
