@@ -14,14 +14,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class ProductCategoryRelationServiceTest {
+class ProductCategoryRelationServiceTest {
 
     @InjectMocks
     private ProductCategoryRelationServiceImpl productCategoryRelationService;
@@ -36,7 +35,7 @@ public class ProductCategoryRelationServiceTest {
     private ProductCheckUtil productCheckUtil;
 
     @Test
-    public void saveProductCategoryRelationTestSuccess() {
+    void saveProductCategoryRelationTestSuccess() {
         when(productCategoryRepository.existsById(1L)).thenReturn(true);
 
         Product product = new Product();
@@ -56,7 +55,7 @@ public class ProductCategoryRelationServiceTest {
     }
 
     @Test
-    public void saveProductCategoryRelationTestFailureByNullProductCategory() {
+    void saveProductCategoryRelationTestFailureByNullProductCategory() {
         Product product = new Product();
         ProductCategoryRelation productCategoryRelation = ProductCategoryRelation.builder()
                 .product(product)
@@ -66,7 +65,7 @@ public class ProductCategoryRelationServiceTest {
     }
 
     @Test
-    public void saveProductCategoryRelationTestFailureByNotExistingProductCategory() {
+    void saveProductCategoryRelationTestFailureByNotExistingProductCategory() {
         when(productCategoryRepository.existsById(1L)).thenReturn(false);
 
         Product product = new Product();
@@ -81,30 +80,11 @@ public class ProductCategoryRelationServiceTest {
     }
 
     @Test
-    public void clearProductCategoryRelationTestSuccess() {
+    void clearProductCategoryRelationTestSuccess() {
         Product product = new Product();
         productCategoryRelationService.clearProductCategoryRelationsByProduct(product);
 
         verify(productCheckUtil, times(1)).checkProduct(product);
         verify(productCategoryRelationRepository, times(1)).deleteByProduct(product);
     }
-
-//    @DisplayName("상품에 달린 카테고리 리스트 조회")
-//    @Test
-//    public void getTagsByProductTestSuccess(){
-//        Product product = new Product();
-//
-//        when(productCategoryRelationRepository.findByProduct(product)).thenReturn(Arrays.asList(
-//                ProductCategoryRelation.builder()
-//                        .product(product)
-//                        .build(),
-//                ProductCategoryRelation.builder()
-//                        .product(product)
-//                        .build()
-//        ));
-//        List<ProductCategory> productCategoryList = productCategoryRelationService.getProductCategoryRelationsByProduct(product);
-//
-//        verify(productCategoryRelationRepository,times(1)).findByProduct(product);
-//        assertEquals(2, productCategoryList.size());
-//    }
 }

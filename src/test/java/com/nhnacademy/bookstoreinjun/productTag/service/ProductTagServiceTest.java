@@ -22,7 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class ProductTagServiceTest {
+class ProductTagServiceTest {
 
     @InjectMocks
     private ProductTagServiceImpl productTagServiceImpl;
@@ -38,7 +38,7 @@ public class ProductTagServiceTest {
 
     @DisplayName("상품_태그 데이터 저장 성공 테스트")
     @Test
-    public void saveProductTagTestSuccess() {
+    void saveProductTagTestSuccess() {
         ProductTag productTag = new ProductTag();
         Product product = productTag.getProduct();
         System.out.println(product);
@@ -54,14 +54,14 @@ public class ProductTagServiceTest {
 
     @DisplayName("상품_태그 데이터 저장 실패 테스트 - 잘못된 tag")
     @Test
-    public void saveProductTagTestFailureByNullTag() {
+    void saveProductTagTestFailureByNullTag() {
         ProductTag productTag = new ProductTag();
         assertThrows(RuntimeException.class, () -> productTagServiceImpl.saveProductTag(productTag));
     }
 
     @DisplayName("상품_태그 데이터 저장 실패 테스트 - 잘못된 tag")
     @Test
-    public void saveProductTagTestFailureByNotExistingTag() {
+    void saveProductTagTestFailureByNotExistingTag() {
         ProductTag productTag = new ProductTag();
         Tag tag = new Tag(1L, "test tag");
         productTag.setTag(tag);
@@ -72,12 +72,11 @@ public class ProductTagServiceTest {
 
     @DisplayName("상품_태그 초기화 성공 테스트")
     @Test
-    public void cleatTagByProductTestSuccess(){
+    void cleatTagByProductTestSuccess(){
         Product product = new Product();
         productTagServiceImpl.clearTagsByProduct(product);
 
         verify(productCheckUtil,times(1)).checkProduct(product);
         verify(productTagRepository,times(1)).deleteByProduct(product);
     }
-
 }

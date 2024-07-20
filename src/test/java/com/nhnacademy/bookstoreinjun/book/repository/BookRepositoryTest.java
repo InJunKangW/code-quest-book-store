@@ -3,7 +3,6 @@ package com.nhnacademy.bookstoreinjun.book.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.nhnacademy.bookstoreinjun.entity.Book;
 import com.nhnacademy.bookstoreinjun.entity.Product;
@@ -20,7 +19,7 @@ import org.springframework.test.context.TestPropertySource;
 @Slf4j
 @DataJpaTest
 @TestPropertySource(locations = "classpath:application-dev.properties")
-public class BookRepositoryTest {
+class BookRepositoryTest {
     @Autowired
     private BookRepository bookRepository;
 
@@ -36,7 +35,7 @@ public class BookRepositoryTest {
     }
 
     @Test
-    public void bookSaveTest() {
+    void bookSaveTest() {
         Book book = Book.builder()
                 .title("test Title")
                 .publisher("test Publisher")
@@ -50,14 +49,13 @@ public class BookRepositoryTest {
         Book savedBook = bookRepository.save(book);
 
         assertNotNull(savedBook);
-        assertEquals(savedBook.getTitle(), "test Title");
-        assertEquals(savedBook.getAuthor(), "test Author");
-        assertEquals(savedBook.getIsbn(), "123456789a");
-        assertEquals(savedBook.getIsbn13(), "123456789abcd");
-        assertEquals(savedBook.getPubDate(), LocalDate.of(1999, 9, 9));
-        assertEquals(savedBook.getProduct(), product);
+        assertEquals("test Title", savedBook.getTitle());
+        assertEquals("test Author", savedBook.getAuthor());
+        assertEquals("123456789a", savedBook.getIsbn());
+        assertEquals("123456789abcd", savedBook.getIsbn13());
+        assertEquals( LocalDate.of(1999, 9, 9), savedBook.getPubDate());
+        assertEquals( product, savedBook.getProduct());
 
-//        assertTrue(bookRepository.existsByIsbn13("123456789abcd"));
     }
 
 }

@@ -3,7 +3,6 @@ package com.nhnacademy.bookstoreinjun.tag.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.nhnacademy.bookstoreinjun.entity.Tag;
 import jakarta.persistence.EntityManager;
@@ -14,16 +13,13 @@ import org.springframework.test.context.TestPropertySource;
 
 @DataJpaTest
 @TestPropertySource(locations = "classpath:application-dev.properties")
-public class TagEntityTest {
+class TagEntityTest {
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Test
-    public void contextLoads() {}
-
-    @Test
-    public void saveTagTest(){
+    void saveTagTest(){
         Tag tag = Tag.builder()
                 .tagName("test tag1")
                 .build();
@@ -36,7 +32,7 @@ public class TagEntityTest {
     }
 
     @Test
-    public void updateTagTest(){
+    void updateTagTest(){
         Tag tag = Tag.builder()
                 .tagName("test tag1")
                 .build();

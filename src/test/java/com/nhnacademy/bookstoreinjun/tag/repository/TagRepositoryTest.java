@@ -2,7 +2,6 @@ package com.nhnacademy.bookstoreinjun.tag.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.nhnacademy.bookstoreinjun.entity.Tag;
@@ -16,7 +15,7 @@ import org.springframework.test.context.TestPropertySource;
 
 @DataJpaTest
 @TestPropertySource(locations = "classpath:application-dev.properties")
-public class TagRepositoryTest {
+class TagRepositoryTest {
 
     @Autowired
     private TagRepository tagRepository;
@@ -31,14 +30,14 @@ public class TagRepositoryTest {
     }
 
     @Test
-    public void tagSaveTest() {
+    void tagSaveTest() {
         Tag savedTag = tagRepository.save(tag);
         assertNotNull(savedTag);
-        assertEquals(savedTag.getTagName(), "test tag");
+        assertEquals("test tag", savedTag.getTagName());
     }
 
     @Test
-    public void tagCheckTest(){
+    void tagCheckTest(){
         Tag savedTag = tagRepository.save(tag);
         assertNotNull(savedTag);
         assertTrue(tagRepository.existsByTagName("test tag"));
@@ -49,16 +48,16 @@ public class TagRepositoryTest {
     }
 
     @Test
-    public void tagsCheckTest(){
+    void tagsCheckTest(){
         for (int i = 0; i < 10; i++) {
             String value = "";
             if(i % 2 == 0){
                 value = "add";
             }
-            Tag tag = Tag.builder()
+            Tag newTag = Tag.builder()
                     .tagName("test tag" + value + i)
                     .build();
-            tagRepository.save(tag);
+            tagRepository.save(newTag);
         }
         List<Tag> tags = tagRepository.findAll();
         assertEquals(10, tags.size());

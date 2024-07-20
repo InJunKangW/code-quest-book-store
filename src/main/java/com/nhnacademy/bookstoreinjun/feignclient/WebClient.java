@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "WEB-SERVICE", configuration = FeignConfig.class)
 public interface WebClient {
     @Value("${web.url}")
-    String url = "";
+    String URL = "";
 
-    @PostMapping(url+"/category/update")
+    @PostMapping(URL + "/category/update")
     ResponseEntity<String> updateCategory(@RequestBody CategoryNodeResponseDto categoryNodeResponseDto);
 }

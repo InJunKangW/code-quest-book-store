@@ -294,6 +294,8 @@ class ProductServiceTest {
         assertDoesNotThrow(() -> productService.decreaseProductInventoryQueue(message));
     }
 
+
+    @SuppressWarnings("unchecked")
     @DisplayName("상품 재고 증가 성공 테스트 - 요청 받은 대로 수행됨")
     @Test
     void increaseProductInventorySuccessTest1() throws Exception{
@@ -316,6 +318,7 @@ class ProductServiceTest {
     }
 
 
+    @SuppressWarnings("unchecked")
     @DisplayName("상품 재고 증가 일부 성공 테스트 - 요청 받은 대로 수행되지는 못함.")
     @Test
     void increaseProductInventorySuccessTest2() throws Exception{
@@ -337,7 +340,7 @@ class ProductServiceTest {
         assertDoesNotThrow(() -> productService.increaseProductInventoryQueue(message));
     }
 
-
+    @SuppressWarnings("unchecked")
     @DisplayName("상품 재고 증가 실패 테스트 - 잘못된 형태의 rabbit mq message")
     @Test
     void increaseProductInventoryFailureTest1() throws Exception{
