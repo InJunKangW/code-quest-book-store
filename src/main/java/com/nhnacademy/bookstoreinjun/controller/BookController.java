@@ -64,6 +64,7 @@ public class BookController {
     @PutMapping("/admin/book/update")
     public ResponseEntity<ProductUpdateResponseDto> updateBook(
             @Valid @RequestBody BookProductUpdateRequestDto bookProductUpdateRequestDto){
+        log.info("dto : {}", bookProductUpdateRequestDto);
         return new ResponseEntity<>(bookService.updateBook(bookProductUpdateRequestDto), header, HttpStatus.OK);
     }
 
