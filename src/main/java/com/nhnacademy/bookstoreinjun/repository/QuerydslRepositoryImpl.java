@@ -2,6 +2,8 @@ package com.nhnacademy.bookstoreinjun.repository;
 
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.cart.CartCheckoutRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.cart.CartGetResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.cart.CartRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventoryDecreaseRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventoryIncreaseRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventorySetRequestDto;
@@ -11,6 +13,7 @@ import com.nhnacademy.bookstoreinjun.entity.QBook;
 import com.nhnacademy.bookstoreinjun.entity.QProduct;
 import com.nhnacademy.bookstoreinjun.entity.QProductLike;
 import com.nhnacademy.bookstoreinjun.entity.Tag;
+import com.nhnacademy.bookstoreinjun.exception.NotFoundIdException;
 import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtil;
 import com.nhnacademy.bookstoreinjun.util.FindAllSubCategoriesUtilImpl;
 import com.querydsl.core.BooleanBuilder;
@@ -22,9 +25,11 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPQLQuery;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -99,7 +104,17 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
         return new OrderSpecifier<>(orderDirect, Expressions.stringTemplate(entity + "." + property));
     }
 
-    private BookProductGetResponseDto makeBookProductGetResponseDto(Tuple tuple) {
+
+    private void makeFilter(JPQLQuery<Tuple> query, JPQLQuery<Long> countQuery ,Boolean conditionIsAnd, int filterSize){
+        if(conditionIsAnd != null && conditionIsAnd){
+            query.groupBy(b.bookId)
+                    .having(count.eq((long)filterSize));
+            countQuery.groupBy(b.bookId)
+                    .having(count.eq((long)filterSize));
+        }
+    }
+
+    private BookProductGetResponseDto makeBookDto(Tuple tuple, Set<ProductCategory> categorySet, Set<Tag> tagSet, boolean hasLike) {
         return BookProductGetResponseDto.builder()
                 .bookId(tuple.get(b.bookId))
                 .title(tuple.get(b.title))
@@ -119,25 +134,20 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
                 .productPriceStandard(tuple.get(p.productPriceStandard))
                 .productPriceSales(tuple.get(p.productPriceSales))
                 .productInventory(tuple.get(p.productInventory))
-                .categorySet(emptyCategorySet)
-                .tagSet(emptyTagSet)
-                .hasLike(tuple.get(tuple.size() -1, Boolean.class))
+                .categorySet(categorySet)
+                .tagSet(tagSet)
+                .hasLike(hasLike)
                 .build();
     }
-
-    private void makeFilter(JPQLQuery<Tuple> query, JPQLQuery<Long> countQuery ,Boolean conditionIsAnd, int filterSize){
-        if(conditionIsAnd != null && conditionIsAnd){
-            query.groupBy(b.bookId)
-                    .having(count.eq((long)filterSize));
-            countQuery.groupBy(b.bookId)
-                    .having(count.eq((long)filterSize));
-        }
-    }
-
 
     @Override
     @Transactional
     public BookProductGetResponseDto findBookByProductId (Long clientId, Long productId){
+        update(p)
+                .set(p.productViewCount, p.productViewCount.add(1))
+                .where(p.productId.eq(productId))
+                .execute();
+
         List<Tuple> tupleList = from(b)
                 .select(
                         b.bookId,
@@ -174,48 +184,14 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
 
         Tuple tuple = tupleList.getFirst();
 
-        Set<ProductCategory> categorySet = tupleList.stream()
-                .map(tuples -> tuples.get(productCategory))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+        Set<ProductCategory> categorySet = getCategorySet(tupleList);
 
-        Set<Tag> tagSet = tupleList.stream()
-                .map(tuples ->  tuples.get(tag))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+        Set<Tag> tagSet = getTagSet(tupleList);
 
         boolean hasLike = tupleList.stream()
                 .anyMatch(tuples -> tuples.get(tuples.size() - 1, Boolean.class));
 
-        update(p)
-                .set(p.productViewCount, p.productViewCount.add(1))
-                .where(p.productId.eq(productId))
-                .execute();
-
-
-        return BookProductGetResponseDto.builder()
-                .bookId(tuple.get(b.bookId))
-                .title(tuple.get(b.title))
-                .publisher(tuple.get(b.publisher))
-                .author(tuple.get(b.author))
-                .pubDate(tuple.get(b.pubDate))
-                .isbn(tuple.get(b.isbn))
-                .isbn13(tuple.get(b.isbn13))
-                .productId(tuple.get(p.productId))
-                .cover(tuple.get(p.productThumbnailUrl))
-                .productName(tuple.get(p.productName))
-                .packable(tuple.get(p.productPackable))
-                .productDescription(tuple.get(p.productDescription))
-                .productRegisterDate(tuple.get(p.productRegisterDate))
-                .productState(tuple.get(p.productState))
-                .productViewCount(tuple.get(p.productViewCount))
-                .productPriceStandard(tuple.get(p.productPriceStandard))
-                .productPriceSales(tuple.get(p.productPriceSales))
-                .productInventory(tuple.get(p.productInventory))
-                .categorySet(categorySet)
-                .tagSet(tagSet)
-                .hasLike(hasLike)
-                .build();
+        return makeBookDto(tuple, categorySet, tagSet, hasLike);
     }
 
     private Page<BookProductGetResponseDto> makePage(JPQLQuery<Tuple> query, JPQLQuery<Long> countQuery , Pageable pageable){
@@ -226,7 +202,7 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
 
         List<BookProductGetResponseDto> result = new ArrayList<>();
         for (Tuple tuple : tupleList) {
-            result.add(makeBookProductGetResponseDto(tuple));
+            result.add(makeBookDto(tuple, emptyCategorySet, emptyTagSet, tuple.get(tuple.size() -1, Boolean.class)));
         }
 
         long totalPages = countQuery.fetchOne();
@@ -362,29 +338,108 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
         return makePage(query, countQuery, pageable);
     }
 
+
+
+    private Set<ProductCategory> getCategorySet(List<Tuple> tupleList){
+        return tupleList.stream()
+                .map(tuples -> tuples.get(productCategory))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+    }
+
+    private Set<Tag> getTagSet(List<Tuple> tupleList){
+        return tupleList.stream()
+                .map(tuples ->  tuples.get(tag))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+    }
+
+    private void addCartGetResponseDto(List<CartGetResponseDto> resultList, List<Tuple> tupleList, Long quantity){
+        Tuple tuple = tupleList.getFirst();
+        Set<ProductCategory> categorySet = getCategorySet(tupleList);
+
+        Set<Tag> tagSet = getTagSet(tupleList);
+
+        resultList.add(CartGetResponseDto.builder()
+                .productId(tuple.get(p).getProductId())
+                .productName(tuple.get(p).getProductName())
+                .productPriceStandard(tuple.get(p).getProductPriceStandard())
+                .productPriceSales(tuple.get(p).getProductPriceSales())
+                .productQuantityOfCart(quantity)
+                .productInventory(tuple.get(p).getProductInventory())
+                .productState(tuple.get(p).getProductState())
+                .productThumbnailImage(tuple.get(p).getProductThumbnailUrl())
+                .categorySet(categorySet)
+                .tagSet(tagSet)
+                .packable(tuple.get(p).isProductPackable())
+                .build());
+    }
+
+
     @Override
-    public Set<ProductCategory> getCategorySet(Product realProduct) {
-        return Set.copyOf(
-                from(p)
-                        .select(productCategory)
-                        .distinct()
-                        .innerJoin(p.productCategoryRelations, productCategoryRelation)
-                        .innerJoin(productCategoryRelation.productCategory, productCategory)
-                        .where(p.eq(realProduct))
-                        .fetch());
+    public List<CartGetResponseDto> getClientCart(Long clientId){
+        List<CartGetResponseDto> resultList = new ArrayList<>();
+        List<Tuple> tupleList = from(cart)
+                .select(cart, p, tag, productCategory)
+                .innerJoin(cart.product, p)
+                .leftJoin(p.productTags, productTag)
+                .leftJoin(productTag.tag, tag)
+                .leftJoin(p.productCategoryRelations, productCategoryRelation)
+                .leftJoin(productCategoryRelation.productCategory, productCategory)
+                .where(cart.cartRemoveType.isNull())
+                .where(cart.clientId.eq(clientId))
+                .fetch();
+
+        // Key extractor
+        Map<Long, List<Tuple>> tupleMap = new LinkedHashMap<>();
+        for (Tuple tuple1 : tupleList) {
+            log.info("id : {}", tuple1.get(p).getProductId());
+            tupleMap.computeIfAbsent(tuple1.get(p).getProductId(), k -> new ArrayList<>()).add(tuple1);
+        }
+
+        for(Map.Entry<Long, List<Tuple>> entry : tupleMap.entrySet()){
+
+            List<Tuple> entryValueTuples = entry.getValue();
+            Long cartQuantity = entryValueTuples.stream()
+                    .map(tuples -> tuples.get(cart.quantity)) // cart.quantity는 Tuple에서 quantity를 가져오는 키입니다.
+                    .filter(Objects::nonNull) // null 체크
+                    .mapToLong(Long::longValue) // Long으로 변환
+                    .sum();
+            try {
+                addCartGetResponseDto(resultList, entryValueTuples, cartQuantity);
+            }catch (NoSuchElementException e){
+                throw new NotFoundIdException("product", entry.getKey());
+            }
+        }
+        return resultList;
     }
 
     @Override
-    public Set<Tag> getTagSet(Product realProduct){
-        return Set.copyOf(
-                from(p)
-                .select(tag)
-                .distinct()
-                .innerJoin(p.productTags, productTag)
-                .innerJoin(productTag.tag, tag)
-                .where(p.eq(realProduct))
-                .fetch());
+    public List<CartGetResponseDto> getGuestCart(List<CartRequestDto> requestDtoList){
+        List<CartGetResponseDto> resultList = new ArrayList<>();
+        for(CartRequestDto requestDto : requestDtoList){
+            Long productId = requestDto.productId();
+            Long cartQuantity = requestDto.quantity();
+
+            List<Tuple> tupleList = from(p)
+                    .select(p, tag, productCategory)
+                    .distinct()
+                    .leftJoin(p.productTags, productTag)
+                    .leftJoin(productTag.tag, tag)
+                    .leftJoin(p.productCategoryRelations, productCategoryRelation)
+                    .leftJoin(productCategoryRelation.productCategory, productCategory)
+                    .where(p.productId.eq(productId))
+                    .fetch();
+            try {
+                addCartGetResponseDto(resultList, tupleList, cartQuantity);
+            }catch (NoSuchElementException e){
+                throw new NotFoundIdException("product", productId);
+            }
+        }
+        return resultList;
     }
+
+
 
     @Transactional
     @Override

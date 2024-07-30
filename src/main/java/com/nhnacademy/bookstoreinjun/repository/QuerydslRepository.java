@@ -2,6 +2,8 @@ package com.nhnacademy.bookstoreinjun.repository;
 
 import com.nhnacademy.bookstoreinjun.dto.book.BookProductGetResponseDto;
 import com.nhnacademy.bookstoreinjun.dto.cart.CartCheckoutRequestDto;
+import com.nhnacademy.bookstoreinjun.dto.cart.CartGetResponseDto;
+import com.nhnacademy.bookstoreinjun.dto.cart.CartRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventoryDecreaseRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventoryIncreaseRequestDto;
 import com.nhnacademy.bookstoreinjun.dto.product.InventorySetRequestDto;
@@ -45,7 +47,7 @@ public interface QuerydslRepository {
      * @param realProduct 검색할 상품
      * @return 해당 상품에 달린 모든 태그명
      */
-    Set<Tag> getTagSet(Product realProduct);
+//    Set<Tag> getTagSet(Product realProduct);
 
 
     /**
@@ -53,7 +55,7 @@ public interface QuerydslRepository {
      * @param realProduct 검색할 상품
      * @return 해당 상품에 달린 모든 카테고리명
      */
-    Set<ProductCategory> getCategorySet(Product realProduct);
+//    Set<ProductCategory> getCategorySet(Product realProduct);
 
     Page<BookProductGetResponseDto> findLikeBooks(Long clientId, Pageable pageable, Integer productState);
 
@@ -70,4 +72,9 @@ public interface QuerydslRepository {
     boolean deleteAllCart(long clientId);
 
     long checkOutCart(CartCheckoutRequestDto dto);
+
+    List<CartGetResponseDto> getClientCart(Long clientId);
+
+    List<CartGetResponseDto> getGuestCart(List<CartRequestDto> cartRequestDtoList);
+
 }

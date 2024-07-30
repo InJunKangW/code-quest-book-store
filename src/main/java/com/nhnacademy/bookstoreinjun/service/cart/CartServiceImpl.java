@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -178,40 +177,13 @@ public class CartServiceImpl implements CartService {
     public List<CartGetResponseDto> getClientCart(Long clientIdOfHeader) {
         if (clientIdOfHeader == -1){
             throw new XUserIdNotFoundException();
+        }else{
+            return querydslRepository.getClientCart(clientIdOfHeader);
         }
-        List<Cart> cartList = cartRepository.findAllByClientIdAndCartRemoveTypeIsNull(clientIdOfHeader);
-        Map<Product, Long> productQuantityMap = cartList.stream()
-                .collect(Collectors.groupingBy(Cart::getProduct, Collectors.summingLong(Cart::getQuantity)));
-
-        return productQuantityMap.entrySet().stream()
-                .map(entry -> getCartResponseDto(entry.getKey(), entry.getValue()))
-                .toList();
     }
 
     @Override
     public List<CartGetResponseDto> getGuestCart(List<CartRequestDto> cartRequestDtoList) {
-        return cartRequestDtoList.stream()
-                .map(cartRequestDto -> {
-                    Product product = productRepository.findById(cartRequestDto.productId())
-                            .orElseThrow(() -> new NotFoundIdException(PRODUCT, cartRequestDto.productId()));
-                    return getCartResponseDto(product, cartRequestDto.quantity());
-                }).toList();
-    }
-
-
-    private CartGetResponseDto getCartResponseDto(Product product, Long productCartQuantity) {
-        return CartGetResponseDto.builder()
-                .productId(product.getProductId())
-                .productName(product.getProductName())
-                .productPriceStandard(product.getProductPriceStandard())
-                .productPriceSales(product.getProductPriceSales())
-                .productQuantityOfCart(productCartQuantity)
-                .productInventory(product.getProductInventory())
-                .productState(product.getProductState())
-                .productThumbnailImage(product.getProductThumbnailUrl())
-                .categorySet(querydslRepository.getCategorySet(product))
-                .tagSet(querydslRepository.getTagSet(product))
-                .packable(product.isProductPackable())
-                .build();
+        return querydslRepository.getGuestCart(cartRequestDtoList);
     }
 }
