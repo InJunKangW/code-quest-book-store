@@ -182,16 +182,20 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
                 .where(p.productId.eq(productId))
                 .fetch();
 
-        Tuple tuple = tupleList.getFirst();
+        try {
+            Tuple tuple = tupleList.getFirst();
 
-        Set<ProductCategory> categorySet = getCategorySet(tupleList);
+            Set<ProductCategory> categorySet = getCategorySet(tupleList);
 
-        Set<Tag> tagSet = getTagSet(tupleList);
+            Set<Tag> tagSet = getTagSet(tupleList);
 
-        boolean hasLike = tupleList.stream()
-                .anyMatch(tuples -> tuples.get(tuples.size() - 1, Boolean.class));
+            boolean hasLike = tupleList.stream()
+                    .anyMatch(tuples -> tuples.get(tuples.size() - 1, Boolean.class));
 
-        return makeBookDto(tuple, categorySet, tagSet, hasLike);
+            return makeBookDto(tuple, categorySet, tagSet, hasLike);
+        }catch (NoSuchElementException e){
+            throw new NotFoundIdException("book",productId);
+        }
     }
 
     private Page<BookProductGetResponseDto> makePage(JPQLQuery<Tuple> query, JPQLQuery<Long> countQuery , Pageable pageable){
@@ -393,7 +397,6 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
         // Key extractor
         Map<Long, List<Tuple>> tupleMap = new LinkedHashMap<>();
         for (Tuple tuple1 : tupleList) {
-            log.info("id : {}", tuple1.get(p).getProductId());
             tupleMap.computeIfAbsent(tuple1.get(p).getProductId(), k -> new ArrayList<>()).add(tuple1);
         }
 

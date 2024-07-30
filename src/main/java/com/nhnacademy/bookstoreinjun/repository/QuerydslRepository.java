@@ -40,23 +40,6 @@ public interface QuerydslRepository {
      */
     Page<BookProductGetResponseDto> findBooksByCategoryFilter(Long clientId, Long categoryId, Pageable pageable , Integer productState);
 
-
-    /**
-     * 특정 상품에 달린 모든 태그명을 반환합니다.
-     *
-     * @param realProduct 검색할 상품
-     * @return 해당 상품에 달린 모든 태그명
-     */
-//    Set<Tag> getTagSet(Product realProduct);
-
-
-    /**
-     * 특정 상품에 달린 모든 카테고리명을 반환합니다.
-     * @param realProduct 검색할 상품
-     * @return 해당 상품에 달린 모든 카테고리명
-     */
-//    Set<ProductCategory> getCategorySet(Product realProduct);
-
     Page<BookProductGetResponseDto> findLikeBooks(Long clientId, Pageable pageable, Integer productState);
 
     long setProductState(Long productId, Integer productState);
