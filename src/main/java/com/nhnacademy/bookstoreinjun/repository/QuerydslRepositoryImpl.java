@@ -76,7 +76,7 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
                         b.product, p.productId, p.productThumbnailUrl, p.productName, p.productPackable,
                         p.productDescription, p.productRegisterDate, p.productState, p.productViewCount,
                         p.productPriceStandard, p.productPriceSales, p.productInventory
-                        ,clientId == null || clientId == -1L ? Expressions.FALSE : productLike.productLikeId.isNotNull().and(productLike.clientId.eq(clientId))
+                        ,clientId == null || clientId < 0L ? Expressions.FALSE : productLike.productLikeId.isNotNull().and(productLike.clientId.eq(clientId))
                 )
                 .distinct()
                 .innerJoin(b.product, p)
