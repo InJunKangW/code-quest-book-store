@@ -57,8 +57,9 @@ import static com.querydsl.core.types.dsl.Wildcard.count;
 @Repository
 @Transactional(readOnly = true)
 public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements QuerydslRepository {
+    private static final String PRODUCT = "product";
 
-    private final QProduct p = new QProduct("product");
+    private final QProduct p = new QProduct(PRODUCT);
 
     private final QBook b = new QBook("book");
 
@@ -411,7 +412,7 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
             try {
                 addCartGetResponseDto(resultList, entryValueTuples, cartQuantity);
             }catch (NoSuchElementException e){
-                throw new NotFoundIdException("product", entry.getKey());
+                throw new NotFoundIdException(PRODUCT, entry.getKey());
             }
         }
         return resultList;
@@ -436,7 +437,7 @@ public class QuerydslRepositoryImpl extends QuerydslRepositorySupport implements
             try {
                 addCartGetResponseDto(resultList, tupleList, cartQuantity);
             }catch (NoSuchElementException e){
-                throw new NotFoundIdException("product", productId);
+                throw new NotFoundIdException(PRODUCT, productId);
             }
         }
         return resultList;
