@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -81,7 +82,7 @@ public class KeyManagerConfig {
     public Integer rabbitPort() {
         String rabbitmqPort = getKey(getSecret(rabbitmqPortKey));
         log.info("Rabbitmq Port Key: {}", rabbitmqPort);
-        return Integer.parseInt(rabbitmqPort);
+        return NumberUtils.toInt(rabbitmqPort, -1);
     }
 
     @Bean
