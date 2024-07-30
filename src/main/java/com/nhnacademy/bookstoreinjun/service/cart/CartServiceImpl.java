@@ -190,12 +190,12 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public List<CartGetResponseDto> getGuestCart(List<CartRequestDto> cartRequestDtoList) {
-        List<CartGetResponseDto> responseDtoList = new ArrayList<>();
-        for (CartRequestDto cartRequestDto : cartRequestDtoList) {
-            Product product = productRepository.findById(cartRequestDto.productId()).orElseThrow(() -> new NotFoundIdException(PRODUCT, cartRequestDto.productId()));
-            responseDtoList.add(getCartResponseDto(product, cartRequestDto.quantity()));
-       }
-    return responseDtoList;
+        return cartRequestDtoList.stream()
+                .map(cartRequestDto -> {
+                    Product product = productRepository.findById(cartRequestDto.productId())
+                            .orElseThrow(() -> new NotFoundIdException(PRODUCT, cartRequestDto.productId()));
+                    return getCartResponseDto(product, cartRequestDto.quantity());
+                }).toList();
     }
 
 
