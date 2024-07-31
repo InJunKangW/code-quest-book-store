@@ -83,6 +83,9 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public SaveCartResponseDto addClientCartItem(Long clientIdOfHeader, CartRequestDto cartRequestDto) {
+        if (clientIdOfHeader == -1){
+            throw new XUserIdNotFoundException();
+        }
         Product product = getProduct(clientIdOfHeader, cartRequestDto);
         long productInventory = product.getProductInventory();
 
@@ -109,11 +112,15 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public SaveCartResponseDto setClientCartItemQuantity(Long clientIdOfHeader, CartRequestDto cartRequestDto) {
+        if (clientIdOfHeader == -1){
+            throw new XUserIdNotFoundException();
+        }
         Product product = getProduct(clientIdOfHeader, cartRequestDto);
-        long productInventory = product.getProductInventory();
 
         Long productId = cartRequestDto.productId();
         List<Cart> cartList = cartRepository.findByClientIdAndProduct_ProductIdAndCartRemoveTypeIsNull(clientIdOfHeader, productId);
+
+        long productInventory = product.getProductInventory();
 
         Long quantity = Math.min(cartRequestDto.quantity() - getQuantity(cartList), productInventory - getQuantity(cartList));
         cartRepository.save(Cart.builder()
@@ -133,7 +140,7 @@ public class CartServiceImpl implements CartService {
         } else if (querydslRepository.deleteCartItem(clientIdOfHeader, productId)){
             log.info("delete cart item success");
         } else{
-            log.info("delete cart item succeed, but no columns were updated. There may be an issue, such as cart not already containing the product.");
+            throw new NotFoundIdException(PRODUCT, productId);
         }
     }
 
