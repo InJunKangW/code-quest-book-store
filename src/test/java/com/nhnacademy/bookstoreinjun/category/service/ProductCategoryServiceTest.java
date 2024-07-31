@@ -60,12 +60,15 @@ class ProductCategoryServiceTest {
 
     private final CategoryRegisterRequestDto requestDto = CategoryRegisterRequestDto.builder()
             .categoryName(TEST_CATEGORY_NAME)
+            .parentCategoryName(TEST_PARENT_CATEGORY_NAME)
             .build();
 
 
     @DisplayName("카테고리 신규 등록 성공 테스트")
     @Test
     void saveCategoryTestSuccess(){
+        when(productCategoryRepository.existsByCategoryName(TEST_PARENT_CATEGORY_NAME)).thenReturn(true);
+
         CategoryRegisterResponseDto resultDto =  categoryService.saveCategory(requestDto);
 
         assertNotNull(resultDto);
